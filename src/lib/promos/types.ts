@@ -225,7 +225,8 @@ export function validatePromoInput(
   if (required("image")) {
     const v = str("image", 500);
     if (v !== null) {
-      if (!/^(\/|https:\/\/)/.test(v)) {
+      // `//evil.com/x.png`(프로토콜 상대 주소)는 외부 호스트라 거부 — 사이트 내부 경로(`/…`)이거나 https 만 (보안 2차 QA ⚪8)
+      if (!/^(\/(?![/\\])|https:\/\/)/.test(v)) {
         errors.push({ field: "image", message: "포스터 주소는 / 로 시작하거나 https:// 여야 해요" });
       } else value.image = v;
     }

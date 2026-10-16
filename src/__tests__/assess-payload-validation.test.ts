@@ -133,18 +133,34 @@ describe("POST /api/assess", () => {
     expect((await assessPost(post("/api/assess", base, "application/json; charset=utf-8"))).status).toBe(503);
   });
 
-  it("형식이 틀린 필드는 400", async () => {
+  it("필수 필드 형식 오류만 400", async () => {
+    const fullBase = { ...base, source: "full", farm_type_id: "guinong", persona: null };
     const bad = [
       { ...base, answers: { phone: "010" } },
-      { ...base, referrer: 123 },
-      { ...base, age_group: "teen" },
-      { ...base, persona: "hacker" },
-      { ...base, farm_type_id: "evil" },
-      { ...base, top_regions: "seoul" },
-      { ...base, recommended_programs: ["<script>"] },
+      { ...base, id: "short" },
+      { ...base, persona: "hacker" }, // quick 의 persona 는 필수
+      { ...fullBase, farm_type_id: "evil" }, // full 의 farm_type_id 는 필수
+      { ...fullBase, top_regions: "seoul" }, // full 의 배열은 필수
     ];
     for (const body of bad) {
-      expect((await assessPost(post("/api/assess", body))).status).toBe(400);
+      expect((await assessPost(post("/api/assess", body))).status, JSON.stringify(body)).toBe(400);
+    }
+  });
+
+  it("선택 필드의 잘못된 값은 거부하지 않고 버린다 — 옛·외부 링크(?ageGroup=teen)로 온 결과도 저장된다 (2차 QA A4)", async () => {
+    const fullBase = { ...base, source: "full", farm_type_id: "guinong", persona: null };
+    const tolerated = [
+      { ...base, referrer: 123 },
+      { ...base, age_group: "teen" },
+      { ...base, farm_type_id: "evil" }, // quick 은 farm_type_id 선택
+      { ...base, top_regions: "seoul" }, // quick 은 배열 선택
+      { ...base, recommended_programs: ["<script>"] },
+      { ...fullBase, age_group: "teen", persona: "hacker", referrer: { a: 1 } },
+    ];
+    for (const body of tolerated) {
+      const res = await assessPost(post("/api/assess", body));
+      // 검증을 통과해 DB 단계(mock: 미설정 503)까지 간다 — 400 이 아니다
+      expect(res.status, JSON.stringify(body)).not.toBe(400);
     }
   });
 

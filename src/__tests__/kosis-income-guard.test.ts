@@ -12,9 +12,9 @@ const ok = { grossRevenue: 5_847_033, operatingCost: 2_897_737, income: 2_949_29
 describe("isPlausibleKosisIncome", () => {
   it("2026년에 2025년산 실제 응답(마늘)은 통과", () => {
     expect(isPlausibleKosisIncome(ok, STATIC, 2026)).toBe(true);
-    expect(isPlausibleKosisIncome({ ...ok, year: 2024 }, STATIC, 2026)).toBe(true);
   });
-  it("null·연도 밖은 정적 유지", () => {
+  it("null·연도 밖은 정적 유지 — 2년 전산(2024)도 쓰지 않는다 (10/16 2차 QA)", () => {
+    expect(isPlausibleKosisIncome({ ...ok, year: 2024 }, STATIC, 2026)).toBe(false);
     expect(isPlausibleKosisIncome(null, STATIC, 2026)).toBe(false);
     expect(isPlausibleKosisIncome({ ...ok, year: 2023 }, STATIC, 2026)).toBe(false);
     expect(isPlausibleKosisIncome({ ...ok, year: 2026 }, STATIC, 2026)).toBe(false);

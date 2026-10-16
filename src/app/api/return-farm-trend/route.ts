@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchReturnFarmTrend } from "@/lib/api/kosis";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { getClientIp } from "@/lib/client-ip";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -40,8 +41,7 @@ setInterval(() => {
 
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(request); // lib/client-ip 단일 출처 (보안 2차 QA A6)
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

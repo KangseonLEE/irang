@@ -149,40 +149,18 @@ export async function POST(req: NextRequest) {
   }
   const answers = answersCheck.value;
 
+  // ── 선택 필드는 거부하지 않고 버린다 (2026-10-16 보안 2차 QA A4) ──
+  // 1차 수정이 잘못된 age_group 등을 400 으로 거부해, /match?ageGroup=<임의값> 처럼 옛·외부 링크로 들어온
+  // 사용자의 결과 저장과 공유 링크가 깨졌다. 필수 형식 오류(id·answers, full 의 farm_type_id·배열, quick 의 persona)만
+  // 400 이고, 나머지는 알 수 있는 값만 남기고 모르는 값은 null(또는 빈 배열)로 저장한다.
+  //
   // 지역·작물은 알려진 id 만, 최대 5개 — 공유 화면이 이 값을 그대로 그린다 (콘텐츠 위조 방지)
-  const top_regions = filterRegionIds(body.top_regions);
-  const top_crops = filterCropIds(body.top_crops);
-  if (top_regions === null || top_crops === null) {
-    return NextResponse.json(
-      { error: "top_regions and top_crops must be arrays" },
-      { status: 400 }
-    );
-  }
+  const top_regions = filterRegionIds(body.top_regions) ?? [];
+  const top_crops = filterCropIds(body.top_crops) ?? [];
   const programsCheck = validatePrograms(body.recommended_programs);
-  if (!programsCheck.ok) {
-    return NextResponse.json({ error: programsCheck.error }, { status: 400 });
-  }
-  const recommendedPrograms = programsCheck.value;
+  const recommendedPrograms = programsCheck.ok ? programsCheck.value : [];
   const referrerCheck = normalizeReferrer(body.referrer);
-  if (!referrerCheck.ok) {
-    return NextResponse.json({ error: referrerCheck.error }, { status: 400 });
-  }
-  const referrer = referrerCheck.value;
-  if (body.age_group != null && !isValidAgeGroup(body.age_group)) {
-    return NextResponse.json({ error: "Invalid age_group" }, { status: 400 });
-  }
-  if (body.source != null && !isValidSource(body.source)) {
-    return NextResponse.json({ error: "Invalid source" }, { status: 400 });
-  }
-  if (body.persona != null && !isValidPersona(body.persona)) {
-    return NextResponse.json({ error: "Invalid persona" }, { status: 400 });
-  }
-  if (
-    farm_type_id != null &&
-    !VALID_FARM_TYPE_IDS.includes(farm_type_id as FarmTypeId)
-  ) {
-    return NextResponse.json({ error: "Invalid farm_type_id" }, { status: 400 });
-  }
+  const referrer = referrerCheck.ok ? referrerCheck.value : null;
 
   // source 분기 (2026-05-18) — 'full'=14문항 정식, 'quick'=4문항 가벼운 적재
   const source: AssessSource = isValidSource(body.source) ? body.source : "full";
@@ -247,7 +225,11 @@ export async function POST(req: NextRequest) {
   const fullPayload = {
     id,
     answers,
-    farm_type_id: source === "full" ? farm_type_id : (farm_type_id ?? "guinong"),
+    // quick 은 farm_type_id 선택 — 모르는 값은 저장하지 않고 placeholder(NOT NULL 컬럼)
+    farm_type_id:
+      source === "full" || VALID_FARM_TYPE_IDS.includes(farm_type_id as FarmTypeId)
+        ? farm_type_id
+        : "guinong",
     top_regions,
     top_crops,
     recommended_programs: recommendedPrograms,

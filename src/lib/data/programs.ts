@@ -268,7 +268,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "만 65세 이하. 도시지역 1년 이상 거주 후 함평군 전입 6개월 이내 또는 이주 희망 예비귀농인.",
-    applicationStart: "2026-01-10",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 아시아에이 237422(2026.01.19) '다음달 10일까지 모집한다고 19일 밝혔다'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-10 삭제)
+    applicationStart: "2026-01-19",
     applicationEnd: "2026-02-10",
     relatedCrops: [],
     sourceUrl: "https://www.asiaa.co.kr/news/articleView.html?idxno=237422",
@@ -290,7 +291,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 금산 체류형 귀농교육센터 — 대전투데이 기사에 연령 조건 없음
     eligibilityDetail:
       "귀농을 희망하는 도시민. 1년간(2026.3~2027.2) 체류하며 교육 참여. 보증금·월 사용료·관리비 납부.",
-    applicationStart: "2026-01-15",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 대전투데이 722515(2026.01.20) '모집 기간은 2월 10일까지'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-15 삭제)
+    applicationStart: "2026-01-20",
     applicationEnd: "2026-02-10",
     relatedCrops: [],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
@@ -312,7 +314,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "무안군으로 귀농을 희망하는 만 65세 이하 도시민. 약 10개월간 체류하며 영농 이론·실습 교육.",
-    applicationStart: "2026-01-10",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 스마트비즈 132387(2026.01.13) '2026년 2월 6일까지 접수'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-10 삭제)
+    applicationStart: "2026-01-13",
     applicationEnd: "2026-02-06",
     relatedCrops: [],
     sourceUrl: "https://www.smartbizn.com/news/articleView.html?idxno=132387",
@@ -356,6 +359,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 영월 살아보기 — 기사에 연령 조건 없음
     eligibilityDetail:
       "농촌 정착 희망자. 3개월간 영월군에 체류하며 주요 작물 재배기술 습득. 5명 선발.",
+    // 2026-10-16 2차 QA: 원문(그린뉴스 552867, 2026.04.03)은 '지난 3월 참가자 모집'만 적었다 — 3/1~3/31 은 그 달의 범위일 뿐 공고 일자가 아니다.
+    //   모집 공고를 찾지 못했다(군청·검색). 지난 사업이라 '마감' 표시는 같다. 공고를 찾으면 일자를 교체할 것
     applicationStart: "2026-03-01",
     applicationEnd: "2026-03-31",
     relatedCrops: [],
@@ -601,24 +606,31 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   },
   {
     id: "SP-021",
+    verifiedAt: "2026-10-16",
+    // 2026-10-16 정정(2차 QA 🔴-1): 모집은 **2025년** 9/1~9/26 — 예산군 농업기술센터 공고 제2025-41호(2025.8.29 게시,
+    // 공고 첨부 hwp '접수기간 2025. 9. 1.(월) ~ 9. 26.(금)'), 사용허가 2026.8~2029.7. 5/14 큐레이션이 '2026년 하반기 준공'을
+    // 모집 연도로 읽어 2026-09-01~26 으로 적었다. 연령은 첨부 '운영 지침' 2.가.1) '선발 공고연도 기준 만18세 이상 ~ 만44세 이하'
+    // (1981~2007년생) — 종전 '만 18세 이상 40세 미만'은 원문에 없었다. 대부기간은 '기본 1년, 최대 3년(1년 단위, 최대 2회 연장)' —
+    // '기본 3년·최대 3년 더 연장(최대 6년)'도 원문에 없었다. 2026년 재모집 공고는 군청 통합검색(10/16)에서 찾지 못했다.
+    // 출처를 기사(충청도민일보 245110) → 군청 고시·공고 원문으로 교체.
     title: "예산군 임대형 스마트팜 청년농업인 입주자 모집",
     summary:
-      "충남 예산군이 2026년 하반기 준공 예정 임대형 스마트팜 2개소(역리 6팀·신양 4팀, 총 10팀)에 청년농 입주자를 9월 한 달간 모집해요.",
+      "충남 예산군이 2026년 하반기 준공 예정 임대형 스마트팜 2개소(역리 6팀·신양 4팀, 총 10팀) 입주 청년농업인을 2025년 9월 1일부터 26일까지 모집했어요.",
     description:
-      "예산군농업기술센터가 2023년 충청남도 공모사업으로 선정·조성한 임대형 스마트팜 2개소(삽교읍 역리지구 6팀, 신양지구 4팀, 총 10팀) 입주 청년농을 모집해요. 팀별 2~3인으로 구성하며 만 18세 이상 40세 미만 청년농업인이 대상이에요. 신청은 2026년 9월 1일부터 9월 26일까지 4주간 진행되고, 신청서와 증빙자료를 농업기술센터 스마트농업과에 방문 제출하면 돼요. 임대 기간은 기본 3년이며 성과에 따라 최대 3년 더 연장 가능해요. 충남 권역 청년농 진입 장벽을 크게 낮춰 주는 사업이에요.",
+      "예산군농업기술센터가 충청남도 공모사업으로 조성 중인 임대형 스마트팜 2개소(삽교읍 역리지구 6팀, 신양면 신양지구 4팀, 총 10팀)에 입주할 청년농업인을 모집했어요. 역리지구는 2~3인, 신양지구는 3인이 한 팀이에요. 공고 연도 기준 만 18세 이상 만 44세 이하이고 본인 명의 스마트팜 시설이 없으며 병역을 마친(또는 면제된) 사람이 신청할 수 있어요(타 시·도 거주자는 선정 후 계약 전까지 예산군 전입). 접수는 2025년 9월 1일부터 26일까지 이메일 또는 농업기술센터 스마트농업과 방문으로 받았어요. 사용 기간은 1년 단위 계약으로 최대 3년(2026년 8월~2029년 7월 예정, 온실 조성에 따라 늦어질 수 있음)이에요.",
     region: "충청남도",
     organization: "예산군농업기술센터 스마트농업과",
     supportType: "현물",
-    supportAmount: "임대형 스마트팜 시설 임대 (2개소 총 10팀, 기본 3년 최대 6년)",
+    supportAmount: "임대형 스마트팜 시설 임대 (2개소 총 10팀, 1년 단위 계약·최대 3년)",
     eligibilityAgeMin: 18,
-    eligibilityAgeMax: 39,
+    eligibilityAgeMax: 44,
     eligibilityDetail:
-      "만 18세 이상 40세 미만 청년농업인. 팀별 2~3인 구성. 신청서·증빙자료 농업기술센터 스마트농업과 방문 제출.",
-    applicationStart: "2026-09-01",
-    applicationEnd: "2026-09-26",
+      "공고 연도 기준 만 18세 이상 만 44세 이하 청년농업인(1981~2007년생). 본인 명의 스마트팜 시설 영농기반이 없고 병역필 또는 면제. 예산군 실거주(타 시·도 거주자는 선정 후 계약 전 전입). 역리지구 2~3인·신양지구 3인 1팀. 이메일 또는 농업기술센터 스마트농업과 방문 접수.",
+    applicationStart: "2025-09-01",
+    applicationEnd: "2025-09-26",
     relatedCrops: [],
-    sourceUrl: "https://www.dominilbo.com/news/articleView.html?idxno=245110",
-    year: 2026,
+    sourceUrl: "https://www.yesan.go.kr/prog/saeolGosi/GOSI/kor/sub04_02_01/view.do?notAncmtMgtNo=43827",
+    year: 2025,
     category: "youth",
   },
   {
@@ -686,7 +698,8 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "귀농 희망 도시민. 7월 입주 2개소·8월 입주 1개소. 신청 마감 2026-05-22. 고성군농업기술센터 신청.",
-    applicationStart: "2026-05-01",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — GNN뉴스 168675(2026.05.12) '22일까지 모집'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-05-01 삭제)
+    applicationStart: "2026-05-12",
     applicationEnd: "2026-05-22",
     relatedCrops: [],
     sourceUrl: "https://www.gnnnews.kr/168675",

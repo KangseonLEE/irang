@@ -18,6 +18,7 @@ import { GU_HIRA_CODES_MAP, fetchGuResidualItems, hiraListUnits, type HiraListIt
 import { GUS } from "@/lib/data/gus";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { getClientIp } from "@/lib/client-ip";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -175,8 +176,7 @@ const VALID_PAGE_PATTERN = /^\d{1,3}$/;
 
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(request); // lib/client-ip 단일 출처 (보안 2차 QA A6)
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

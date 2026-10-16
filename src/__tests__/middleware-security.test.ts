@@ -37,7 +37,7 @@ describe("오리진 잠금", () => {
     process.env.ORIGIN_LOCK_MODE = "log";
     process.env.ORIGIN_LOCK_SECRET = SECRET;
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const res = await middleware(req("/about", { "x-irang-edge": "guess" }));
+    const res = await middleware(req("/about", { "x-irang-edge-secret": "guess" }));
     expect(res.status).toBe(200);
     expect(warn).toHaveBeenCalledTimes(1);
     const line = String(warn.mock.calls[0][0]);
@@ -56,7 +56,7 @@ describe("오리진 잠금", () => {
     expect(blocked.headers.get("cache-control")).toContain("no-store");
     expect(blocked.headers.get("cache-control")).toContain("private");
 
-    const ok = await middleware(req("/about", { "x-irang-edge": SECRET, "cf-ipcountry": "KR" }));
+    const ok = await middleware(req("/about", { "x-irang-edge-secret": SECRET, "cf-ipcountry": "KR" }));
     expect(ok.status).toBe(200);
   });
 
@@ -72,7 +72,7 @@ describe("오리진 잠금", () => {
   it("enforce: Cloudflare 를 거친 요청인데 cf-ipcountry 가 없으면 KR 외로 보고 503", async () => {
     process.env.ORIGIN_LOCK_MODE = "enforce";
     process.env.ORIGIN_LOCK_SECRET = SECRET;
-    const res = await middleware(req("/about", { "x-irang-edge": SECRET }));
+    const res = await middleware(req("/about", { "x-irang-edge-secret": SECRET }));
     expect(res.status).toBe(503);
   });
 

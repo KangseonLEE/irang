@@ -15,6 +15,7 @@ import { GUS } from "@/lib/data/gus";
 import { getSgisComposite } from "@/lib/data/region-composites";
 import { fetchCompositePopulationTrend } from "@/lib/api/sgis";
 import { SGIS_POPULATION_YEAR } from "@/lib/data/population-year";
+import { getClientIp } from "@/lib/client-ip";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -174,8 +175,7 @@ function trendCacheControl(got: number, want: number): string {
 
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(request); // lib/client-ip 단일 출처 (보안 2차 QA A6)
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

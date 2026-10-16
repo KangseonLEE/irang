@@ -9,10 +9,14 @@
  *   1. 하한 > 0 이면 제목·요약·설명·자격 문장 어딘가에 그 나이가 "N세"·"N~" 꼴로 있어야 한다.
  *   2. 상한 < 99 이면 같은 문장들에 그 나이가 있어야 한다(“만 N세 이하”·“~N세”·“N세 미만” 등).
  *   3. 본문이 연령 제한이 없다고(또는 공고에 연령 조건이 없다고) 적으면 하한 0·상한 99 여야 한다.
+ *   4. (10/16 2차 QA) 하한 0·상한 99 중 '연령 제한 없음'으로 보이는 건 원문이 제한 없음을 **밝힌** 사업뿐 —
+ *      본문에 "연령 제한(은) 없…"이 있는 사업 = display.ts AGE_NO_LIMIT_STATED. '명시 없음'·무언급은 '공고에서 확인'.
  * 근거가 다른 곳(시행지침 등)에 있어 본문에 못 옮긴 경우만 ALLOW 에 사유와 함께 둔다.
  */
 import { describe, expect, it } from "vitest";
 import { PROGRAMS } from "@/lib/data/programs";
+import { AGE_NO_LIMIT_STATED, AGE_UNSTATED_LABEL, displayAgeRange, isAgeUnstated } from "@/lib/programs/display";
+import { formatAgeRange } from "@/lib/format";
 
 /** 본문에 나이가 없지만 원문에서 확인한 값 — id → 근거 (10/16 원문 curl 대조) */
 const ALLOW_MIN: Record<string, string> = {
@@ -80,5 +84,33 @@ describe("지원사업 대상 연령은 본문 근거가 있을 때만 (10/16)",
 
   it("허용 목록은 실제 사업만 가리킨다", () => {
     for (const id of [...Object.keys(ALLOW_MIN), ...Object.keys(ALLOW_MAX)]) expect(PROGRAMS.some((p) => p.id === id), id).toBe(true);
+  });
+});
+
+describe("'연령 제한 없음'은 원문이 밝힌 사업만 (10/16 2차 QA 🟡-①)", () => {
+  const STATED = /연령\s*제한(은|이)?\s*없/;
+  const curated = PROGRAMS.filter((p) => p.id.startsWith("SP-"));
+
+  it("본문이 제한 없음을 밝힌 사업 = AGE_NO_LIMIT_STATED (양방향)", () => {
+    const stated = curated.filter((p) => STATED.test(evidenceText(p))).map((p) => p.id).sort();
+    expect(stated).toEqual([...AGE_NO_LIMIT_STATED].sort());
+    for (const id of AGE_NO_LIMIT_STATED) {
+      const p = curated.find((x) => x.id === id)!;
+      expect([p.eligibilityAgeMin, p.eligibilityAgeMax], id).toEqual([0, 99]);
+    }
+  });
+
+  it("명시된 사업만 '연령 제한 없음', 언급 없는 사업은 표시 안 함(상세는 '공고에서 확인')", () => {
+    for (const p of curated) {
+      const label = displayAgeRange(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax);
+      if (AGE_NO_LIMIT_STATED.has(p.id)) expect(label, p.id).toBe("연령 제한 없음");
+      else if (isAgeUnstated(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax)) expect(label, p.id).toBeNull();
+      else expect(label, p.id).toBe(formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax));
+      if (label === "연령 제한 없음") expect(AGE_NO_LIMIT_STATED.has(p.id), p.id).toBe(true);
+    }
+    // SP-078 '연령 요건은 보도자료에 나와 있지 않아요' · SP-044 '연령 제한 명시 없음'
+    expect(isAgeUnstated("SP-078", 0, 99)).toBe(true);
+    expect(isAgeUnstated("SP-044", 0, 99)).toBe(true);
+    expect(AGE_UNSTATED_LABEL).toBe("공고에서 확인");
   });
 });

@@ -11,8 +11,11 @@ import {
   countryForGeoBlock,
   decideOriginLock,
   isOriginLockEnforced,
+  isLockedHost,
   isProductionHost,
+  normalizeHost,
   originLockMode,
+  ORIGIN_LOCK_HEADER,
 } from "@/lib/origin-lock";
 import { getClientIp } from "@/lib/client-ip";
 
@@ -79,6 +82,49 @@ describe("decideOriginLock", () => {
         reason: "non-production-host",
       });
     }
+  });
+});
+
+describe("Host 정규화·잠금 범위 (2차 QA A1 — 끝 점 우회)", () => {
+  const PROD_ENFORCE = { ...ENFORCE, vercelEnv: "production" };
+
+  it("끝 점·대문자·포트·공백을 걷어낸다", () => {
+    expect(normalizeHost("irangfarm.com.")).toBe("irangfarm.com");
+    expect(normalizeHost("IRANGFARM.COM.")).toBe("irangfarm.com");
+    expect(normalizeHost("irangfarm.com.:443")).toBe("irangfarm.com");
+    expect(normalizeHost(" www.IrangFarm.com..:8443 ")).toBe("www.irangfarm.com");
+    expect(normalizeHost("")).toBe("");
+    expect(normalizeHost(null)).toBe("");
+  });
+
+  it("Vercel 운영 밖에서도 끝 점·대문자·포트 변형은 운영 호스트로 잠긴다", () => {
+    for (const host of ["irangfarm.com.", "IRANGFARM.COM.", "irangfarm.com.:443", "www.irangfarm.com."]) {
+      expect(isProductionHost(host)).toBe(true);
+      expect(decideOriginLock(prod(null, "/about", host), ENFORCE).action).toBe("block");
+    }
+  });
+
+  it("VERCEL_ENV=production 은 기본 거부 — 모르는 Host·빈 Host·Host 없음도 잠근다", () => {
+    for (const host of ["evil.example", "irangfarm.com.", "IRANGFARM.COM.:443", "", null, "irangfarm.com..", "vercel.app", ".vercel.app"]) {
+      expect(isLockedHost(host, PROD_ENFORCE)).toBe(true);
+      expect(decideOriginLock(prod(null, "/about", host as string), PROD_ENFORCE).action).toBe("block");
+      expect(countryForGeoBlock(host, null, PROD_ENFORCE)).toBe("XX");
+    }
+  });
+
+  it("VERCEL_ENV=production 예외는 *.vercel.app 과 localhost 뿐", () => {
+    for (const host of ["irang-abc.vercel.app", "IRANG-abc.vercel.app.", "localhost:3000", "127.0.0.1:3000"]) {
+      expect(isLockedHost(host, PROD_ENFORCE)).toBe(false);
+      expect(decideOriginLock(prod(null, "/about", host), PROD_ENFORCE).action).toBe("pass");
+    }
+    // vercel.app 을 흉내 낸 다른 도메인은 잠긴다
+    expect(isLockedHost("irang.vercel.app.evil.com", PROD_ENFORCE)).toBe(true);
+    expect(isLockedHost("evilvercel.app", PROD_ENFORCE)).toBe(true);
+  });
+
+  it("비밀 헤더 이름에 secret 이 들어간다 — Sentry 요청 헤더 수집에서 자동으로 가려진다 (A3)", () => {
+    expect(ORIGIN_LOCK_HEADER).toBe("x-irang-edge-secret");
+    expect(ORIGIN_LOCK_HEADER).toMatch(/secret/);
   });
 });
 

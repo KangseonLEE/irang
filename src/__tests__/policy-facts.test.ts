@@ -18,6 +18,7 @@ import {
   FOREST_VILLAGE_LOAN,
   POLICY_TEXT,
   RETURN_FARM_LOAN,
+  SMARTFARM_FUND,
   YOUTH_SETTLEMENT,
   formatManwon,
 } from "@/lib/data/policy-facts";
@@ -103,9 +104,6 @@ const ALLOWED: { file: string; contains: string; reason: string }[] = [
   { file: "src/lib/data/programs.ts", contains: 'supportAmount: "세대당 최대 5억원, 연 1.5% (5년 거치 20년 분할 상환)"', reason: "후계농업경영인 육성자금 — 다른 사업" },
   { file: "src/lib/data/programs.ts", contains: "㎡당 2만 원이고 연리 2%에", reason: "SP-050 농지은행 과원 매매 금리 — 다른 사업의 사실" },
   { file: "src/lib/data/programs.ts", contains: 'supportAmount: "㎡당 2만 원 한도(과수목 포함) · 연리 2%', reason: "SP-050 과원 매매 — 다른 사업" },
-  { file: "src/lib/data/gov-roadmap.ts", contains: "시설 연 1.0%·운전 연 1.5% 고정", reason: "스마트팜 종합자금 운전자금 금리 — 다른 사업" },
-  { file: "src/lib/data/gov-roadmap.ts", contains: "운전자금 연 1.5% 고정, NH농협은행 취급", reason: "스마트팜 종합자금 — 다른 사업" },
-  { file: "src/lib/data/gov-roadmap.ts", contains: "시설·개보수자금 연 1.0%·운전자금 연 1.5% 고정", reason: "스마트팜 종합자금 — 다른 사업" },
   { file: "src/lib/data/glossary.ts", contains: "후계농업경영인은 「후계농어업인 및 청년농어업인 육성", reason: "후계농업경영인 용어 정의(1.5%) — 다른 사업" },
   { file: "src/lib/data/landing.ts", contains: "2026년 농림축산식품사업 시행지침서. 귀농 농업창업 자금은 최대 3억원 한도", reason: "외부 뉴스 기사 요약(폴백 카드) — 기사 문장 인용, 값은 policy-facts 와 같음" },
   { file: "src/lib/data/landing.ts", contains: "'정착 교육 100시간+' — 은 지웠다", reason: "주석 안 문장(블록 주석 끝 줄)" },
@@ -182,7 +180,7 @@ describe("policy-facts 값과 파생 문장", () => {
   });
 
   it("모든 사실에 출처와 YYYY-MM-DD 대조일", () => {
-    for (const group of [RETURN_FARM_LOAN, YOUTH_SETTLEMENT, EXCELLENT_SUCCESSOR, FOREST_VILLAGE_LOAN]) {
+    for (const group of [RETURN_FARM_LOAN, YOUTH_SETTLEMENT, EXCELLENT_SUCCESSOR, FOREST_VILLAGE_LOAN, SMARTFARM_FUND]) {
       for (const f of Object.values(group)) {
         expect(f.source.length).toBeGreaterThan(0);
         expect(f.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -205,5 +203,44 @@ describe("policy-facts 값과 파생 문장", () => {
       const todayKst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
       expect(p.verifiedAt <= todayKst, p.id).toBe(true);
     }
+  });
+});
+
+describe("스마트팜 종합자금 — 한도·금리·상환은 SMARTFARM_FUND 한 곳 (10/16 2차 QA ⚪-8)", () => {
+  // 종전: stats.ts '5년 거치 20년 상환' / stats.ts '연리 1%, 5년 거치' / gov-roadmap.ts '거치 기간(2~3년) 후 분할 상환'(개보수 조건)
+  it("원문 대조값 (스마트팜코리아 M1102010103, 2026.06.29)", () => {
+    expect(SMARTFARM_FUND.youthMaxManwon.value).toBe(300000);
+    expect(SMARTFARM_FUND.generalMaxManwon.value).toBe(500000);
+    expect(SMARTFARM_FUND.facilityRate.value).toBe("연 1.0%");
+    expect(SMARTFARM_FUND.workingRate.value).toBe("연 1.5%");
+    expect(SMARTFARM_FUND.facilityRepayment.value).toContain("5년 거치 20년");
+    expect(SMARTFARM_FUND.renovationRepayment.value).toContain("2~3년 거치 3~7년");
+    expect(POLICY_TEXT.smartfarmYouthMax).toBe("30억 원");
+  });
+
+  const SMARTFARM_LINE = /종합자금/;
+  // 종합자금을 말하는 줄에 한도·금리·거치 숫자를 직접 쓰면 실패 (원문 키워드 검사 mustContain 줄은 제외)
+  const LITERAL = /\d+\s?억|연\s?리?\s?1(\.0|\.5)?\s?%|\d+\s?년\s?거치/;
+  const scan = (files: { file: string; text: string }[]) =>
+    files.flatMap(({ file, text }) =>
+      text
+        .split("\n")
+        .map((line, i) => ({ line, i }))
+        .filter(({ line }) => SMARTFARM_LINE.test(line) && LITERAL.test(line) && !line.includes("mustContain") && !isComment(line))
+        .map(({ line, i }) => `${file}:${i + 1} ${line.trim().slice(0, 100)}`),
+    );
+
+  it("stats·gov-roadmap 의 종합자금 문장에 숫자 하드코딩 0건", () => {
+    const files = ["src/lib/data/stats.ts", "src/lib/data/gov-roadmap.ts"].map((file) => ({
+      file,
+      text: readFileSync(join(ROOT, file), "utf8"),
+    }));
+    expect(scan(files)).toEqual([]);
+  });
+
+  it("자기 검증 — 옛 문장을 넣으면 잡힌다", () => {
+    expect(
+      scan([{ file: "x.ts", text: '      "청년창업 스마트팜 종합자금 30억 한도(연리 1%, 5년 거치), 교육비 무료",' }]),
+    ).toHaveLength(1);
   });
 });

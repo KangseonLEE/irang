@@ -9,6 +9,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   KosisFetchError,
+  fetchCropIncome,
+  fetchRiceIncome,
   fetchReturnFarmStats,
   fetchReturnFarmStatsOfYear,
   fetchReturnFarmStatsStrict,
@@ -149,5 +151,71 @@ describe("추이 — 세 표 중 하나라도 실패하면 그리지 않는다",
     mockKosis(() => "ok");
     const t = await fetchReturnFarmTrend("47730", 10, "의성군");
     expect(t[0]).toMatchObject({ returnFarmPerson: 138, returnFarmHousehold: 132, returnRuralPerson: 1162 });
+  });
+});
+
+describe("err 21(표에 없는 지역 코드) — '그 지역 행 없음' (10/16 2차 QA)", () => {
+  it("지역 하나 조회의 err 21 → 빈 배열, 재시도·다른 해·경고 없음", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const calls = mockKosis(() => "err21");
+    expect(await fetchReturnFarmStatsStrict("11010", "종로구", { retries: 2 })).toEqual([]);
+    expect(await fetchReturnFarmStats("11010", "종로구")).toEqual([]);
+    // 표 3개 × 1회 × 2번 호출 — 재시도(×3)·다른 해(×3) 없음
+    expect(calls).toHaveLength(6);
+    expect(calls.every((c) => c.endsWith(`:${YEAR - 1}`))).toBe(true);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("전체(ALL) 조회의 err 21 은 진짜 요청 오류 — 실패", async () => {
+    mockKosis(() => "err21");
+    await expect(fetchReturnFarmStatsStrict()).rejects.toBeInstanceOf(KosisFetchError);
+  });
+
+  it("추이 — err 21 은 빈 추이(실패 경고 아님)", async () => {
+    mockKosis(() => "err21");
+    expect(await fetchReturnFarmTrend("11010", 10, "종로구")).toEqual([]);
+  });
+});
+
+describe("작물 소득 — 실패는 전년산으로 내려가지 않는다 (10/16 2차 QA 🟡-④)", () => {
+  const incomeRows = (year: number) =>
+    [
+      ["총수입", "1500000"],
+      ["경영비", "760000"],
+      ["소득", "740000"],
+    ].map(([c2, dt]) => ({ C1: "00", C1_NM: "전국평균", C2_NM: c2, ITM_NM: "10a당", UNIT_NM: "원", DT: dt, PRD_DE: String(year) }));
+  function mockIncome(plan: (year: number) => Behavior) {
+    const years: number[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL) => {
+        const year = Number(new URL(String(input)).searchParams.get("startPrdDe"));
+        years.push(year);
+        const b = plan(year);
+        if (b === "timeout") throw new DOMException("timeout", "TimeoutError");
+        if (b === "http500") return new Response("boom", { status: 500 });
+        if (b === "nodata") return Response.json(NO_DATA);
+        if (b === "err21") return Response.json({ err: "21" });
+        return Response.json(incomeRows(year));
+      }),
+    );
+    return years;
+  }
+
+  it("쌀 — 올해−1 시간 초과 → null(정적 유지), 올해−2 를 묻지 않는다", async () => {
+    const years = mockIncome((y) => (y === YEAR - 1 ? "timeout" : "ok"));
+    expect(await fetchRiceIncome()).toBeNull();
+    expect(years).toEqual([YEAR - 1]);
+  });
+
+  it("쌀 — 올해−1 공표 전(err 30)이면 올해−2 값", async () => {
+    mockIncome((y) => (y === YEAR - 1 ? "nodata" : "ok"));
+    expect((await fetchRiceIncome())?.year).toBe(YEAR - 2);
+  });
+
+  it("작물(마늘) — HTTP 오류 → null, 전년산으로 내려가지 않는다", async () => {
+    const years = mockIncome((y) => (y === YEAR - 1 ? "http500" : "ok"));
+    expect(await fetchCropIncome("DT_1EC0044")).toBeNull();
+    expect(years).toEqual([YEAR - 1]);
   });
 });

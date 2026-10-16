@@ -97,6 +97,29 @@ export function formatManwon(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만 원`;
 }
 
+/**
+ * 스마트팜 종합자금 (융자, NH농협은행 취급) — 10/16 2차 QA ⚪-8.
+ * 상환 조건이 stats.ts 두 곳('5년 거치 20년' / '5년 거치')과 gov-roadmap.ts('거치 기간(2~3년) 후 분할 상환' — 개보수자금 조건)에서
+ * 서로 달랐다. 원문: 시설자금 25년 이내(5년 거치 20년 원금균등분할상환), 개보수자금 5~10년 이내(2~3년 거치 3~7년),
+ * 운전자금 2년 이내 일시상환 / 한도 청년 30억·일반 50억(청년 포함) / 금리 시설·개보수 고정 연 1.0%, 운전 고정 연 1.5% 또는 변동.
+ */
+export const SMARTFARM_FUND = {
+  /** 청년농업인 스마트팜 한도 (만 원) */
+  youthMaxManwon: fact(300000, "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 일반 스마트팜 한도 (만 원, 청년 포함) */
+  generalMaxManwon: fact(500000, "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 시설·개보수자금 금리 */
+  facilityRate: fact("연 1.0%", "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 운전자금 금리 (고정 — 변동금리도 선택 가능) */
+  workingRate: fact("연 1.5%", "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 시설자금 상환 */
+  facilityRepayment: fact("5년 거치 20년 원금균등분할상환(25년 이내)", "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 개보수자금 상환 */
+  renovationRepayment: fact("2~3년 거치 3~7년 원금균등분할상환(5~10년 이내)", "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+  /** 운전자금 상환 */
+  workingRepayment: fact("2년 이내 일시상환", "스마트팜코리아 스마트팜 종합자금 안내(menuId=M1102010103, 업데이트 기준일 2026.06.29)", "2026-10-16"),
+} as const;
+
 /** 자주 쓰는 문장 조각 */
 export const POLICY_TEXT = {
   /** "농업창업 최대 3억 원·주택구입 최대 7,500만 원 융자(연 2.0%, 5년 거치 10년 상환)" */
@@ -118,4 +141,12 @@ export const POLICY_TEXT = {
   excellentSuccessorLoan: `최대 ${formatManwon(EXCELLENT_SUCCESSOR.maxManwon.value)} (${EXCELLENT_SUCCESSOR.interestRate.value}, ${EXCELLENT_SUCCESSOR.repayment.value})`,
   /** "영농 교육 8시간 이상(100시간 미만은 심사 최저 등급)" */
   educationRequirement: `영농 교육 ${RETURN_FARM_LOAN.minEducationHours.value}시간 이상(${RETURN_FARM_LOAN.lowestGradeBelowHours.value}시간 미만은 심사 최저 등급)`,
+  /** "30억 원" — 스마트팜 종합자금 청년 한도 */
+  smartfarmYouthMax: formatManwon(SMARTFARM_FUND.youthMaxManwon.value),
+  /** "50억 원" — 스마트팜 종합자금 일반 한도 */
+  smartfarmGeneralMax: formatManwon(SMARTFARM_FUND.generalMaxManwon.value),
+  /** "시설·개보수자금 연 1.0%·운전자금 연 1.5% 고정" */
+  smartfarmRates: `시설·개보수자금 ${SMARTFARM_FUND.facilityRate.value}·운전자금 ${SMARTFARM_FUND.workingRate.value} 고정`,
+  /** "시설자금 5년 거치 20년 원금균등분할상환(25년 이내)·개보수자금 …·운전자금 2년 이내 일시상환" */
+  smartfarmRepayment: `시설자금 ${SMARTFARM_FUND.facilityRepayment.value}·개보수자금 ${SMARTFARM_FUND.renovationRepayment.value}·운전자금 ${SMARTFARM_FUND.workingRepayment.value}`,
 } as const;

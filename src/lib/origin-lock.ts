@@ -11,8 +11,14 @@
  * 1. 시크릿 생성: `openssl rand -hex 32` (64자). 값은 대화·로그에 남기지 않는다.
  * 2. Cloudflare → irangfarm.com → Rules → Transform Rules → **Modify Request Header** 룰 추가
  *    - 조건: All incoming requests (호스트 irangfarm.com·www 모두)
- *    - 동작: Set static — 헤더 `x-irang-edge`, 값 = 1의 시크릿
- *    - Worker(irang-bot-detection)보다 먼저 적용되는지 무관 — Transform Rule 은 오리진 요청 헤더에 붙는다.
+ *    - 동작: Set static — 헤더 `x-irang-edge-secret`, 값 = 1의 시크릿
+ *      (이름에 `secret` 이 들어가야 Sentry 서버 이벤트의 요청 헤더 수집에서 자동으로 가려진다 —
+ *       @sentry/core SENSITIVE_KEY_SNIPPETS. 2차 QA A3: 예전 이름 `x-irang-edge` 는 평문으로 실렸다)
+ *    - Worker(irang-bot-detection)와의 관계: Request Header Transform Rule 은 Workers 보다 앞 단계
+ *      (`http_request_late_transform`)에서 요청을 고치고, Worker 는 `fetch(request)` 로 **원 요청을 그대로**
+ *      오리진에 넘기므로(cloudflare-workers/bot-detection/index.js) 헤더가 유지된다.
+ *      ⚠️ Worker 가 `new Request(url, { headers: … })` 처럼 헤더를 다시 짜면 이 헤더가 사라져 전부 403 이 된다 —
+ *      Worker 를 고칠 때는 원 요청을 그대로 fetch 하는지 확인하고, 4단계 log 확인을 반드시 거친다.
  * 3. Vercel → Settings → Environment Variables (Production 만, Sensitive)
  *    - `ORIGIN_LOCK_SECRET` = 1의 시크릿 (printf '%s' 로 넣어 끝 줄바꿈 금지 — 5/22 박제)
  *    - `ORIGIN_LOCK_MODE` = `log`
@@ -26,14 +32,17 @@
  *
  * ── 검사하지 않는 것 ──
  * - `/.well-known/acme-challenge/` — 인증서 갱신 경로(7/24·8/17 자기잠금 사고).
- * - 운영 호스트(`irangfarm.com`·`www.irangfarm.com`)가 아닌 요청 — 미리보기 alias·localhost·dev 터널.
- *   그 호스트는 Cloudflare 를 거치지 않는 게 정상이고, 미리보기는 Vercel Auth 뒤에 있다.
+ * - 잠금 범위는 **기본 거부**(2차 QA A1 — `Host: irangfarm.com.` 끝 점 하나로 허용 목록을 빠져나갔다):
+ *   - Vercel 운영(`VERCEL_ENV=production`): Host 와 무관하게 잠근다. 예외는 `*.vercel.app`(Vercel Auth 뒤)과
+ *     `localhost`·`127.0.0.1` 뿐. Host 가 없거나 비어도 잠근다.
+ *   - 그 밖(로컬 `next start`·미리보기·테스트): 정규화한 Host 가 운영 호스트일 때만 잠근다.
+ *   - Host 정규화: 공백 제거·소문자·포트 제거·끝 점 제거(`IRANGFARM.COM.:443` → `irangfarm.com`).
  * - 시크릿이 비어 있으면 모드와 무관하게 끈다 — 설정 실수 하나로 사이트 전체가 403 이 되면 안 된다.
  *
  * 이 모듈은 미들웨어에서 import 된다 — node:crypto 금지(Web 표준만).
  */
 
-export const ORIGIN_LOCK_HEADER = "x-irang-edge";
+export const ORIGIN_LOCK_HEADER = "x-irang-edge-secret";
 const PRODUCTION_HOSTS = new Set(["irangfarm.com", "www.irangfarm.com"]);
 const ACME_PREFIX = "/.well-known/acme-challenge/";
 
@@ -42,10 +51,16 @@ export type OriginLockMode = "off" | "log" | "enforce";
 export interface OriginLockEnv {
   mode?: string | undefined;
   secret?: string | undefined;
+  /** `VERCEL_ENV` — "production" 이면 기본 거부 범위 */
+  vercelEnv?: string | undefined;
 }
 
 function readEnv(): OriginLockEnv {
-  return { mode: process.env.ORIGIN_LOCK_MODE, secret: process.env.ORIGIN_LOCK_SECRET };
+  return {
+    mode: process.env.ORIGIN_LOCK_MODE,
+    secret: process.env.ORIGIN_LOCK_SECRET,
+    vercelEnv: process.env.VERCEL_ENV,
+  };
 }
 
 /** 모드 — 미설정·알 수 없는 값은 off. 시크릿이 없으면 무조건 off(전면 403 방지) */
@@ -56,10 +71,40 @@ export function originLockMode(env: OriginLockEnv = readEnv()): OriginLockMode {
   return mode === "log" || mode === "enforce" ? mode : "off";
 }
 
-/** Host 헤더 → 운영 호스트인지 (포트·대소문자 무시) */
+/** Host 헤더 정규화 — 공백·대소문자·포트·끝 점(FQDN 표기)을 걷어낸다. 없으면 "" */
+export function normalizeHost(host: string | null | undefined): string {
+  if (!host) return "";
+  return host
+    .trim()
+    .toLowerCase()
+    .replace(/:\d*$/, "")
+    .replace(/\.+$/, "");
+}
+
+/** Host 헤더 → 운영 호스트인지 (정규화 후 비교) */
 export function isProductionHost(host: string | null | undefined): boolean {
-  if (!host) return false;
-  const name = host.trim().toLowerCase().replace(/:\d+$/, "");
+  return PRODUCTION_HOSTS.has(normalizeHost(host));
+}
+
+/** 잠그지 않는 호스트 — Vercel 운영에서도 예외 (미리보기 alias 는 Vercel Auth 뒤) */
+function isExemptHost(name: string): boolean {
+  return (
+    name === "localhost" ||
+    name === "127.0.0.1" ||
+    (name.endsWith(".vercel.app") && name.length > ".vercel.app".length)
+  );
+}
+
+/**
+ * 이 Host 로 온 요청이 잠금 범위인가.
+ * Vercel 운영은 기본 거부(예외만 통과), 그 밖은 운영 호스트만 — 위 "검사하지 않는 것" 참조.
+ */
+export function isLockedHost(
+  host: string | null | undefined,
+  env: OriginLockEnv = readEnv(),
+): boolean {
+  const name = normalizeHost(host);
+  if (env.vercelEnv === "production") return !isExemptHost(name);
   return PRODUCTION_HOSTS.has(name);
 }
 
@@ -84,7 +129,7 @@ export type OriginLockDecision =
 export interface OriginLockInput {
   host: string | null | undefined;
   pathname: string;
-  /** 요청의 `x-irang-edge` 값 */
+  /** 요청의 `x-irang-edge-secret` 값 */
   edgeHeader: string | null | undefined;
 }
 
@@ -96,7 +141,7 @@ export function decideOriginLock(
   const mode = originLockMode(env);
   if (mode === "off") return { action: "pass", reason: "off" };
   if (input.pathname.startsWith(ACME_PREFIX)) return { action: "pass", reason: "exempt-path" };
-  if (!isProductionHost(input.host)) return { action: "pass", reason: "non-production-host" };
+  if (!isLockedHost(input.host, env)) return { action: "pass", reason: "non-production-host" };
 
   const secret = (env.secret ?? "").trim();
   if (constantTimeEqual(input.edgeHeader ?? "", secret)) return { action: "pass", reason: "ok" };
@@ -107,13 +152,13 @@ export function decideOriginLock(
 
 /**
  * 이 호스트로 온 요청이 Cloudflare 를 거쳤다고 미들웨어가 **보장**하는가 —
- * enforce + 운영 호스트일 때만 true. 이때만 `cf-ipcountry`·`cf-connecting-ip` 를 믿을 수 있다.
+ * enforce + 잠금 범위 Host 일 때만 true. 이때만 `cf-ipcountry`·`cf-connecting-ip` 를 믿을 수 있다.
  */
 export function isOriginLockEnforced(
   host: string | null | undefined,
   env: OriginLockEnv = readEnv(),
 ): boolean {
-  return originLockMode(env) === "enforce" && isProductionHost(host);
+  return originLockMode(env) === "enforce" && isLockedHost(host, env);
 }
 
 /**

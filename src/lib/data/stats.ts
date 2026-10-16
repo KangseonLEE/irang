@@ -6,7 +6,7 @@
    2026-10-03 전면 정정 — 연도별 수치를 KOSIS 통계표·보도자료 원문과 1:1 대조해 바꿨다(corrections.ts).
    수치는 배열에서 계산해 문구를 만든다. 문구 안에 숫자를 손으로 적지 않는다.
    ════════════════════════════════════════════ */
-import { FOREST_VILLAGE_LOAN, formatManwon } from "./policy-facts";
+import { FOREST_VILLAGE_LOAN, POLICY_TEXT, SMARTFARM_FUND, formatManwon } from "./policy-facts";
 
 /* ── 공통 타입 ── */
 
@@ -280,7 +280,7 @@ export const youthCauses: CauseAnalysis[] = [
   {
     label: "정부 청년 농촌 정착 지원 정책 강화",
     description:
-      "2023년부터 「제1차 후계·청년농 육성 기본계획('23~'27)」이 추진 중이며, 2024년에는 지원 대상을 농촌 거주·관련 산업 청년으로 확대했어요. 청년창업 스마트팜 종합자금 30억 한도(연리 1%, 5년 거치), 교육비 무료, 임대형 스마트팜 우선 입주 등의 혜택이 제공돼요.",
+      `2023년부터 「제1차 후계·청년농 육성 기본계획('23~'27)」이 추진 중이며, 2024년에는 지원 대상을 농촌 거주·관련 산업 청년으로 확대했어요. 청년 스마트팜 종합자금 ${POLICY_TEXT.smartfarmYouthMax} 한도(시설자금 ${SMARTFARM_FUND.facilityRate.value} 고정, ${SMARTFARM_FUND.facilityRepayment.value}), 교육비 무료, 임대형 스마트팜 우선 입주 등의 혜택이 제공돼요.`,
     source: "농림축산식품부, 농업·농촌 청년정책 추진방향 (2024.08)",
     sourceUrl: "https://www.gov.kr/portal/ntnadmNews/3734523",
     relatedYears: [2023, 2024],
@@ -617,7 +617,7 @@ export const smartfarmCauses: CauseAnalysis[] = [
   {
     label: "정부 스마트농업 확산 정책",
     description:
-      "농림축산식품부는 「제1차 스마트농업 육성 기본계획(2025~2029)」에서 스마트온실 도입률을 2024년 16%에서 2030년 35%로 높이는 목표를 세웠어요. 스마트팜 종합자금은 보조가 아닌 융자예요(일반 시설자금 1인 50억 원·청년 30억 원 한도, 연 1.0% 고정, 5년 거치 20년 상환). 온실 ICT 장비·신축 보조는 지자체가 공모하는 ICT 융복합 확산사업으로 따로 운영되고, 2026년 계획 기준 국비 25%·지방비 30%·융자 25%·자부담 20%예요. 청년창업보육센터는 김제·고흥·상주·밀양 4곳에서 운영돼요.",
+      `농림축산식품부는 「제1차 스마트농업 육성 기본계획(2025~2029)」에서 스마트온실 도입률을 2024년 16%에서 2030년 35%로 높이는 목표를 세웠어요. 스마트팜 종합자금은 보조가 아닌 융자예요(1인 일반 ${POLICY_TEXT.smartfarmGeneralMax}·청년 ${POLICY_TEXT.smartfarmYouthMax} 한도, 시설자금 ${SMARTFARM_FUND.facilityRate.value} 고정, ${SMARTFARM_FUND.facilityRepayment.value}). 온실 ICT 장비·신축 보조는 지자체가 공모하는 ICT 융복합 확산사업으로 따로 운영되고, 2026년 계획 기준 국비 25%·지방비 30%·융자 25%·자부담 20%예요. 청년창업보육센터는 김제·고흥·상주·밀양 4곳에서 운영돼요.`,
     source: "농림축산식품부, 2026년 스마트농업 육성 시행계획 (2025.11)",
     sourceUrl: "https://www.mafra.go.kr/bbs/home/791/594105/download.do",
     relatedYears: [2022, 2023, 2024],

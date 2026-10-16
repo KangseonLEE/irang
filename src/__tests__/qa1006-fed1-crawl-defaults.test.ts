@@ -6,8 +6,7 @@ import {
   displayEducationType,
   displaySupportType,
   displayValue,
-  isCapacityKnown,
-} from "@/lib/programs/display";
+  isCapacityKnown, isAgeUnstated } from "@/lib/programs/display";
 import { parseEligibilityItems } from "@/lib/programs/parse-eligibility";
 import { formatAgeRange } from "@/lib/format";
 import { PROGRAMS } from "@/lib/data/programs";
@@ -61,8 +60,11 @@ describe("지원사업 — 수집 행 기본값 숨김", () => {
   it("큐레이션 지원사업 전건 — 지원 유형·연령·자격 조건·금액 표시값이 원값 그대로", () => {
     for (const p of PROGRAMS) {
       expect(displaySupportType(p.id, p.supportType), p.id).toBe(p.supportType);
+      // 원문에 연령 언급이 없는 사업(하한 0·상한 99, 10/16 2차 QA)은 '연령 제한 없음'으로 단정하지 않고 null
       expect(displayAgeRange(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax), p.id).toBe(
-        formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax),
+        isAgeUnstated(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax)
+          ? null
+          : formatAgeRange(p.eligibilityAgeMin, p.eligibilityAgeMax),
       );
       expect(displayValue(p.id, p.eligibilityDetail), p.id).toBe(p.eligibilityDetail.trim() || null);
       expect(displayAmount(p.id, p.supportAmount), p.id).toBe(p.supportAmount.trim() || null);

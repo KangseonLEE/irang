@@ -182,15 +182,15 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
 
     const body = buildIssueBody(report!);
     expect(body).toContain(sentryMarker("6612345678"));
-    expect(body).toContain("| 레벨 | error |");
-    expect(body).toContain("| 환경 | production |");
-    expect(body).toContain("| 경로 | /crops/[id] |");
-    expect(body).toContain("| error_boundary | true |");
-    expect(body).toContain("| 알림 규칙 | 새 오류가 생기면 알림 |");
+    expect(body).toContain("| 레벨 | `error` |");
+    expect(body).toContain("| 환경 | `production` |");
+    expect(body).toContain("| 경로 | `/crops/[id]` |");
+    expect(body).toContain("| error_boundary | `true` |");
+    expect(body).toContain("| 알림 규칙 | `새 오류가 생기면 알림` |");
     expect(body).toContain("[Sentry 에서 열기](https://irang.sentry.io/issues/6612345678/events/");
-    expect(buildIssueTitle(report!)).toBe(
-      "[Sentry] TypeError: Cannot read properties of undefined (reading 'name')"
-    );
+    // 제목은 고정 형식, 원문 제목은 표 안 코드 스팬으로 (2차 QA A5)
+    expect(buildIssueTitle(report!)).toBe("[Sentry] 오류 (6612345678)");
+    expect(body).toContain("| 제목 | `TypeError: Cannot read properties of undefined (reading 'name')` |");
     expect(issueLabels(report!)).toEqual(["bug"]);
   });
 
@@ -237,11 +237,45 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
       },
     });
     const body = buildIssueBody(report!);
-    expect(body).toContain("| 경로 | /search |");
+    expect(body).toContain("| 경로 | `/search` |");
     expect(body).not.toContain("010-1234-5678");
     expect(body).not.toContain("a@b.c");
     expect(body).not.toContain("1.2.3.4");
-    expect(body).toContain("- `environment`: production");
+    expect(body).toContain("- `environment`: `production`");
+  });
+
+  it("지어낸 이벤트의 링크·멘션·이슈 참조·백틱 탈출·주석 탈출을 무력화한다 (2차 QA A5)", () => {
+    const evil = "[클릭](https://phish.example) @KangseonLEE #1 `x` " + "가".repeat(300);
+    const report = parseSentryWebhook("event_alert", {
+      action: "triggered",
+      data: {
+        event: {
+          issue_id: "9 --> <b>x</b>",
+          title: evil,
+          culprit: evil,
+          environment: "@prod",
+          web_url: "https://phish.example/issues/1/",
+          tags: [["route", evil], ["release", "[a](https://x.example)"]],
+        },
+      },
+    });
+    const body = buildIssueBody(report!);
+    const title = buildIssueTitle(report!);
+    expect(title).toBe("[Sentry] 오류 (9--bxb)");
+    expect(title).not.toContain("phish");
+    // 링크·멘션은 코드 스팬 안에만, @ 는 전각
+    expect(body).not.toMatch(/(^|[^`])\[클릭\]\(https:\/\/phish/);
+    expect(body).not.toContain("@KangseonLEE");
+    expect(body).toContain("＠KangseonLEE");
+    expect(body).toContain("| 제목 | `[클릭](https://phish.example) ＠KangseonLEE #1 'x' ");
+    // 셀마다 120자 상한
+    for (const line of body.split("\n").filter((l) => l.startsWith("| "))) {
+      expect(line.length).toBeLessThan(160);
+    }
+    // 주석 탈출 차단 + sentry.io 밖 링크는 싣지 않는다
+    expect(body.startsWith("<!-- sentry:9--bxb -->")).toBe(true);
+    expect(body).not.toContain("<b>");
+    expect(body).not.toContain("Sentry 에서 열기](https://phish");
   });
 
   it("issue 리소스는 shortId·발생 위치를 담고, 코멘트 본문에 Sentry id 를 남긴다", () => {
@@ -250,7 +284,7 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
     expect(report!.action).toBe("created");
     expect(report!.shortId).toBe("IRANG-3F");
     expect(report!.project).toBe("irang");
-    expect(buildIssueBody(report!)).toContain("| 이슈 번호 | IRANG-3F |");
+    expect(buildIssueBody(report!)).toContain("| 이슈 번호 | `IRANG-3F` |");
     expect(buildCommentBody(report!)).toContain("`6612345678`");
   });
 
@@ -259,7 +293,8 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
       action: "triggered",
       data: { event: { issue_id: "1", title: "Error: a | b\nc", tags: [] } },
     });
-    expect(buildIssueTitle(report!)).toBe("[Sentry] Error: a \\| b c");
+    expect(buildIssueTitle(report!)).toBe("[Sentry] 오류 (1)");
+    expect(buildIssueBody(report!)).toContain("| 제목 | `Error: a \\| b c` |");
   });
 
   it("다루지 않는 리소스·형태면 null", () => {

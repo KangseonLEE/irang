@@ -6,7 +6,6 @@ import { CheckCircle2, Circle, AlertTriangle, ClipboardCheck, ArrowRight } from 
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { formatAgeRange } from "@/lib/format";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { resolveEligibilitySupport } from "@/lib/programs/eligibility-support";
 /* 파서는 lib 로 옮겼다 (9/28 QA) — 클라이언트 모듈에서 비컴포넌트를 export 하면
    서버가 import 할 때 프록시가 오고(9/17 박제), 단위 테스트도 붙이기 어렵다. */
@@ -83,11 +82,11 @@ export function EligibilityCheck({
   const progress = total > 0 ? (checkedCount / total) * 100 : 0;
   const missing = allItems.filter((_, idx) => !checked[idx]);
 
-  /* ── 모바일(<1024) 껍데기만 분기 (2026-09-28 회장 2차) ──
-     체크 흐름은 데스크탑과 **같은 모달 한 벌**을 쓴다. 인라인 체크 행은 결론이 흐려
-     "무엇을 채워야 하는지"가 남지 않아 되돌렸다. 섹션은 조건 요약 + 결과 행만 든다.
-     useSyncExternalStore 훅이라 서버 스냅샷은 false(데스크탑) — 링크·텍스트는 양쪽 동일. */
-  const isMobile = useMediaQuery("(max-width: 1023px)");
+  /* ── 모바일(<1024) 껍데기 (2026-09-28 회장 2차) ──
+     체크 흐름은 데스크탑과 **같은 모달 한 벌**을 쓴다. 섹션은 조건 요약 + 결과 행만 든다.
+     10/16 QA2 🟡: 예전엔 useMediaQuery 로 껍데기를 골라, 서버(데스크탑 껍데기)와 다른 구조로
+     하이드레이션 직후 바뀌며 640~1023px 에서 CLS 0.108 이 났다. 이제 두 껍데기의 합집합을 한 벌 그리고
+     어느 쪽이 보일지는 CSS 미디어쿼리(desktopOnly·mobileOnly)가 정한다 — SSR 과 하이드레이션 구조가 같다. */
   /** 모달에서 "결과 보기"를 한 번이라도 눌렀는지 — 섹션 결과 행 노출 조건 */
   const [hasResult, setHasResult] = useState(false);
 
@@ -227,63 +226,58 @@ export function EligibilityCheck({
         </Modal>
   );
 
-  if (isMobile) {
-    return (
-      <div className={s.mWrap}>
-        {/* 제목·우측 메타는 SidebarTabs 스택 헤딩이 담당 (중복 방지) */}
-        {/* 조건은 접지 않고 전부 평문으로 (9/28 회장: 요약 박스·옆 버튼 → 내용 + 버튼) */}
-        {allItems.length > 3 ? (
-          <ul className={s.mConditions}>
-            {allItems.map((item, idx) => (
-              <li key={idx} className={s.mCondition}>
-                {item.label}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={s.mConditionText}>{summaryLine}</p>
-        )}
-
-        <button type="button" className={s.mOpenBtn} onClick={openModal}>
-          <Icon icon={ClipboardCheck} size="sm" />
-          {hasResult ? "다시 체크하기" : "자격 셀프 체크하기"}
-        </button>
-
-        {hasResult && (
-          <div className={s.mResult}>
-            <span className={s.mResultLabel}>확인한 조건</span>
-            <span className={s.mResultRight}>
-              <strong className={s.mResultNum}>
-                {checkedCount} / {total}
-              </strong>
-              <span className={allChecked ? s.mResultOk : s.mResultMiss}>
-                {allChecked
-                  ? "모두 충족했어요"
-                  : `${total - checkedCount}개 더 확인이 필요해요`}
-              </span>
-            </span>
-          </div>
-        )}
-
-        {/* 원문 CTA·기관 문의 안내는 사이드 "원문 확인" 카드와 중복이라 제거 (9/28 회장).
-            모달 결과 화면의 CTA 는 그 자리에서 다음 행동이 필요하므로 유지한다. */}
-        {modal}
-      </div>
-    );
-  }
-
   return (
     <div className={bare ? s.wrapBare : s.wrap}>
-      {!bare && <h3 className={s.title}>자격 셀프 체크</h3>}
-      <p className={s.lead}>
+      {/* 데스크탑: 제목·안내문. 모바일: 제목·우측 메타는 SidebarTabs 스택 헤딩이 담당 (중복 방지) */}
+      {!bare && <h3 className={`${s.title} ${s.desktopOnly}`}>자격 셀프 체크</h3>}
+      <p className={`${s.lead} ${s.desktopOnly}`}>
         {hideAge
           ? "공고에 적힌 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요."
           : "연령·거주·교육 조건을 하나씩 짚어 보고 바로 결과를 확인할 수 있어요."}
       </p>
+
+      {/* 모바일: 조건은 접지 않고 전부 평문으로 (9/28 회장: 요약 박스·옆 버튼 → 내용 + 버튼) */}
+      {allItems.length > 3 ? (
+        <ul className={`${s.mConditions} ${s.mobileOnly}`}>
+          {allItems.map((item, idx) => (
+            <li key={idx} className={s.mCondition}>
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className={`${s.mConditionText} ${s.mobileOnly}`}>{summaryLine}</p>
+      )}
+
       <button type="button" className={s.openBtn} onClick={openModal}>
         <Icon icon={ClipboardCheck} size="sm" />
-        자격 셀프 체크하기
+        {hasResult ? (
+          <>
+            <span className={s.mobileOnly}>다시 체크하기</span>
+            <span className={s.desktopOnly}>자격 셀프 체크하기</span>
+          </>
+        ) : (
+          "자격 셀프 체크하기"
+        )}
       </button>
+
+      {/* 모바일 결과 행 — 원문 CTA·기관 문의 안내는 사이드 "원문 확인" 카드와 중복이라 두지 않는다 (9/28 회장).
+          모달 결과 화면의 CTA 는 그 자리에서 다음 행동이 필요하므로 유지한다. */}
+      {hasResult && (
+        <div className={`${s.mResult} ${s.mobileOnly}`}>
+          <span className={s.mResultLabel}>확인한 조건</span>
+          <span className={s.mResultRight}>
+            <strong className={s.mResultNum}>
+              {checkedCount} / {total}
+            </strong>
+            <span className={allChecked ? s.mResultOk : s.mResultMiss}>
+              {allChecked
+                ? "모두 충족했어요"
+                : `${total - checkedCount}개 더 확인이 필요해요`}
+            </span>
+          </span>
+        </div>
+      )}
 
       {modal}
     </div>

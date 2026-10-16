@@ -77,8 +77,7 @@ import {
   hasCollectorDefaults,
   isCapacityKnown,
   isCrawledRow,
-  isEducationTypeUnknown,
-} from "@/lib/programs/display";
+  isEducationTypeUnknown, isAgeUnstated } from "@/lib/programs/display";
 import { filterProgramsAsync, type SupportProgram } from "@/lib/data/programs";
 import { filterEducationAsync, type EducationCourse } from "@/lib/data/education";
 
@@ -135,7 +134,12 @@ describe("표시와 목록 필터가 같은 행을 '모름'으로 본다 — RDA
     const { programs: aged } = await filterProgramsAsync({ age: "19~29세" });
     expect(aged.length).toBeGreaterThan(0);
     expect(aged.some((p) => p.id.startsWith("rda-"))).toBe(false);
-    for (const p of aged) expect(displayAgeRange(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax), p.id).not.toBeNull();
+    // 수집기 기본값 행은 빠진다. 원문에 연령 언급이 없는 큐레이션 사업(10/16 2차 QA)은 화면에 '공고에서 확인'으로 보이고
+    // 알려진 조건으로 제외되지 않으므로 필터에 남긴다 — 표시가 null 이어도 수집 행이 아니면 허용
+    for (const p of aged) {
+      const shown = displayAgeRange(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax);
+      expect(shown !== null || (!hasCollectorDefaults(p.id) && isAgeUnstated(p.id, p.eligibilityAgeMin, p.eligibilityAgeMax)), p.id).toBe(true);
+    }
   });
 
   it("교육 수준·방식 필터 — 화면에 안 싣는 행은 필터에서도 빠진다", async () => {

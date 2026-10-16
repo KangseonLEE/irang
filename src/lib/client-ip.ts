@@ -15,7 +15,7 @@
  * irangfarm.com 은 Cloudflare 프록시 뒤라 위 세 헤더는 **Cloudflare 엣지 IP** 일 수 있다 — 여러 사용자가
  * 한 버킷을 나눠 쓰게 된다. 진짜 사용자 IP 는 Cloudflare 가 넣는 `cf-connecting-ip` 인데,
  * 오리진에 Cloudflare 를 거치지 않고 바로 접속하면 누구나 이 헤더를 지어낼 수 있다(보안 QA 🔴1).
- * 그래서 **오리진 잠금이 enforce 일 때만**(= 운영 호스트에 닿은 요청은 전부 Cloudflare 를 거쳤다고
+ * 그래서 **오리진 잠금이 enforce 일 때만**(= 잠금 범위 Host — Vercel 운영은 *.vercel.app·localhost 외 전부 — 에 닿은 요청은 전부 Cloudflare 를 거쳤다고
  * 미들웨어가 보장할 때만) `cf-connecting-ip` 를 우선한다. 그 전에는 위조 불가능한 Vercel 헤더를 쓴다.
  * 판정은 `lib/origin-lock.ts` 와 같은 환경변수·호스트 규칙을 공유한다.
  *

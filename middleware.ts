@@ -418,11 +418,20 @@ export async function middleware(request: NextRequest) {
 export const config = {
   /*
    * 정적 자산 제외 (middleware 호출 비용 최소화):
-   * - _next/static, _next/image: Next.js 빌드 자산
-   * - favicon, icon, manifest, robots.txt, sitemap.xml
-   * - 모든 이미지/폰트 확장자
+   * - _next/static, _next/image: Next.js 빌드 자산·이미지 최적화
+   * - favicon.ico·icon.svg·manifest.json·robots.txt·사이트맵(.xml)
+   * - 이미지/폰트 확장자로 **끝나는** 경로만
+   *
+   * 2026-10-16 보안 2차 QA A2: 예외 패턴에 끝 고정(`$`)이 없어 `/programs/x.png`·`/programs/x.pngabc`·
+   * `/sitemapfoo` 처럼 확장자·접두가 경로 **중간**에만 있어도 미들웨어(오리진 잠금·국가 차단)를 건너뛰고
+   * 동적 상세 페이지 SSR 까지 갔다. 이제 실제 정적 파일 이름만 건너뛴다(Next proxy 문서 예시 `.*\\.png$` 와 같은 문법).
+   *
+   * `/_next/image` 는 계속 제외한다 — 미들웨어를 태우면 이미지 요청마다 함수 호출이 붙는데(Hobby 한도),
+   * 남용 면은 remotePatterns 축소(파일·경로 단위)로 좁혔다. 오리진 직접 접속으로 변환 한도를 쓰는 경로는
+   * Vercel Firewall 룰("x-irang-edge-secret 없음 → deny")로 막는 것이 정확하다(운영 결정 사항).
+   * 판정은 src/__tests__/middleware-matcher.test.ts 가 unstable_doesMiddlewareMatch 로 고정한다.
    */
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|manifest\\.json|robots\\.txt|sitemap|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico$|icon\\.svg$|manifest\\.json$|robots\\.txt$|sitemap[^/]*\\.xml$|sitemap/[^/]*\\.xml$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$).*)",
   ],
 };

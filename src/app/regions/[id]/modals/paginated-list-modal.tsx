@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback, type ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, type ReactNode } from "react";
 import { MapPin } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { Icon } from "@/components/ui/icon";
@@ -141,10 +141,41 @@ export function PaginatedListModal<
   }, [endpoint, paramString, page, retryCount]);
 
   // 심평원·교육부 첫 호출이 끊기면(502) 창을 닫았다 다시 열어야만 재요청됐다 — 같은 쪽을 다시 받는다
+  // ── 포커스 유지 (10/16 QA2) ──
+  // "다시 시도"·"더 보기"는 누르는 순간 사라져(로딩 중 숨김) 포커스가 BODY(창 밖)로 떨어졌다.
+  // 누를 때 "몇 번째 항목부터 새로 받는가"를 기억했다가, 받은 뒤 그 항목 링크로 포커스를 옮긴다.
+  // 다시 실패하면 새로 나온 "다시 시도" 버튼으로.
+  const listRef = useRef<HTMLDivElement>(null);
+  const retryBtnRef = useRef<HTMLButtonElement>(null);
+  const pendingFocusRef = useRef<number | null>(null);
+
   const handleRetry = useCallback(() => {
+    pendingFocusRef.current = items.length;
+    // 로딩 표시를 같은 렌더에서 켠다 — 아니면 요청 전 한 렌더(loading=false)에서 포커스 대기가 먼저 풀린다
+    setLoading(true);
     setError(false);
     setRetryCount((n) => n + 1);
-  }, []);
+  }, [items.length]);
+
+  const handleLoadMore = useCallback(() => {
+    pendingFocusRef.current = items.length;
+    setLoading(true);
+    setPage((p) => p + 1);
+  }, [items.length]);
+
+  useEffect(() => {
+    if (loading || pendingFocusRef.current === null) return;
+    const from = pendingFocusRef.current;
+    pendingFocusRef.current = null;
+    if (error) {
+      retryBtnRef.current?.focus();
+      return;
+    }
+    const links = listRef.current?.querySelectorAll<HTMLAnchorElement>("a[href]");
+    if (!links || links.length === 0) return;
+    // 검색·필터로 걸러진 상태면 번호가 어긋날 수 있어 마지막 항목으로 대신한다
+    (links[from] ?? links[links.length - 1]).focus();
+  }, [loading, error, items]);
 
   // ── 유형별 카운트 ──
   const typeCount = useMemo(
@@ -290,7 +321,7 @@ export function PaginatedListModal<
 
       {/* ── 리스트 ── */}
       {!isInitialLoad && filteredItems.length > 0 && (
-        <div className={s.list}>
+        <div className={s.list} ref={listRef}>
           {filteredItems.map((item, i) => (
             <a
               key={itemKey(item, i)}
@@ -323,7 +354,7 @@ export function PaginatedListModal<
       {error && !loading && (
         <div role="alert">
           <div className={s.loadingText}>목록을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.</div>
-          <button type="button" className={s.loadMoreBtn} onClick={handleRetry}>
+          <button type="button" ref={retryBtnRef} className={s.loadMoreBtn} onClick={handleRetry}>
             다시 시도
           </button>
         </div>
@@ -333,7 +364,7 @@ export function PaginatedListModal<
         <button
           type="button"
           className={s.loadMoreBtn}
-          onClick={() => setPage((p) => p + 1)}
+          onClick={handleLoadMore}
         >
           더 보기
         </button>

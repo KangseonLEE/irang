@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { ExternalLinkBlock, safeHttpUrl } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -304,7 +304,8 @@ export default async function EducationDetailPage({
             </div>
             <div className={s.cardContent}>
               <ExternalLinkBlock
-                href={course.url}
+                // 수집 행 주소는 원천 값 — http(s) 가 아니면 원문 그대로 넘기지 않는다(블록이 깨진 링크 안내로 바꾼다, 10/16 2차 QA)
+                href={safeHttpUrl(course.url) ?? ""}
                 label="신청 페이지 보러가기"
                 linkStatus={course.linkStatus}
                 title={course.title}

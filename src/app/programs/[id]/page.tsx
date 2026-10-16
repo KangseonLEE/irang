@@ -34,7 +34,9 @@ import { EligibilityCheck } from "@/components/programs/eligibility-check";
 import { ApplicationTimeline } from "@/components/programs/application-timeline";
 import { sourceBlockLabel } from "@/lib/source-label";
 import {
+  AGE_UNSTATED_LABEL,
   displayAgeRange,
+  isAgeUnstated,
   displayAmount,
   displaySupportType,
   displayText,
@@ -116,6 +118,12 @@ export default async function ProgramDetailPage({
   const ageConstrained =
     ageLabel !== null &&
     (program.eligibilityAgeMin > 0 || (program.eligibilityAgeMax > 0 && program.eligibilityAgeMax < 99));
+  // 원문에 연령 언급이 없는 큐레이션 사업 — '연령 제한 없음'으로 단정하지 않고 표 칸은 '공고에서 확인' (10/16 2차 QA)
+  const ageRowLabel =
+    ageLabel ??
+    (!crawled && isAgeUnstated(program.id, program.eligibilityAgeMin, program.eligibilityAgeMax)
+      ? AGE_UNSTATED_LABEL
+      : null);
   const eligibilityText = displayValue(program.id, program.eligibilityDetail);
   const selfCheckItems = parseEligibilityItems(eligibilityText ?? "");
   // 연령 항목이 빠진 수집 행은 짚을 조건이 0개일 수 있다 — 그때는 셀프 체크 탭째 뺀다("0개 중 0개 → 모두 충족" 방지)
@@ -274,7 +282,7 @@ export default async function ProgramDetailPage({
                             eligibilityDetail={eligibilityText ?? ""}
                             items={selfCheckItems}
                             organization={program.organization}
-                            sourceUrl={program.sourceUrl}
+                            sourceUrl={safeSourceUrl ?? ""}
                             linkStatus={program.linkStatus}
                           />
                         ),
@@ -374,11 +382,11 @@ export default async function ProgramDetailPage({
                         : formatApplicationPeriod(program.applicationStart, program.applicationEnd, program.applicationCycle)
                   }
                 />
-                {ageLabel && (
+                {ageRowLabel && (
                   <InfoRow
                     icon={<Users size={16} />}
                     label="대상 연령"
-                    value={ageLabel}
+                    value={ageRowLabel}
                   />
                 )}
               </tbody>
@@ -505,7 +513,8 @@ export default async function ProgramDetailPage({
             </div>
             <div className={s.cardContent}>
               <ExternalLinkBlock
-                href={program.sourceUrl}
+                // http(s) 가 아니면 원문 그대로 넘기지 않는다 — 블록이 깨진 링크 안내로 바꾼다 (10/16 2차 QA)
+                href={safeSourceUrl ?? ""}
                 label={sourceBlockLabel(program.sourceUrl)}
                 linkStatus={program.linkStatus}
                 title={program.title}
