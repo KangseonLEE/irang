@@ -13,7 +13,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordApiFallback } from "@/lib/supabase";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { clientIp, hashIp, isE2eRequest } from "@/lib/community/ip-hash";
+import { hashIp, isE2eRequest } from "@/lib/community/ip-hash";
 import { isNoteTargetType, isValidTargetId } from "@/lib/community/types";
 import {
   NICKNAME_MAX_LENGTH,
@@ -22,6 +22,8 @@ import {
   runRuleFilter,
 } from "@/lib/community/filter";
 import { countRecentByIp, insertNote, listApprovedNotes } from "@/lib/community/queries";
+import { getClientIp } from "@/lib/client-ip";
+import { isJsonContentType, unsupportedMediaType } from "@/lib/request-guards";
 
 const ENDPOINT = "/api/community/notes";
 const limiter = createRateLimiter({ windowMs: 10 * 60_000, max: 3 }); // 10분 3건
@@ -60,13 +62,15 @@ interface PostBody {
 
 export async function POST(req: NextRequest) {
   const ua = req.headers.get("user-agent");
+  // JSON 만 받는다 (2026-10-16 보안 QA ⚪15) — text/plain 단순 요청으로 다른 사이트가 방문자 브라우저를 빌려 쓰지 못하게
+  if (!isJsonContentType(req)) return unsupportedMediaType();
 
   // e2e(Playwright) 는 적재하지 않는다 — 8/31 assessment_results 73% 오염 교훈
   if (isE2eRequest(req)) {
     return NextResponse.json({ ok: true, skipped: "e2e", status: "pending" }, { status: 202, headers: NO_STORE });
   }
 
-  const ip = clientIp(req);
+  const ip = getClientIp(req);
   const ipHash = hashIp(ip);
   if (limiter.isLimited(ip)) {
     return NextResponse.json(

@@ -53,6 +53,14 @@ async function getResult(id: string) {
   return data;
 }
 
+/** DB 의 top_regions(신뢰하지 않음) → 실제 시·도만 */
+function knownProvinces(raw: unknown) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((rid) => (typeof rid === "string" ? PROVINCES.find((prov) => prov.id === rid) : undefined))
+    .filter((p): p is NonNullable<typeof p> => p != null);
+}
+
 // ── OG 메타 태그 ──
 
 interface PageProps {
@@ -73,12 +81,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   );
   const label = farmType?.label ?? "정착 유형";
   const emoji = farmType?.emoji ?? "🌾";
-  const regions = (result.top_regions as string[])
+  // 모르는 지역 id 는 버린다 — 원문을 제목·설명에 싣지 않는다 (보안 QA 🟡6, 콘텐츠 위조 방지)
+  const regions = knownProvinces(result.top_regions)
     .slice(0, 3)
-    .map((rid: string) => {
-      const p = PROVINCES.find((prov) => prov.id === rid);
-      return p?.shortName ?? rid;
-    })
+    .map((p) => p.shortName)
     .join(" · ");
 
   const title = `${emoji} 나의 정착 유형: ${label}`;
@@ -127,15 +133,16 @@ export default async function AssessResultPage({ params }: PageProps) {
   if (!farmType) notFound();
 
   // 추천 지역 — Province 객체로 매핑
-  const topRegions = (result.top_regions as string[]).slice(0, 3).map((rid: string) => {
-    const p = PROVINCES.find((prov) => prov.id === rid);
-    return { id: rid, name: p?.shortName ?? rid, description: p?.description ?? "" };
-  });
+  // 모르는 id 는 버린다 — 예전엔 `name: rid` 로 원문을 그리고 `/regions/${rid}` 링크를 만들어,
+  // 지어낸 결과 행 하나로 irangfarm.com 화면에 임의 문구를 띄울 수 있었다 (보안 QA 🟡6)
+  const topRegions = knownProvinces(result.top_regions)
+    .slice(0, 3)
+    .map((p) => ({ id: p.id, name: p.shortName, description: p.description }));
 
   // 추천 작물 — CROPS에서 이름·카테고리·난이도 조회
-  const topCrops = (result.top_crops as string[])
+  const topCrops = (Array.isArray(result.top_crops) ? (result.top_crops as unknown[]) : [])
     .slice(0, 4)
-    .map((cropId: string) => CROPS.find((c) => c.id === cropId))
+    .map((cropId) => CROPS.find((c) => c.id === cropId))
     .filter((c): c is NonNullable<typeof c> => c != null);
 
   // 추천 지원사업 — farmType.programIds 기반

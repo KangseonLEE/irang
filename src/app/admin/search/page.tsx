@@ -10,10 +10,12 @@ import {
   fetchDailySearchCounts,
 } from "@/lib/admin/queries";
 import s from "./page.module.css";
+import { requireAdminPage } from "@/lib/admin/session";
 
-export const revalidate = 300;
+// revalidate 제거 (2026-10-16) — requireAdminPage(cookies) 로 동적 렌더. 관리자 데이터는 캐시하지 않는다.
 
 export default async function AdminSearchPage() {
+  await requireAdminPage(); // 미들웨어와 별개의 2차 인가 — 데이터 조회보다 먼저 (보안 QA 🟡5)
   const [topKeywords, zeroResults, dailyCounts] = await Promise.all([
     fetchTopKeywords(14, 20),
     fetchZeroResultQueries(14, 15),

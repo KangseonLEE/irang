@@ -43,6 +43,10 @@ jobs:
     env:
       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      # 2026-10-16 보안 QA 🟡10: E2E Skip 룰 expression 에 E2E_SECRET 이 리터럴로 들어 있다
+      # (rotate-e2e-secret.yml). 잡이 이 시크릿을 참조해야 GitHub 가 로그에서 자동 마스킹한다.
+      # 실제 값은 이 잡에서 쓰지 않는다 — 아래 jq 마스킹과 이중 방어.
+      E2E_SECRET: ${{ secrets.E2E_SECRET }}
 
     steps:
       - name: Preflight — env check
@@ -66,8 +70,11 @@ jobs:
             exit 1
           fi
 
-          # 결과 mask 처리하면서 expression은 그대로 출력 (secret 아님)
-          echo "$RULESET" > /tmp/ruleset.json
+          # expression 안의 비교값 중 시크릿처럼 생긴 것(따옴표 안 16자 이상 영숫자·_-)은 저장 단계에서 가린다.
+          # 9/30 run 36677407102 가 이 덤프로 E2E_SECRET 을 공개 로그에 남겼다. 이후 모든 출력은 이 파일만 읽는다.
+          # 경로("/.well-known/…")·UA("irang-e2e/1.0")는 / · . 이 섞여 있어 가려지지 않는다.
+          [ -n "${E2E_SECRET:-}" ] && echo "::add-mask::$E2E_SECRET"
+          echo "$RULESET" | jq '(.result.rules // [])[] |= (.expression |= (if type == "string" then gsub("\"[A-Za-z0-9_-]{16,}\""; "\"***\"") else . end))' > /tmp/ruleset.json
           chmod 600 /tmp/ruleset.json
 
           RULE_COUNT=$(jq -r '.result.rules | length' /tmp/ruleset.json)

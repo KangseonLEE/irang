@@ -122,7 +122,7 @@ jobs:
           elif [ "$(jq -r '.pages // 0' "$SUMMARY_JSON")" -eq 0 ]; then
             STATE=crash
           else
-            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length) + ((.guPartitionIssues // []) | length) + ((.areaIssues // []) | length) + (if .area.skipped then 1 else 0 end) + ((.farmIssues // []) | length) + (if .farm.skipped then 1 else 0 end) + (if .population.skipped then 1 else 0 end)' "$SUMMARY_JSON")
+            PROBLEMS=$(jq '(.counts.mismatch // 0) + (.counts.err // 0) + ((.nameIssues // []) | length) + ((.sumIssues // []) | length) + ((.popIssues // []) | length) + ((.guSumIssues // []) | length) + ((.guPartitionIssues // []) | length) + ((.areaIssues // []) | length) + (if .area.skipped then 1 else 0 end) + ((.farmIssues // []) | length) + (if .farm.skipped then 1 else 0 end) + (if .population.skipped then 1 else 0 end) + ((.returnFarmIssues // []) | length) + (if .returnFarm.skipped then 1 else 0 end)' "$SUMMARY_JSON")
             if [ "$PROBLEMS" -gt 0 ]; then STATE=problems; else STATE=clean; fi
           fi
           echo "state=${STATE} problems=${PROBLEMS}"

@@ -604,9 +604,10 @@ export function getProgramPersonaFitTrace(
       label: `${ageMax}세 이하 신청 가능해요 (노년 친화)`,
     });
   } else {
+    // 하한 0 = 원문에 하한 없음 (10/16) — "0~45세"로 새지 않게
     reasons.push({
       kind: "age",
-      label: `${ageMin}~${ageMax}세 대상이에요`,
+      label: ageMin > 0 ? `${ageMin}~${ageMax}세 대상이에요` : `${ageMax}세 이하 대상이에요`,
     });
   }
 

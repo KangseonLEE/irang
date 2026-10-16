@@ -88,6 +88,8 @@ export function PaginatedListModal<
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  /** "다시 시도" 횟수 — 같은 page 를 다시 요청하는 트리거 (10/16 QA1 🟡-2) */
+  const [retryCount, setRetryCount] = useState(0);
 
   // ── 검색 & 필터 상태 ──
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,7 +138,13 @@ export function PaginatedListModal<
     return () => {
       cancelled = true;
     };
-  }, [endpoint, paramString, page]);
+  }, [endpoint, paramString, page, retryCount]);
+
+  // 심평원·교육부 첫 호출이 끊기면(502) 창을 닫았다 다시 열어야만 재요청됐다 — 같은 쪽을 다시 받는다
+  const handleRetry = useCallback(() => {
+    setError(false);
+    setRetryCount((n) => n + 1);
+  }, []);
 
   // ── 유형별 카운트 ──
   const typeCount = useMemo(
@@ -312,8 +320,13 @@ export function PaginatedListModal<
         </div>
       )}
 
-      {error && (
-        <div className={s.loadingText}>데이터를 불러올 수 없어요.</div>
+      {error && !loading && (
+        <div role="alert">
+          <div className={s.loadingText}>목록을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.</div>
+          <button type="button" className={s.loadMoreBtn} onClick={handleRetry}>
+            다시 시도
+          </button>
+        </div>
       )}
 
       {!loading && !error && hasMore && (

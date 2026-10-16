@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { GuMapLocation } from "@/lib/data/district-maps";
 import { getGuByIds } from "@/lib/data/gus";
@@ -32,13 +33,6 @@ export function DistrictMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
-
-  const handleClick = useCallback(
-    (guId: string) => {
-      router.push(`/regions/${provinceId}/${sigunguId}/${guId}`);
-    },
-    [router, provinceId, sigunguId],
-  );
 
   const handleMouseEnter = useCallback(
     (guId: string) => {
@@ -218,24 +212,22 @@ export function DistrictMap({
         {gus.map((g) => {
           const isActive = hoveredId === g.guId;
           return (
-            <path
+            // 10/16 QA1 🟡-1: SVG 안 <a> — 구 링크가 SSR HTML 에 나오게(province-map 과 같은 이유)
+            <Link
               key={g.guId}
-              d={g.path}
-              className={`${s.region} ${isActive ? s.regionActive : ""}`}
-              onClick={() => handleClick(g.guId)}
-              onMouseEnter={() => handleMouseEnter(g.guId)}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              role="button"
-              tabIndex={0}
+              href={`/regions/${provinceId}/${sigunguId}/${g.guId}`}
+              prefetch={false}
+              className={s.regionLink}
               aria-label={`${g.name} 상세 보기`}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleClick(g.guId);
-                }
-              }}
-            />
+            >
+              <path
+                d={g.path}
+                className={`${s.region} ${isActive ? s.regionActive : ""}`}
+                onMouseEnter={() => handleMouseEnter(g.guId)}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+              />
+            </Link>
           );
         })}
 

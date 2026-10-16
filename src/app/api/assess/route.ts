@@ -11,6 +11,16 @@ import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
 import { isE2eRequest } from "@/lib/internal-traffic";
 import type { FarmTypeId } from "@/lib/data/match-questions";
+import { getClientIp } from "@/lib/client-ip";
+import { isJsonContentType, unsupportedMediaType } from "@/lib/request-guards";
+import {
+  MAX_BODY_BYTES,
+  filterCropIds,
+  filterRegionIds,
+  normalizeReferrer,
+  validateAnswers,
+  validatePrograms,
+} from "./validate-payload";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -92,9 +102,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, skipped: "e2e" });
   }
 
+  // 0-1. JSON 만 받는다 (보안 QA ⚪15) — text/plain 단순 요청(다른 사이트의 폼·fetch)으로 쓰기를 막는다
+  if (!isJsonContentType(req)) return unsupportedMediaType();
+
   // 1. Rate Limit 체크
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(req);
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
@@ -102,16 +114,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 2. Body 파싱
+  // 2. Body 파싱 — 크기 상한 먼저 (보안 QA 🟡6)
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    const text = await req.text();
+    if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+    const parsed: unknown = JSON.parse(text);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    body = parsed as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   // 3. 필수 필드 검증
-  const { id, answers, farm_type_id, top_regions, top_crops } = body;
+  const { id, farm_type_id } = body;
 
   if (!id || typeof id !== "string" || !isValidResultId(id)) {
     return NextResponse.json(
@@ -120,11 +140,48 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!answers || typeof answers !== "object") {
+  const answersCheck = validateAnswers(body.answers);
+  if (!answersCheck.ok) {
     return NextResponse.json(
-      { error: "Missing or invalid answers" },
+      { error: `Missing or invalid answers (${answersCheck.error})` },
       { status: 400 }
     );
+  }
+  const answers = answersCheck.value;
+
+  // 지역·작물은 알려진 id 만, 최대 5개 — 공유 화면이 이 값을 그대로 그린다 (콘텐츠 위조 방지)
+  const top_regions = filterRegionIds(body.top_regions);
+  const top_crops = filterCropIds(body.top_crops);
+  if (top_regions === null || top_crops === null) {
+    return NextResponse.json(
+      { error: "top_regions and top_crops must be arrays" },
+      { status: 400 }
+    );
+  }
+  const programsCheck = validatePrograms(body.recommended_programs);
+  if (!programsCheck.ok) {
+    return NextResponse.json({ error: programsCheck.error }, { status: 400 });
+  }
+  const recommendedPrograms = programsCheck.value;
+  const referrerCheck = normalizeReferrer(body.referrer);
+  if (!referrerCheck.ok) {
+    return NextResponse.json({ error: referrerCheck.error }, { status: 400 });
+  }
+  const referrer = referrerCheck.value;
+  if (body.age_group != null && !isValidAgeGroup(body.age_group)) {
+    return NextResponse.json({ error: "Invalid age_group" }, { status: 400 });
+  }
+  if (body.source != null && !isValidSource(body.source)) {
+    return NextResponse.json({ error: "Invalid source" }, { status: 400 });
+  }
+  if (body.persona != null && !isValidPersona(body.persona)) {
+    return NextResponse.json({ error: "Invalid persona" }, { status: 400 });
+  }
+  if (
+    farm_type_id != null &&
+    !VALID_FARM_TYPE_IDS.includes(farm_type_id as FarmTypeId)
+  ) {
+    return NextResponse.json({ error: "Invalid farm_type_id" }, { status: 400 });
   }
 
   // source 분기 (2026-05-18) — 'full'=14문항 정식, 'quick'=4문항 가벼운 적재
@@ -141,7 +198,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (!Array.isArray(top_regions) || !Array.isArray(top_crops)) {
+    // full 은 배열 필드가 반드시 와야 한다(빈 배열은 허용 — 14문항 assess 위저드는 [] 를 보낸다)
+    if (!Array.isArray(body.top_regions) || !Array.isArray(body.top_crops)) {
       return NextResponse.json(
         { error: "top_regions and top_crops must be arrays" },
         { status: 400 }
@@ -165,7 +223,7 @@ export async function POST(req: NextRequest) {
       statusCode: 503,
       fallbackReason: "not-configured",
       userAgent: req.headers.get("user-agent"),
-      page: typeof body.referrer === "string" ? body.referrer : null,
+      page: referrer,
       requestMeta: {
         source,
         persona: isValidPersona(body.persona) ? body.persona : null,
@@ -190,10 +248,10 @@ export async function POST(req: NextRequest) {
     id,
     answers,
     farm_type_id: source === "full" ? farm_type_id : (farm_type_id ?? "guinong"),
-    top_regions: Array.isArray(top_regions) ? top_regions : [],
-    top_crops: Array.isArray(top_crops) ? top_crops : [],
-    recommended_programs: body.recommended_programs ?? [],
-    referrer: body.referrer ?? null,
+    top_regions,
+    top_crops,
+    recommended_programs: recommendedPrograms,
+    referrer,
     user_agent: req.headers.get("user-agent") ?? null,
     age_group: ageGroupValue,
     source,
@@ -228,7 +286,7 @@ export async function POST(req: NextRequest) {
           statusCode: 202,
           fallbackReason: "migration-pending",
           userAgent: req.headers.get("user-agent"),
-          page: typeof body.referrer === "string" ? body.referrer : null,
+          page: referrer,
           requestMeta: {
             source,
             persona: personaValue,
@@ -247,8 +305,8 @@ export async function POST(req: NextRequest) {
         farm_type_id,
         top_regions,
         top_crops,
-        recommended_programs: body.recommended_programs ?? [],
-        referrer: body.referrer ?? null,
+        recommended_programs: recommendedPrograms,
+        referrer,
         user_agent: req.headers.get("user-agent") ?? null,
         age_group: ageGroupValue,
       });
@@ -261,7 +319,7 @@ export async function POST(req: NextRequest) {
         statusCode: 200,
         fallbackReason: "legacy-columns-only",
         userAgent: req.headers.get("user-agent"),
-        page: typeof body.referrer === "string" ? body.referrer : null,
+        page: referrer,
         requestMeta: {
           source,
           persona: personaValue,

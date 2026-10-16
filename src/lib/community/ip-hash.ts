@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import type { NextRequest } from "next/server";
 
 /**
  * 원 IP는 저장하지 않고 sha256(ip + salt) 만 남긴다 — 공감·신고 멱등 키 겸 rate limit 키.
@@ -9,10 +8,6 @@ export function hashIp(ip: string): string {
   const salt =
     process.env.COMMUNITY_HASH_SALT ?? process.env.ADMIN_SECRET ?? "irang-community";
   return createHash("sha256").update(`${ip}|${salt}`).digest("hex").slice(0, 32);
-}
-
-export function clientIp(req: NextRequest): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 }
 
 /**

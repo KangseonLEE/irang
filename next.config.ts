@@ -75,10 +75,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
+      /* images.unsplash.com 은 2026-10-16 보안 QA(🟡8)로 제거 — 9/2 Unsplash 전면 제거 뒤 사용처 0인데
+         경로 제한이 없어 아무 Unsplash 사진이나 우리 이미지 변환 한도로 변환됐다. */
       {
         // 농촌에서 살아보기 마을 사진 (9/30) — 원본 7MB 라 반드시 next/image 최적화 경유
         protocol: "https",
@@ -86,8 +84,13 @@ const nextConfig: NextConfig = {
         pathname: "/svc/common/board/img/**",
       },
       {
+        /* 청년농 사례 카드 썸네일(youth-case-cards.tsx) — 쓰는 경로는 `/vi/<id>/mqdefault.jpg` 하나뿐.
+           호스트째 열면 남이 아무 영상 썸네일이나 우리 변환 한도로 돌릴 수 있다 (보안 QA 🟡8) */
         protocol: "https",
         hostname: "img.youtube.com",
+        port: "",
+        pathname: "/vi/*/mqdefault.jpg",
+        search: "",
       },
       /* 홍보 팝업 포스터 — admin 업로드가 Supabase Storage 공개 버킷 `promo` 로 간다 (2026-09-29) */
       {

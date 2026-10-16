@@ -18,14 +18,21 @@ import { resolve } from "node:path";
 
 config({ path: resolve(__dirname, "../.env.local"), quiet: true });
 import { SIGUNGUS } from "../src/lib/data/sigungus";
-import { fetchReturnFarmStats, isSameRegionName } from "../src/lib/api/kosis";
+import { fetchReturnFarmStatsStrict, isSameRegionName } from "../src/lib/api/kosis";
+import { ACTIVE_RETURN_YEAR } from "../src/lib/data/active-regions-stats";
 
 const TOP_N = 5;
 
 async function main() {
-  const rows = await fetchReturnFarmStats();
+  // 시간 초과·오류는 재시도(2회) 후에도 실패면 던진다 — 전년도로 조용히 내려가지 않는다 (10/16 QA 🟡-1:
+  // 5초 시간 초과가 '2025 자료 없음'으로 읽혀 ACTIVE_RETURN_YEAR 를 2024 로 다시 썼다)
+  const rows = await fetchReturnFarmStatsStrict(undefined, undefined, { timeoutMs: 30_000, retries: 2 });
   if (rows.length === 0) throw new Error("KOSIS 귀농·귀촌 응답 없음 — 키 또는 공표 시점 확인");
   const year = rows[0].year;
+  // 지금 파일보다 이전 해가 나오면 멈춘다 — KOSIS 가 공표한 해를 내릴 리 없으니 조회 문제다
+  if (year < ACTIVE_RETURN_YEAR) {
+    throw new Error(`KOSIS 응답 연도 ${year} < 지금 파일 ${ACTIVE_RETURN_YEAR} — 조회 문제로 보고 쓰지 않아요`);
+  }
   if (rows.some((r) => r.year !== year)) throw new Error("응답 연도가 섞였어요");
   const byCode = new Map(rows.map((r) => [r.regionCode, r]));
 

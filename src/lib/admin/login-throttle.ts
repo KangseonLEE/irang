@@ -58,11 +58,17 @@ export async function recordAndCheckLoginAttempt(ip: string): Promise<ThrottleRe
     .gte("attempted_at", new Date(now - WINDOW_MS).toISOString());
   if (error) return { limited: false, reason: "no-store" };
 
-  // 보존 기간 지난 기록 정리 (best-effort)
-  void sb
-    .from("admin_login_attempts")
-    .delete()
-    .lt("attempted_at", new Date(now - RETENTION_MS).toISOString());
+  // 보존 기간 지난 기록 정리 (best-effort).
+  // supabase-js 쿼리 빌더는 thenable 이라 await(또는 then) 해야 요청이 나간다 — 예전 `void …delete()` 는
+  // 한 번도 실행되지 않아 9/23 행부터 그대로 남아 있었다(보안 QA 🟡9). 실패해도 판정에는 영향 없다.
+  try {
+    await sb
+      .from("admin_login_attempts")
+      .delete()
+      .lt("attempted_at", new Date(now - RETENTION_MS).toISOString());
+  } catch {
+    // 정리 실패는 무시 — 다음 시도에서 다시 지운다
+  }
 
   return (count ?? 0) > MAX_ATTEMPTS
     ? { limited: true, reason: "too-many" }

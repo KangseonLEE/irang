@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   MAP_LOCATIONS,
@@ -91,16 +92,6 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
     [],
   );
 
-  const handleClick = useCallback(
-    (svgId: string) => {
-      const provinceId = SVG_TO_PROVINCE_ID[svgId];
-      if (provinceId) {
-        router.push(`/regions/${provinceId}`);
-      }
-    },
-    [router]
-  );
-
   const handleMouseEnter = useCallback(
     (svgId: string) => {
       setHoveredSvgId(svgId);
@@ -180,9 +171,9 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
         {MAP_LOCATIONS.map((loc) => {
           const isHighlighted = highlightedSvgIds.has(loc.svgId);
           const densityFill = densityColors?.[loc.svgId];
-          return (
+          const provinceId = SVG_TO_PROVINCE_ID[loc.svgId];
+          const path = (
             <path
-              key={loc.svgId}
               d={loc.path}
               className={`${s.region} ${isHighlighted ? s.regionActive : ""}`}
               style={
@@ -190,20 +181,24 @@ export function KoreaMap({ selectedProvinceId, onHover, densityMap, showLegend =
                   ? ({ "--density-fill": densityFill } as React.CSSProperties)
                   : undefined
               }
-              onClick={() => handleClick(loc.svgId)}
               onMouseEnter={() => handleMouseEnter(loc.svgId)}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              role="button"
-              tabIndex={0}
-              aria-label={`${SVG_ID_LABELS[loc.svgId]} 지역 보기`}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleClick(loc.svgId);
-                }
-              }}
             />
+          );
+          // 10/16 QA1 🟡-1: SVG 안 <a> — 17개 시·도 링크가 SSR HTML 에 나오게(예전 role=button + router.push 는
+          // 허브에서 시·도 링크 0). 화면 진입 prefetch 는 끄고 hover 때만 미리 받는다(예전과 같다)
+          if (!provinceId) return <g key={loc.svgId}>{path}</g>;
+          return (
+            <Link
+              key={loc.svgId}
+              href={`/regions/${provinceId}`}
+              prefetch={false}
+              className={s.regionLink}
+              aria-label={`${SVG_ID_LABELS[loc.svgId]} 지역 보기`}
+            >
+              {path}
+            </Link>
           );
         })}
 

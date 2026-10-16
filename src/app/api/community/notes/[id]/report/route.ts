@@ -5,8 +5,10 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { clientIp, hashIp, isE2eRequest } from "@/lib/community/ip-hash";
+import { hashIp, isE2eRequest } from "@/lib/community/ip-hash";
 import { reportNote } from "@/lib/community/queries";
+import { getClientIp } from "@/lib/client-ip";
+import { isJsonContentType, unsupportedMediaType } from "@/lib/request-guards";
 
 const limiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 const NO_STORE = { "Cache-Control": "private, no-store, max-age=0" };
@@ -23,7 +25,9 @@ export async function POST(
   if (isE2eRequest(req)) {
     return NextResponse.json({ ok: true, skipped: "e2e" }, { status: 202, headers: NO_STORE });
   }
-  const ip = clientIp(req);
+  // JSON 만 받는다 (2026-10-16 보안 QA ⚪15) — 우리 화면은 항상 JSON 본문으로 보낸다
+  if (!isJsonContentType(req)) return unsupportedMediaType();
+  const ip = getClientIp(req);
   if (limiter.isLimited(ip)) {
     return NextResponse.json({ ok: false, error: "rate limited" }, { status: 429, headers: NO_STORE });
   }

@@ -77,6 +77,13 @@ export function generateStaticParams() {
   return EDUCATION_COURSES.map((c) => ({ id: c.id }));
 }
 
+/**
+ * 1시간마다 다시 만든다 (10/16 QA 🟡-3). 상태 배지는 렌더 순간의 날짜로 계산하는데 revalidate 가 없으면
+ * 수집 행(crawl-*) 상세가 다음 배포까지 굳어 접수 마감 뒤에도 '접수중'으로 남는다(체험 상세 🔴-1 과 같은 구조).
+ * searchParams 를 읽지 않는 [id] 라우트라 'dynamic SSR + revalidate 충돌'(5/11 Lessons) 대상이 아니다.
+ */
+export const revalidate = 3600;
+
 interface EducationDetailPageProps {
   params: Promise<{ id: string }>;
 }

@@ -39,6 +39,8 @@ function cell(value: string): string {
 }
 
 export function buildIssueTitle(report: SentryReport): string {
+  // 피드백 이슈 제목은 Sentry 가 사용자 메시지로 채우기도 한다 — 고정 문구만 (보안 QA 🔴2)
+  if (report.kind === "feedback") return `[Sentry] 사용자 피드백 (${cell(report.issueId)})`;
   const raw = cell(report.title);
   const clipped = raw.length > MAX_TITLE_LENGTH ? `${raw.slice(0, MAX_TITLE_LENGTH - 1)}…` : raw;
   return `[Sentry] ${clipped}`;
@@ -58,7 +60,8 @@ function metaTable(report: SentryReport): string {
   push("레벨", report.level);
   push("환경", report.environment);
   push("프로젝트", report.project);
-  push("경로", report.route);
+  // url 태그에서 온 경로는 쿼리(검색어 등 사용자 입력)를 떼고 경로만
+  push("경로", report.route && /^https?:\/\//i.test(report.route) ? pagePath(report.route) : report.route);
   push("error_boundary", report.errorBoundary);
   push("발생 위치", report.culprit);
   push("이슈 번호", report.shortId);
@@ -69,38 +72,72 @@ function metaTable(report: SentryReport): string {
   return ["| 항목 | 값 |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`)].join("\n");
 }
 
+/**
+ * 사용자 피드백 블록 — **사용자가 쓴 내용은 싣지 않는다** (2026-10-16 보안 QA 🔴2).
+ *
+ * 이슈가 올라가는 리포는 공개라 검색 엔진에 색인된다. 오류 보고 창의 메시지·이메일·이름·
+ * 스크린샷을 여기 옮기면 개인정보를 목적 외로 공개하는 셈이다. 운영자는 링크를 눌러
+ * Sentry(비공개)에서 원문을 본다. 남긴 페이지는 경로만 — 쿼리(`?q=` 검색어 등)도 사용자 입력이다.
+ */
 function feedbackBlock(report: SentryReport): string {
   const fb = report.feedback;
   if (!fb) return "";
 
-  const parts: string[] = ["### 사용자 피드백"];
-  if (fb.message) {
-    parts.push(
-      fb.message
-        .split(/\r?\n/)
-        .map((line) => `> ${line}`)
-        .join("\n")
-    );
-  }
-
-  const rows: [string, string][] = [];
-  if (fb.email) rows.push(["이메일", cell(fb.email)]);
-  if (fb.name) rows.push(["이름", cell(fb.name)]);
-  if (fb.url) rows.push(["남긴 페이지", cell(fb.url)]);
-  fb.attachments.forEach((url, i) => {
-    rows.push([`첨부 ${i + 1}`, `[스크린샷 열기](${url})`]);
-  });
-  if (rows.length > 0) {
-    parts.push(
-      ["| 항목 | 값 |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`)].join("\n")
-    );
-  }
-  return parts.join("\n\n");
+  const lines: string[] = ["### 사용자 피드백"];
+  const page = pagePath(fb.url);
+  if (page) lines.push(`- 남긴 페이지: \`${page}\``);
+  const has: string[] = [];
+  if (fb.message) has.push("메시지");
+  if (fb.email || fb.name) has.push("연락처");
+  if (fb.attachments.length > 0) has.push(`첨부 ${fb.attachments.length}건`);
+  lines.push(
+    `- ${has.length > 0 ? `${has.join("·")}이 있어요. ` : ""}내용은 공개 이슈에 옮기지 않아요 — ${
+      report.sentryUrl ? `[Sentry 에서 확인](${report.sentryUrl})` : "Sentry 에서 확인"
+    }하세요.`,
+  );
+  return lines.join("\n");
 }
 
+/** URL → 경로만 (호스트·쿼리·해시 제거). 해석 불가면 생략 */
+function pagePath(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    const p = new URL(url).pathname;
+    return cell(p).replace(/`/g, "").slice(0, 120) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * 공개 이슈에 옮길 수 있는 태그만 — 사용자 식별·입력 값이 담길 수 있는 키는 버린다.
+ * 피드백 이벤트는 태그 전체를 생략한다(url·user 계열이 대부분).
+ */
+const PUBLIC_TAG_KEYS = new Set([
+  "environment",
+  "level",
+  "release",
+  "runtime",
+  "runtime.name",
+  "browser",
+  "browser.name",
+  "os",
+  "os.name",
+  "device",
+  "device.family",
+  "handled",
+  "mechanism",
+  "error_boundary",
+  "errorBoundary",
+  "transaction",
+  "route",
+]);
+
 function tagBlock(report: SentryReport): string {
-  if (report.tags.length === 0) return "";
-  const lines = report.tags.slice(0, 20).map(([k, v]) => `- \`${k}\`: ${cell(v)}`);
+  if (report.kind === "feedback") return "";
+  const tags = report.tags.filter(([k]) => PUBLIC_TAG_KEYS.has(k));
+  if (tags.length === 0) return "";
+  const lines = tags.slice(0, 20).map(([k, v]) => `- \`${k}\`: ${cell(v)}`);
   return ["<details><summary>태그</summary>", "", ...lines, "</details>"].join("\n");
 }
 

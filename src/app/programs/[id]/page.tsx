@@ -7,7 +7,7 @@ import { PersonaCta } from "@/components/persona/persona-cta";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { ExternalLinkBlock, safeHttpUrl } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -112,13 +112,18 @@ export default async function ProgramDetailPage({
   const supportType = displaySupportType(program.id, program.supportType);
   const supportAmount = displayAmount(program.id, program.supportAmount);
   const ageLabel = displayAgeRange(program.id, program.eligibilityAgeMin, program.eligibilityAgeMax);
+  // 하한 0·상한 99 = 연령 조건이 없는 사업 — "연령 제한 없음"은 표에는 싣되 셀프 체크의 '조건'으로는 세지 않는다 (10/16 QA)
+  const ageConstrained =
+    ageLabel !== null &&
+    (program.eligibilityAgeMin > 0 || (program.eligibilityAgeMax > 0 && program.eligibilityAgeMax < 99));
   const eligibilityText = displayValue(program.id, program.eligibilityDetail);
   const selfCheckItems = parseEligibilityItems(eligibilityText ?? "");
   // 연령 항목이 빠진 수집 행은 짚을 조건이 0개일 수 있다 — 그때는 셀프 체크 탭째 뺀다("0개 중 0개 → 모두 충족" 방지)
-  const hasSelfCheck = ageLabel !== null || selfCheckItems.length > 0;
+  const hasSelfCheck = ageConstrained || selfCheckItems.length > 0;
   const audience = {
     ...(eligibilityText ? { audienceType: eligibilityText } : {}),
-    ...(!crawled && program.eligibilityAgeMin ? { suggestedMinAge: program.eligibilityAgeMin } : {}),
+    // 하한 0 = 원문에 하한 없음 → suggestedMinAge 생략 (10/16 QA: 근거 없는 18 이 68쪽에 나갔다)
+    ...(!crawled && program.eligibilityAgeMin > 0 ? { suggestedMinAge: program.eligibilityAgeMin } : {}),
     ...(!crawled && program.eligibilityAgeMax && program.eligibilityAgeMax < 99
       ? { suggestedMaxAge: program.eligibilityAgeMax }
       : {}),
@@ -153,6 +158,8 @@ export default async function ProgramDetailPage({
   const validEnd = isValidDate(program.applicationEnd)
     ? program.applicationEnd
     : undefined;
+  // 원문 주소는 수집기가 넣은 값일 수 있다 — http(s) 가 아니면 구조화 데이터에 싣지 않는다 (10/16 QA, 링크 블록과 같은 판정)
+  const safeSourceUrl = safeHttpUrl(program.sourceUrl);
 
   return (
     <div className={s.page}>
@@ -178,13 +185,13 @@ export default async function ProgramDetailPage({
           ...(program.relatedCrops.length > 0
             ? { keywords: program.relatedCrops.join(", ") }
             : {}),
-          ...(program.sourceUrl ? { url: program.sourceUrl } : {}),
+          ...(safeSourceUrl ? { url: safeSourceUrl } : {}),
           mainEntityOfPage: `https://irangfarm.com/programs/${program.id}`,
-          ...(validStart || validEnd
+          ...(safeSourceUrl && (validStart || validEnd)
             ? {
                 availableChannel: {
                   "@type": "ServiceChannel",
-                  serviceUrl: program.sourceUrl,
+                  serviceUrl: safeSourceUrl,
                   ...(validStart || validEnd
                     ? {
                         availableLanguage: "ko",
@@ -263,7 +270,7 @@ export default async function ProgramDetailPage({
                             programTitle={program.title}
                             ageMin={program.eligibilityAgeMin}
                             ageMax={program.eligibilityAgeMax}
-                            hideAge={ageLabel === null}
+                            hideAge={!ageConstrained}
                             eligibilityDetail={eligibilityText ?? ""}
                             items={selfCheckItems}
                             organization={program.organization}

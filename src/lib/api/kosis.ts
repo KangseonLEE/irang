@@ -314,29 +314,100 @@ export interface ReturnFarmData {
 }
 
 /**
- * KOSIS에서 시군구별 귀농·귀촌 통계를 조회한다.
+ * KOSIS 귀농·귀촌 조회 실패 — 시간 초과·HTTP 오류·JSON 아님·`err` 30 이 아닌 오류 응답·세 표 중 하나라도 비었을 때.
+ * '그 해 자료 없음(공표 전)'과 구분한다 (10/16 QA 🟡-1): 예전엔 둘 다 빈 배열이라 5초 시간 초과가
+ * '2025 공표 전'으로 읽혀 조용히 2024 값으로 내려갔다(수집기가 ACTIVE_RETURN_YEAR 2025 → 2024 로 다시 씀).
+ */
+export class KosisFetchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "KosisFetchError";
+  }
+}
+
+/** KOSIS 가 '데이터가 존재하지 않습니다'로 답한 경우 — 그 해(또는 그 지역) 자료가 아직 없다 */
+const KOSIS_NO_DATA = "nodata" as const;
+
+/** KOSIS 응답 하나 읽기 — 배열이면 행, `{"err":"30"}`이면 자료 없음, 그 밖은 실패(throw) */
+async function readKosisList(
+  url: string,
+  label: string,
+  timeoutMs: number,
+): Promise<KOSISReturnFarmRawItem[] | typeof KOSIS_NO_DATA> {
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      next: { revalidate: 86400 * 7 },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (e) {
+    throw new KosisFetchError(`${label}: ${e instanceof Error ? e.name : "fetch 실패"}`);
+  }
+  if (!res.ok) throw new KosisFetchError(`${label}: HTTP ${res.status}`);
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    throw new KosisFetchError(`${label}: JSON 아님`);
+  }
+  if (Array.isArray(json)) return json.length > 0 ? (json as KOSISReturnFarmRawItem[]) : KOSIS_NO_DATA;
+  const err = (json as { err?: unknown })?.err;
+  if (String(err) === "30") return KOSIS_NO_DATA;
+  throw new KosisFetchError(`${label}: 오류 응답 err=${String(err ?? "?")}`);
+}
+
+/** 조회 옵션 — 화면은 기본값(빌드 3s·런타임 5s, 재시도 없음), 수집·대조 스크립트는 길게 + 재시도 */
+export interface KosisStrictOptions {
+  timeoutMs?: number;
+  /** 실패 시 다시 묻는 횟수 (자료 없음은 다시 묻지 않는다) */
+  retries?: number;
+}
+
+async function withRetries<T>(fn: () => Promise<T>, retries: number): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      last = e;
+      if (!(e instanceof KosisFetchError)) throw e;
+    }
+  }
+  throw last;
+}
+
+/**
+ * KOSIS에서 시군구별 귀농·귀촌 통계를 조회한다 — **실패는 실패로** (수집·대조 스크립트용).
  *
  * 3개 테이블 병렬 호출:
  * - DT_1A02002: 정착자 수 (itmId=T02, C2=0 계)
  * - DT_1A02008: 정착 가구 수 (itmId=T01, C2=00 계)
  * - DT_1A02015: 귀촌인 수 (itmId=T01, C2=0 계)
  *
+ * 연도: 올해−1 → −2 → −3 순으로 묻되, **KOSIS 가 '자료 없음'(err 30)이라고 답했을 때만** 이전 해로 내려간다.
+ * 시간 초과·오류는 재시도 후에도 실패면 KosisFetchError 를 던진다 — 전년도로 조용히 내려가지 않는다(10/16 QA 🟡-1).
+ *
  * @param regionCode 시군구 코드 (5자리, 없으면 전체 조회)
  * @param expectedName 우리 시·군·구 이름 — 주면 응답 지역명이 같은 행만 돌려준다(다르면 빈 배열)
  */
-export async function fetchReturnFarmStats(
+export async function fetchReturnFarmStatsStrict(
   regionCode?: string,
   expectedName?: string,
+  options: KosisStrictOptions = {},
 ): Promise<ReturnFarmData[]> {
   const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) return [];
+  if (!apiKey) throw new KosisFetchError("KOSIS_API_KEY 없음");
 
   const currentYear = new Date().getFullYear();
 
-  // 귀농귀촌 통계는 보통 6월에 전년 데이터 공개 → 전년~2년전 시도
+  // 귀농귀촌 통계는 보통 6월에 전년 데이터 공개 → 전년~3년전 시도 (자료 없음일 때만)
   for (const year of [currentYear - 1, currentYear - 2, currentYear - 3]) {
-    const data = await fetchReturnFarmForYear(apiKey, year, regionCode);
-    if (data.length === 0) continue;
+    const data = await withRetries(
+      () => fetchReturnFarmForYear(apiKey, year, regionCode, options.timeoutMs ?? FETCH_TIMEOUT),
+      options.retries ?? 0,
+    );
+    // 자료 없음(공표 전) — 또는 그 지역 값이 비공개('X')뿐이라 숫자 행이 0개(2025 울릉) — 일 때만 이전 해로
+    if (data === KOSIS_NO_DATA || data.length === 0) continue;
     if (!expectedName) return data;
     // 코드가 이웃 지역을 가리키면(10/7: 서천 → 부여 값) 숫자를 내지 않는다 — 다른 해도 같은 코드라 더 찾지 않는다
     const mine = data.filter((d) => isSameRegionName(d.regionName, expectedName));
@@ -347,6 +418,25 @@ export async function fetchReturnFarmStats(
   }
 
   return [];
+}
+
+/**
+ * 화면용 — 시·군·구 귀농·귀촌 카드. 실패하면 **빈 배열(카드 숨김)**이고 전년도로 내려가지 않는다.
+ * 자료 없음(공표 전)일 때만 이전 해를 쓴다(그때 카드에 그 연도가 붙는다). 원천 지역명이 다르면 빈 배열.
+ */
+export async function fetchReturnFarmStats(
+  regionCode?: string,
+  expectedName?: string,
+): Promise<ReturnFarmData[]> {
+  if (!process.env.KOSIS_API_KEY) return [];
+  try {
+    // 빌드 때 KOSIS 가 몰려 시간 초과가 잦다(10/16 로컬 빌드 13곳) — 1회 재시도. 한도는 빌드 3s·런타임 5s 정책 그대로
+    // (_build-phase — 늘리면 빌드 60초 한도에 걸린다). 그래도 실패하면 카드를 숨기고 다음 ISR(하루)에 다시 받는다
+    return await fetchReturnFarmStatsStrict(regionCode, expectedName, { retries: 1 });
+  } catch (e) {
+    console.warn(`KOSIS 귀농 ${regionCode ?? "ALL"} 조회 실패 — 카드 숨김: ${e instanceof Error ? e.message : e}`);
+    return [];
+  }
 }
 
 /**
@@ -361,19 +451,32 @@ export function isSameRegionName(kosisName: string | undefined | null, ourName: 
 
 /**
  * 특정 연도의 시군구 귀농·귀촌 통계 — 정적 수집(scripts/collect-return-farm-rate.ts)이 최신 연도에서 비공개('X')로
- * 빠진 곳을 전년도 값으로 채울 때 쓴다.
+ * 빠진 곳을 전년도 값으로 채울 때 쓴다. 자료 없음이면 빈 배열, **실패면 KosisFetchError**(10/16).
  */
-export async function fetchReturnFarmStatsOfYear(year: number, regionCode?: string): Promise<ReturnFarmData[]> {
+export async function fetchReturnFarmStatsOfYear(
+  year: number,
+  regionCode?: string,
+  options: KosisStrictOptions = {},
+): Promise<ReturnFarmData[]> {
   const apiKey = process.env.KOSIS_API_KEY;
-  if (!apiKey) return [];
-  return fetchReturnFarmForYear(apiKey, year, regionCode);
+  if (!apiKey) throw new KosisFetchError("KOSIS_API_KEY 없음");
+  const data = await withRetries(
+    () => fetchReturnFarmForYear(apiKey, year, regionCode, options.timeoutMs ?? FETCH_TIMEOUT),
+    options.retries ?? 0,
+  );
+  return data === KOSIS_NO_DATA ? [] : data;
 }
 
+/**
+ * 한 해 조회 — 정착자 표가 자료 없음이면 KOSIS_NO_DATA, 세 표 중 하나라도 실패하거나
+ * 정착자는 있는데 가구·귀촌 표가 비면 throw(반쪽 결과를 0 으로 채워 내지 않는다 — T17).
+ */
 async function fetchReturnFarmForYear(
   apiKey: string,
   year: number,
-  regionCode?: string,
-): Promise<ReturnFarmData[]> {
+  regionCode: string | undefined,
+  timeoutMs: number,
+): Promise<ReturnFarmData[] | typeof KOSIS_NO_DATA> {
   const buildUrl = (tblId: string, objL2: string) => {
     const url = new URL(API_BASE);
     url.searchParams.set("method", "getList");
@@ -391,41 +494,25 @@ async function fetchReturnFarmForYear(
     return url.toString();
   };
 
-  try {
-    const [personRes, householdRes, ruralRes] = await Promise.allSettled([
-      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), {
-        next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT),
-      }),
-      fetch(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), {
-        next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT),
-      }),
-      fetch(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), {
-        next: { revalidate: 86400 * 7 },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT),
-      }),
-    ]);
+  const tag = `KOSIS 귀농 ${year} ${regionCode ?? "ALL"}`;
+  const results = await Promise.allSettled([
+    readKosisList(buildUrl(KOSIS_TABLE.RETURN_FARM_PERSON, "0"), `${tag} 귀농인`, timeoutMs),
+    readKosisList(buildUrl(KOSIS_TABLE.RETURN_FARM_HOUSEHOLD, "00"), `${tag} 귀농가구`, timeoutMs),
+    readKosisList(buildUrl(KOSIS_TABLE.RETURN_RURAL_PERSON, "0"), `${tag} 귀촌인`, timeoutMs),
+  ]);
+  const failed = results.find((r): r is PromiseRejectedResult => r.status === "rejected");
+  if (failed) throw failed.reason;
+  const [personItems, householdItems, ruralItems] = results.map(
+    (r) => (r as PromiseFulfilledResult<KOSISReturnFarmRawItem[] | typeof KOSIS_NO_DATA>).value,
+  );
 
-    const parseJson = async (result: PromiseSettledResult<Response>) => {
-      if (result.status !== "fulfilled" || !result.value.ok) return [];
-      const json = await result.value.json();
-      return Array.isArray(json) ? (json as KOSISReturnFarmRawItem[]) : [];
-    };
-
-    const [personItems, householdItems, ruralItems] = await Promise.all([
-      parseJson(personRes),
-      parseJson(householdRes),
-      parseJson(ruralRes),
-    ]);
-
-    // 정착자 수가 없으면 해당 연도 데이터 없음
-    if (personItems.length === 0) return [];
-
-    return mergeReturnFarmData(personItems, householdItems, ruralItems, year);
-  } catch {
-    return [];
+  // 정착자 수가 없으면 해당 연도 데이터 없음
+  if (personItems === KOSIS_NO_DATA) return KOSIS_NO_DATA;
+  if (householdItems === KOSIS_NO_DATA || ruralItems === KOSIS_NO_DATA) {
+    throw new KosisFetchError(`${tag}: 귀농인은 있는데 가구·귀촌 표가 비었어요`);
   }
+
+  return mergeReturnFarmData(personItems, householdItems, ruralItems, year);
 }
 
 /**
@@ -550,17 +637,21 @@ export async function fetchReturnFarmTrend(
       }),
     ]);
 
-    const parseJson = async (result: PromiseSettledResult<Response>) => {
-      if (result.status !== "fulfilled" || !result.value.ok) return [];
+    // 세 표 중 하나라도 실패하면 추이를 내지 않는다 — 예전엔 실패한 표가 0 으로 채워져 가구·귀촌이 '0'인 해가 그려졌다 (10/16, T17)
+    const parseJson = async (result: PromiseSettledResult<Response>): Promise<KOSISReturnFarmRawItem[] | null> => {
+      if (result.status !== "fulfilled" || !result.value.ok) return null;
       const json = await result.value.json();
-      return Array.isArray(json) ? (json as KOSISReturnFarmRawItem[]) : [];
+      if (Array.isArray(json)) return json as KOSISReturnFarmRawItem[];
+      return String((json as { err?: unknown })?.err) === "30" ? [] : null;
     };
 
-    const raw = await Promise.all([
+    const parsed = await Promise.all([
       parseJson(personRes),
       parseJson(householdRes),
       parseJson(ruralRes),
     ]);
+    if (parsed.some((items) => items === null)) return [];
+    const raw = parsed as KOSISReturnFarmRawItem[][];
     // 응답 지역명이 우리 이름과 다른 행은 버린다 — 코드가 이웃 지역을 가리켜도 그 숫자를 그리지 않는다
     const [personItems, householdItems, ruralItems] = expectedName
       ? raw.map((items) => items.filter((i) => isSameRegionName(i.C1_NM, expectedName)))

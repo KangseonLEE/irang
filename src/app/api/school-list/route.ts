@@ -53,6 +53,21 @@ const VALID_PAGE_PATTERN = /^\d{1,3}$/;
 /** 시군구명에 허용되지 않는 문자 차단 */
 const VALID_SIGUNGU_NAME = /^[가-힣\s]{1,20}$/;
 
+/** 시·도 전체 목록 한 쪽 — 의료기관 목록과 같게 12초 + 실패 시 1회 즉시 재시도 (10/16 QA1 🟡-2) */
+async function fetchNeisJson(url: string) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = await fetch(url, { next: { revalidate: 86400 }, signal: AbortSignal.timeout(12_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
   const ip =
@@ -139,10 +154,7 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("pSize", "30");
     url.searchParams.set("ATPT_OFCDC_SC_CODE", eduCode);
 
-    const res = await fetch(url.toString(), { next: { revalidate: 86400 }, signal: AbortSignal.timeout(10_000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const json = await res.json();
+    const json = await fetchNeisJson(url.toString());
 
     // NEIS 에러 응답
     if (json.RESULT) {
@@ -180,9 +192,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("School list API error:", error);
+    // 실패 응답은 캐시되지 않게 — 안내 창 "다시 시도"가 원천을 다시 부른다 (10/16 QA1 🟡-2)
     return NextResponse.json(
       { error: "Failed to fetch school list" },
-      { status: 502 }
+      { status: 502, headers: { "Cache-Control": "no-store" } }
     );
   }
 }

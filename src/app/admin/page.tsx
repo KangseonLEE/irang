@@ -9,8 +9,10 @@ import { fetchFeedbackList, fetchTopKeywords } from "@/lib/admin/queries";
 import { MessageSquareText, MessageSquarePlus, Search, ClipboardCheck, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import s from "./page.module.css";
+import { requireAdminPage } from "@/lib/admin/session";
 
-export const revalidate = 300; // 5분 ISR
+// revalidate 제거 (2026-10-16): requireAdminPage 가 cookies() 를 읽어 이 화면은 요청마다 렌더된다.
+// ISR 로 관리자 데이터를 캐시해 두면 인가 확인 없이 같은 HTML 이 재사용될 수 있다 — 동적이 맞다.
 
 /** 평가 표기 — 이모지 대신 한글 라벨 (9/3 회장 지시) */
 const RATING_LABEL: Record<string, string> = {
@@ -20,6 +22,7 @@ const RATING_LABEL: Record<string, string> = {
 };
 
 export default async function AdminOverviewPage() {
+  await requireAdminPage(); // 미들웨어와 별개의 2차 인가 — 데이터 조회보다 먼저 (보안 QA 🟡5)
   const [kpi, pendingRequests, recentFeedback, topKeywords] = await Promise.all([
     fetchAdminKpi(),
     fetchPendingRequestCount(),

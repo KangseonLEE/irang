@@ -9,6 +9,7 @@ import Link from "next/link";
 import { fetchRequestList, fetchRequestKeywords } from "@/lib/admin/queries";
 import { StatusToggle } from "./status-toggle";
 import s from "./page.module.css";
+import { requireAdminPage } from "@/lib/admin/session";
 
 /** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 시 dynamic SSR 충돌 (2026-05-11 lessons). */
 
@@ -36,6 +37,7 @@ interface Props {
 }
 
 export default async function AdminRequestsPage({ searchParams }: Props) {
+  await requireAdminPage(); // 미들웨어와 별개의 2차 인가 — 데이터 조회보다 먼저 (보안 QA 🟡5)
   const params = await searchParams;
   const statusFilter = params.status ?? "all";
   const categoryFilter = params.category ?? "all";
