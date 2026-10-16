@@ -1,0 +1,84 @@
+# 오리진 잠금 — Cloudflare Request Header Transform Rule 관리 (2026-10-16)
+#
+# irangfarm.com·www 로 들어오는 요청에 `x-irang-edge-secret: <ORIGIN_LOCK_SECRET>` 를 붙인다.
+# Vercel 미들웨어(src/lib/origin-lock.ts)가 이 헤더로 "Cloudflare 를 거쳤는가"를 판정한다.
+# 켜는 순서·되돌리기는 src/lib/origin-lock.ts 상단 주석.
+#
+# action:
+#   check  — 지금 late_transform 규칙 목록만 본다(값은 출력하지 않음)
+#   apply  — 우리 규칙(ref: irang-origin-lock)을 추가·갱신(다른 규칙은 그대로 둔다)
+#   remove — 우리 규칙만 지운다(되돌리기: 먼저 Vercel ORIGIN_LOCK_MODE 를 log/off 로 배포한 뒤)
+#
+# 시크릿: CF_API_TOKEN·CF_ZONE_ID·ORIGIN_LOCK_SECRET. 시크릿 값은 add-mask 로 가린다.
+name: Origin lock (Cloudflare)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "check | apply | remove"
+        default: "check"
+
+permissions:
+  contents: read
+
+jobs:
+  rule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      ORIGIN_LOCK_SECRET: ${{ secrets.ORIGIN_LOCK_SECRET }}
+      ACTION: ${{ github.event.inputs.action }}
+    steps:
+      - name: Manage transform rule
+        run: |
+          set -euo pipefail
+          echo "::add-mask::${ORIGIN_LOCK_SECRET}"
+          API="https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/rulesets/phases/http_request_late_transform/entrypoint"
+          AUTH="Authorization: Bearer ${CF_API_TOKEN}"
+          REF="irang-origin-lock"
+
+          code=$(curl -s -o cur.json -w '%{http_code}' -H "$AUTH" "$API" || true)
+          echo "조회 HTTP ${code}"
+          if [ "$code" = "404" ]; then
+            echo '{"result":{"rules":[]}}' > cur.json
+          elif [ "$code" != "200" ]; then
+            jq -r '"조회 실패: \(.errors | tostring)"' cur.json || cat cur.json
+            exit 1
+          fi
+          # 값은 찍지 않는다 — 규칙 ref·설명·식·헤더 이름만
+          jq -r '(.result.rules // [])[] | "rule ref=\(.ref // "-") enabled=\(.enabled) desc=\(.description // "") expr=\(.expression) headers=\((.action_parameters.headers // {}) | keys | join(","))"' cur.json || true
+
+          case "$ACTION" in
+            check) exit 0 ;;
+            apply)
+              if [ -z "${ORIGIN_LOCK_SECRET}" ] || [ "${#ORIGIN_LOCK_SECRET}" -lt 32 ]; then
+                echo "ORIGIN_LOCK_SECRET 이 없거나 32자 미만 — 중단"; exit 1
+              fi
+              jq --arg ref "$REF" --arg v "$ORIGIN_LOCK_SECRET" '
+                [ (.result.rules // [])[] | select(.ref != $ref)
+                  | {ref, expression, action, action_parameters, description, enabled} ]
+                + [ {
+                    ref: $ref,
+                    description: "irang origin lock — Vercel middleware 가 확인 (src/lib/origin-lock.ts)",
+                    expression: "(http.host in {\"irangfarm.com\" \"www.irangfarm.com\"})",
+                    action: "rewrite",
+                    action_parameters: { headers: { "x-irang-edge-secret": { operation: "set", value: $v } } },
+                    enabled: true
+                  } ]
+                | { rules: . }' cur.json > body.json
+              ;;
+            remove)
+              jq --arg ref "$REF" '{ rules: [ (.result.rules // [])[] | select(.ref != $ref)
+                  | {ref, expression, action, action_parameters, description, enabled} ] }' cur.json > body.json
+              ;;
+            *) echo "알 수 없는 action: $ACTION"; exit 1 ;;
+          esac
+
+          code=$(curl -s -o put.json -w '%{http_code}' -X PUT -H "$AUTH" -H "Content-Type: application/json" --data @body.json "$API" || true)
+          echo "변경 HTTP ${code}"
+          jq -r 'if .success then ((.result.rules // [])[] | "after ref=\(.ref // "-") enabled=\(.enabled) expr=\(.expression) headers=\((.action_parameters.headers // {}) | keys | join(","))") else "변경 실패: \(.errors | tostring)" end' put.json
+          rm -f body.json
+          [ "$code" = "200" ] || exit 1
