@@ -15,6 +15,7 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
+import { runWhenIdleAfterLoad } from "@/lib/idle-after-load";
 
 /**
  * 사이트에서 온 사람 트래픽일 때만 Sentry 를 켠다 (9/19 GA 게이트와 같은 원칙).
@@ -73,22 +74,32 @@ Sentry.init({
   // 디버그 로그 (개발 시에만)
   debug: false,
 
-  // 세션 리플레이 (Free 플랜 한도 고려하여 비활성화)
-  // 필요 시 replaysSessionSampleRate / replaysOnErrorSampleRate 설정
-  integrations: [
-    Sentry.replayIntegration({
-      // 에러 발생 시에만 리플레이 캡처 (10%)
-      maskAllText: true,
-      blockAllMedia: true,
-      // 9/30 오류 보고 기능과 함께 명시 — 사용자가 "관리자에게 알리기"로 화면 정황을 보낼 때
-      // 입력값(input·textarea·select)이 그대로 올라가지 않게 한다. SDK 기본값도 true 지만
-      // 이 기능의 개인정보 전제라 의존하지 않고 못 박는다.
-      maskAllInputs: true,
-    }),
-  ],
+  // 세션 리플레이(오류 때만 10%)는 첫 화면이 다 그려진 뒤 붙인다 — 아래 addReplayWhenIdle 참고.
+  // 비율 옵션은 여기 둬야 나중에 붙는 통합이 읽는다(Sentry 지연 로드 문서 방식).
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: REPORTABLE ? 0.1 : 0,
 });
+
+/**
+ * 리플레이 통합을 한가할 때 붙인다 (2026-10-17, 모바일 LCP 2단계).
+ *
+ * 리플레이(rrweb)는 Sentry 클라이언트 묶음의 큰 몫인데, 초기화 목록에 두면 모든 페이지 첫 로드에 실려
+ * 첫 화면 JS 를 키웠다. 오류 시 10% 만 쓰는 기능이라 첫 화면이 그려진 뒤 별도 청크로 받아 `addIntegration` 한다.
+ * 그 전(로드 직후 몇 초)에 난 오류도 오류 자체는 그대로 전송된다 — 그 순간의 리플레이만 없다.
+ * 개인정보 마스킹 옵션은 `lib/sentry-replay.ts` 에서 그대로 유지한다.
+ */
+function addReplayWhenIdle(): void {
+  if (!REPORTABLE) return;
+  const run = () => {
+    import("@/lib/sentry-replay")
+      .then(({ createReplayIntegration }) => Sentry.addIntegration(createReplayIntegration()))
+      .catch(() => {
+        /* 청크를 못 받으면 리플레이 없이 진행 — 오류 전송은 영향 없음 */
+      });
+  };
+  runWhenIdleAfterLoad(run, { delayMs: 2000, idleTimeoutMs: 5000 });
+}
+addReplayWhenIdle();
 
 /**
  * App Router 내비게이션 시작 훅 — Next 가 호출한다.

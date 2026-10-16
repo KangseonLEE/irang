@@ -32,24 +32,25 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("SearchOverlayProvider — 여는 경로별 검색어 채움", () => {
-  it("결과 화면 검색창에서 열면 현재 검색어를 채운다", () => {
+  it("결과 화면 검색창에서 열면 현재 검색어를 채운다", async () => {
     render(
       <SearchOverlayProvider>
         <Consumer />
       </SearchOverlayProvider>,
     );
     fireEvent.click(screen.getByText("결과바"));
-    expect(screen.getByTestId("overlay-bar")).toHaveAttribute("data-sync", "1");
+    // 검색창 본체는 지연 로드 — 처음 열 때는 받을 때까지 기다린다(search-overlay.tsx)
+    expect(await screen.findByTestId("overlay-bar")).toHaveAttribute("data-sync", "1");
   });
 
-  it("다른 경로로 열면 빈 검색창 — 닫았다 다시 열어도 직전 경로가 남지 않는다", () => {
+  it("다른 경로로 열면 빈 검색창 — 닫았다 다시 열어도 직전 경로가 남지 않는다", async () => {
     render(
       <SearchOverlayProvider>
         <Consumer />
       </SearchOverlayProvider>,
     );
     fireEvent.click(screen.getByText("결과바"));
-    fireEvent.click(screen.getByText("닫기"));
+    fireEvent.click(await screen.findByText("닫기"));
     fireEvent.click(screen.getByText("단축키"));
     expect(screen.getByTestId("overlay-bar")).toHaveAttribute("data-sync", "0");
   });
