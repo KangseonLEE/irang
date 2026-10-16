@@ -34,7 +34,14 @@ export function sentryMarker(issueId: string): string {
 
 /** 표 셀·제목 안의 개행·파이프는 마크다운 표를 깨뜨린다 */
 function cell(value: string): string {
-  return value.replace(/\s*\r?\n\s*/g, " ").replace(/\|/g, "\\|").trim();
+  // 줄 구분자 전부(\r 단독 포함 — CommonMark 는 \r 도 줄 끝)·제어 문자·양방향 제어 문자를 지운다(10/16 보안 3차 QA B2:
+  // \r 하나로 코드 스팬을 빠져나와 링크·이슈 참조가 렌더됐다)
+  return value
+    .replace(/[\r\n\u0085\u2028\u2029]+/g, " ")
+    .replace(/[\u0000-\u001f\u007f\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\|/g, "\\|")
+    .trim();
 }
 
 /** 표 값 한 칸 상한 — 길게 지어낸 문구가 이슈 본문을 채우지 못하게 */

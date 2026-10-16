@@ -132,6 +132,13 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
   const [hasInteracted, setHasInteracted] = useState(false);
   const outTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const countTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // 언마운트 때 남은 타이머 정리 — 정리 안 된 50ms 타이머가 테스트 환경 종료 뒤 실행돼 오류를 냈다(10/16 QA)
+  useEffect(() => () => {
+    clearTimeout(outTimer.current);
+    clearTimeout(inTimer.current);
+    clearTimeout(countTimer.current);
+  }, []);
   /** 탭·패널 id (인라인·하단 고정 두 tablist 가 같은 패널을 가리킨다) */
   const baseId = useId();
   const panelId = `${baseId}-panel`;
@@ -283,7 +290,8 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
     setPhase("in");
     if (!hasInteracted) setHasInteracted(true);
 
-    setTimeout(() => setCountTrigger(true), 50);
+    clearTimeout(countTimer.current);
+    countTimer.current = setTimeout(() => setCountTrigger(true), 50);
     inTimer.current = setTimeout(() => setPhase("idle"), 350);
   }, [activeIdx, hasInteracted]);
 

@@ -278,6 +278,22 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
     expect(body).not.toContain("Sentry 에서 열기](https://phish");
   });
 
+  it("\\r 단독·유니코드 줄 구분자·양방향 제어 문자로 코드 스팬을 빠져나오지 못한다 (3차 QA B2)", () => {
+    for (const sep of ["\r", "\u2028", "\u2029", "\u0085"]) {
+      const evil = `x\`${sep}[click](https://evil.example) #1${sep}\u202e`;
+      const report = parseSentryWebhook("event_alert", {
+        action: "triggered",
+        data: { event: { issue_id: "7", title: evil, culprit: evil, tags: [["route", evil]] } },
+      });
+      const body = buildIssueBody(report!);
+      for (const line of body.split("\n").filter((l) => l.startsWith("| "))) {
+        expect(line).not.toMatch(/[\r\u0085\u2028\u2029\u202e]/);
+        // 표 행 안의 값은 코드 스팬 하나에 들어 있어야 한다
+        expect((line.match(/`/g) ?? []).length % 2).toBe(0);
+      }
+    }
+  });
+
   it("issue 리소스는 shortId·발생 위치를 담고, 코멘트 본문에 Sentry id 를 남긴다", () => {
     const report = parseSentryWebhook("issue", issueCreatedPayload);
     expect(report!.resource).toBe("issue");
