@@ -30,13 +30,13 @@ import { shareMetadata } from "@/lib/seo/share-metadata";
 import { POLICY_TEXT, YOUTH_SETTLEMENT } from "@/lib/data/policy-facts";
 import Link from "next/link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
-import { ProgramList } from "./program-list";
-import { ProgramRequestCta } from "./program-request-cta";
-import { ProgramSortControl } from "./program-sort-control";
+import { ProgramList } from "../program-list";
+import { ProgramRequestCta } from "../program-request-cta";
+import { ProgramSortControl } from "../program-sort-control";
 import { RoadmapBanner } from "@/components/roadmap/roadmap-banner";
 import { FilterBar, FilterActions } from "@/components/filter/filter-bar";
 import { FilterShell } from "@/components/filter/filter-shell";
-import s from "./page.module.css";
+import s from "../page.module.css";
 
 /** 5/22 Sprint — status 필터 기본 선택 (마감 제외 = 기존 includeClosed=false 동작 보존). */
 // 9/28 회장 결재: "정기 접수"(연례 창구형, 9999 페어 + applicationCycle) 를 필터 옵션으로. 기본값에도 포함.

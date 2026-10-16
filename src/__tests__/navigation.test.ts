@@ -9,8 +9,7 @@
  *   5. prefix 가 겹치는 그룹에서 활성 그룹이 정확히 하나로 결정된다
  */
 
-import { existsSync } from "node:fs";
-import path from "node:path";
+import { routePageFile } from "./fixtures/route-page";
 import { describe, it, expect } from "vitest";
 import {
   NAV_GROUPS,
@@ -96,10 +95,8 @@ describe("메뉴 SSOT — 구성", () => {
   });
 
   it("모든 href 가 실제 라우트(page.tsx)로 존재한다", () => {
-    const appDir = path.resolve(process.cwd(), "src/app");
     for (const href of [...NAV_ITEMS.map((i) => i.href), ...EXTRA_MORE_PATHS]) {
-      const file = path.join(appDir, href, "page.tsx");
-      expect(existsSync(file), `${href} → ${file} 없음`).toBe(true);
+      expect(routePageFile(href), `${href} → page.tsx 없음`).not.toBeNull();
     }
   });
 

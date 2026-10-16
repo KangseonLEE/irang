@@ -1,3 +1,4 @@
+import { routePageFile } from "./fixtures/route-page";
 import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -29,20 +30,7 @@ const hubs = HUB_LANE_IDS.map((id) => buildLaneHub(id));
  * 정적 디렉토리가 없으면 그 자리의 동적 세그먼트([id]·[lane])를 찾는다.
  */
 function routeExists(pathname: string): boolean {
-  let dir = APP_DIR;
-  for (const seg of pathname.split("/").filter(Boolean)) {
-    const staticDir = join(dir, seg);
-    if (existsSync(staticDir)) {
-      dir = staticDir;
-      continue;
-    }
-    const dynamic = readdirSync(dir, { withFileTypes: true }).find(
-      (e) => e.isDirectory() && e.name.startsWith("[") && e.name.endsWith("]"),
-    );
-    if (!dynamic) return false;
-    dir = join(dir, dynamic.name);
-  }
-  return existsSync(join(dir, "page.tsx")) || existsSync(join(dir, "page.ts"));
+  return routePageFile(pathname) !== null; // 라우트 그룹 `(list)` 포함 (fixtures/route-page)
 }
 
 /**

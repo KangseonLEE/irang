@@ -34,6 +34,11 @@ const STATIC_WITHOUT_LOADING = new Set([
   "start/[lane]",
   "terms",
   "privacy", // 10/17 개인정보 처리방침 — 정적(데이터 조회 없음)
+  // 10/17 LCP 2단계 — 상세는 ●(generateStaticParams). 목록 로딩은 각 (list) 그룹으로 옮겼다.
+  // programs/[id] 의 수집 행(crawl-*)은 요청 때 렌더지만 상세 내비게이션은 이전 화면을 유지하다 바뀐다(빈 화면 없음).
+  "crops/[id]",
+  "crops/[id]/stories",
+  "programs/[id]",
 ]);
 
 function pageDirs(dir: string): string[] {
@@ -57,6 +62,16 @@ function hasLoadingAbove(dir: string): boolean {
 describe("로딩 경계", () => {
   it("루트 app/loading.tsx 가 없다 — 랜딩이 Suspense 경계 안으로 들어가면 첫 화면이 숨는다", () => {
     expect(existsSync(join(APP, "loading.tsx"))).toBe(false);
+  });
+
+  it("작물·지원사업 상세는 목록 로딩 경계 밖이다 — 목록 로딩은 (list) 그룹에만", () => {
+    expect(existsSync(join(APP, "crops/loading.tsx"))).toBe(false);
+    expect(existsSync(join(APP, "programs/loading.tsx"))).toBe(false);
+    expect(existsSync(join(APP, "crops/(list)/loading.tsx"))).toBe(true);
+    expect(existsSync(join(APP, "programs/(list)/loading.tsx"))).toBe(true);
+    for (const d of ["crops/[id]", "crops/[id]/stories", "programs/[id]"]) {
+      expect(hasLoadingAbove(join(APP, d)), d).toBe(false);
+    }
   });
 
   it("로딩 화면 없는 페이지는 정적 목록에 있는 것뿐이다", () => {

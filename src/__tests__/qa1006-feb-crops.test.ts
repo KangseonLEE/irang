@@ -12,7 +12,7 @@ import { describe, it, expect } from "vitest";
 import { CROPS } from "@/lib/data/crops";
 import { cropListEmptyMessage, filterCropList } from "@/app/crops/crop-list-filter";
 
-const PAGE_SRC = readFileSync(path.resolve(__dirname, "../app/crops/page.tsx"), "utf8");
+const PAGE_SRC = readFileSync(path.resolve(__dirname, "../app/crops/(list)/page.tsx"), "utf8");
 
 function search(query: string) {
   return filterCropList(CROPS, { categories: [], difficulties: [], query, sort: "name" }).map((c) => c.name);

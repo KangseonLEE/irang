@@ -148,7 +148,7 @@ describe("정책 숫자는 policy-facts 를 거친다", () => {
     const bad = [
       { file: "src/lib/data/therapy.ts", text: '  value: "최대 3억원 (연 1.5%)",' },
       { file: "src/lib/data/program-guides.tsx", text: '  "월 최대 110만 원, 3년간",' },
-      { file: "src/app/programs/page.tsx", text: '  text: "교육 100시간 이상",' },
+      { file: "src/app/programs/(list)/page.tsx", text: '  text: "교육 100시간 이상",' },
     ];
     // therapy 줄은 '3억'과 '1.5%' 두 패턴에 걸린다
     expect(findHardcoded(bad)).toHaveLength(4);

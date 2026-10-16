@@ -30,7 +30,7 @@ vi.mock("@/lib/data/programs", async () => {
   };
 });
 
-const { default: ProgramsPage } = await import("@/app/programs/page");
+const { default: ProgramsPage } = await import("@/app/programs/(list)/page");
 
 async function render(persona?: string): Promise<string> {
   const searchParams = Promise.resolve(persona ? { persona } : {});

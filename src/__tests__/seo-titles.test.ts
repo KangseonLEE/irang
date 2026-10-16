@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
+import { routePageFile } from "./fixtures/route-page";
 import { CROPS, getCropWithDetail } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";
 import { cropSeoDescription, cropSeoTitle } from "@/lib/crops/seo";
@@ -91,7 +92,9 @@ describe("지원사업 상세", () => {
 
 describe("허브 페이지 제목에 '귀농'", () => {
   const titleOf = (route: string) => {
-    const src = readFileSync(join(process.cwd(), "src", "app", route, "page.tsx"), "utf8");
+    const file = routePageFile(route);
+    if (!file) throw new Error(`${route} page.tsx 없음`);
+    const src = readFileSync(file, "utf8");
     const m = src.match(/export const metadata[\s\S]*?title:\s*"([^"]+)"/);
     return m?.[1] ?? "";
   };

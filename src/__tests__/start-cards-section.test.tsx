@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { routePageFile } from "./fixtures/route-page";
 import { StartCardsSection } from "@/components/landing/start-cards-section";
 import { PROGRAMS_DUE_HREF } from "@/components/landing/hero-search-hub";
 
@@ -18,7 +19,7 @@ describe("StartCardsSection — 이랑에서 할 수 있는 것 3카드 (9/7)", 
     for (const href of ["/match?mode=assess", "/regions/ranking", PROGRAMS_DUE_HREF]) {
       expect(html).toContain(`href="${href.replace(/&/g, "&amp;")}"`);
       const path = href.split("?")[0];
-      expect(existsSync(join(process.cwd(), "src", "app", path.slice(1), "page.tsx")), href).toBe(true);
+      expect(routePageFile(path), href).not.toBeNull();
     }
   });
 

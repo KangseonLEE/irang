@@ -9,7 +9,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";
 import { CROPS, DEFAULT_CROP_SORT, type CropSortKey } from "@/lib/data/crops";
-import { CropSortControl } from "./crop-sort-control";
+import { CropSortControl } from "../crop-sort-control";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import { getCropPersonaFitTrace, type FitTrace } from "@/lib/data/persona-fit";
 import { shareMetadata } from "@/lib/seo/share-metadata";
@@ -20,7 +20,7 @@ import {
   filterCropList,
   scoringPersonaOf,
   selectedOptions,
-} from "./crop-list-filter";
+} from "../crop-list-filter";
 import { CropPageCard } from "@/components/crops/crop-page-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { PersonaCta } from "@/components/persona/persona-cta";
@@ -30,17 +30,17 @@ import { FilterShell } from "@/components/filter/filter-shell";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { Pagination } from "@/components/ui/pagination";
-import { CalendarModal } from "./calendar-modal";
-import { CropRequestButton } from "./crop-request-button";
-import { CropList } from "./crop-list";
-import { CropDashboard } from "./crop-dashboard";
-import { beginnerCropsAnswer, cropIncomeAnswer } from "./crops-faq";
+import { CalendarModal } from "../calendar-modal";
+import { CropRequestButton } from "../crop-request-button";
+import { CropList } from "../crop-list";
+import { CropDashboard } from "../crop-dashboard";
+import { beginnerCropsAnswer, cropIncomeAnswer } from "../crops-faq";
 import {
   buildCropRows,
   buildCropFacts,
   buildIncomeFacts,
-} from "./crop-aggregate";
-import s from "./page.module.css";
+} from "../crop-aggregate";
+import s from "../page.module.css";
 
 const FarmingCalendar = dynamic(
   () =>
