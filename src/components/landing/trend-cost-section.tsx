@@ -132,6 +132,13 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
   const [hasInteracted, setHasInteracted] = useState(false);
   const outTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const countTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // 언마운트 때 남은 타이머 정리 — 정리 안 된 50ms 타이머가 테스트 환경 종료 뒤 실행돼 오류를 냈다(10/16 QA)
+  useEffect(() => () => {
+    clearTimeout(outTimer.current);
+    clearTimeout(inTimer.current);
+    clearTimeout(countTimer.current);
+  }, []);
   /** 탭·패널 id (인라인·하단 고정 두 tablist 가 같은 패널을 가리킨다) */
   const baseId = useId();
   const panelId = `${baseId}-panel`;
@@ -247,9 +254,14 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  const heroDisplay = useCountUp(trend.hero.value, countTrigger, 800);
-  const stat0Display = useCountUp(trend.stats[0].value, countTrigger, 800);
-  const stat1Display = useCountUp(trend.stats[1].value, countTrigger, 800);
+  // 섹션이 화면에 들어오기 전(트리거 전)에는 훅 표시값이 첫 탭 값에 머물러 있다 — 그 사이 탭을 바꾸면
+  // 직전 탭 숫자가 DOM 에 남아 화면 낭독기가 틀린 값을 읽었다(10/16 QA2). 트리거 전엔 지금 탭의 최종값을 그대로.
+  const heroCount = useCountUp(trend.hero.value, countTrigger, 800);
+  const stat0Count = useCountUp(trend.stats[0].value, countTrigger, 800);
+  const stat1Count = useCountUp(trend.stats[1].value, countTrigger, 800);
+  const heroDisplay = countTrigger ? heroCount : trend.hero.value;
+  const stat0Display = countTrigger ? stat0Count : trend.stats[0].value;
+  const stat1Display = countTrigger ? stat1Count : trend.stats[1].value;
 
   // 비용 카드 값
   const allCostCards = [cost.hero, ...cost.cards];
@@ -278,7 +290,8 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
     setPhase("in");
     if (!hasInteracted) setHasInteracted(true);
 
-    setTimeout(() => setCountTrigger(true), 50);
+    clearTimeout(countTimer.current);
+    countTimer.current = setTimeout(() => setCountTrigger(true), 50);
     inTimer.current = setTimeout(() => setPhase("idle"), 350);
   }, [activeIdx, hasInteracted]);
 
@@ -438,7 +451,11 @@ export function TrendCostSection({ interviewBands }: TrendCostSectionProps = {})
                 <p className={s.costCardDesc}>{cost.hero.desc}</p>
               </div>
               <div className={s.costCardBottom}>
-                <span className={s.costCardNum}><CountUp value={costVals[0]} /></span>
+                <span className={s.costCardNum}>
+                  {/* 탭마다 새로 마운트 — CountUp 은 화면에 들어오기 전엔 처음 받은 값을 들고 있어
+                      탭을 바꿔도 직전 탭 값('6,219')이 남았다(10/16 QA2). 아래 작은 카드들과 같은 key 규칙 */}
+                  <CountUp key={`${cat.id}-cost-hero`} value={costVals[0]} />
+                </span>
                 <span className={s.costCardUnit}>{cost.hero.unit}</span>
               </div>
             </div>

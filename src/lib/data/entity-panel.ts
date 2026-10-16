@@ -33,12 +33,12 @@ import {
   programStatusLabel,
 } from "@/lib/program-status";
 import {
-  formatAgeRange,
   formatApplicationPeriod,
   formatDateRange,
   splitSentences,
 } from "@/lib/format";
 import { sourceBlockLabel } from "@/lib/source-label";
+import { displayAgeRange } from "@/lib/programs/display";
 
 // ---------------------------------------------------------------------------
 // Types — 다섯 종류가 한 컴포넌트를 쓰도록 공통 프레임 하나로 모았다
@@ -672,10 +672,9 @@ function buildProgramPanel(program: (typeof PROGRAMS)[number]): EntityPanel {
   ];
   const amount = leadSegment(program.supportAmount);
   if (amount) facts.push({ label: "지원 규모", value: truncate(amount, 34) });
-  facts.push({
-    label: "대상 연령",
-    value: formatAgeRange(program.eligibilityAgeMin, program.eligibilityAgeMax),
-  });
+  // 원문에 연령 언급이 없는 사업·수집 행 기본값은 칸째 뺀다 (10/16 2차 QA — display.ts SSOT)
+  const age = displayAgeRange(program.id, program.eligibilityAgeMin, program.eligibilityAgeMax);
+  if (age) facts.push({ label: "대상 연령", value: age });
 
   const lines: PanelChipLine[] = [
     {

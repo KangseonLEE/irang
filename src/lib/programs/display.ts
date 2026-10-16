@@ -118,13 +118,39 @@ export function displaySupportType<T extends string>(id: string | null | undefin
   return type || null;
 }
 
-/** 대상 연령 라벨 — 수집 행은 기본값 18~65 라 null. 큐레이션은 `formatAgeRange` 그대로("만 18~39세") */
+/**
+ * 원문이 **연령 제한이 없다고 밝힌** 큐레이션 사업 (10/16 2차 QA 🟡-①).
+ * 하한 0·상한 99 인 나머지 사업은 원문에 연령 '언급이 없을' 뿐이라 '연령 제한 없음'으로 단정하지 않는다 —
+ * 상세는 '공고에서 확인', 랜딩 카드·검색 지식 패널은 연령 줄을 뺀다.
+ * 본문(요약·설명·자격)에 "연령 제한(은) 없…"이 있는 사업과 이 목록이 같아야 한다 — programs-age-evidence.test.ts.
+ */
+export const AGE_NO_LIMIT_STATED: ReadonlySet<string> = new Set(["SP-013", "SP-014", "SP-042", "SP-043"]);
+
+/** 연령 조건이 없는 값(하한 0·상한 99)인데 원문이 '제한 없음'을 밝히지 않은 사업 — 원문에 언급 없음 */
+export function isAgeUnstated(
+  id: string | null | undefined,
+  min: number | null | undefined,
+  max: number | null | undefined,
+): boolean {
+  const hasMin = typeof min === "number" && min > 0;
+  const hasMax = typeof max === "number" && max > 0 && max < 99;
+  return !hasMin && !hasMax && !AGE_NO_LIMIT_STATED.has(id ?? "");
+}
+
+/** 상세 '대상 연령' 칸 — 원문에 연령 언급이 없는 사업 */
+export const AGE_UNSTATED_LABEL = "공고에서 확인";
+
+/**
+ * 대상 연령 라벨 — 수집 행은 기본값 18~65 라 null. 큐레이션은 `formatAgeRange` 그대로("만 18~39세").
+ * 원문에 연령 언급이 없는 사업(isAgeUnstated)도 null — 카드·패널은 줄째 빼고, 상세는 AGE_UNSTATED_LABEL 을 쓴다.
+ */
 export function displayAgeRange(
   id: string | null | undefined,
   min: number | null | undefined,
   max: number | null | undefined,
 ): string | null {
   if (hasCollectorDefaults(id)) return null;
+  if (isAgeUnstated(id, min, max)) return null;
   return formatAgeRange(min, max);
 }
 

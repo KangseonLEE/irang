@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { SigunguMapLocation } from "@/lib/data/province-maps";
 import { getSigunguBySidoAndId } from "@/lib/data/sigungus";
@@ -136,13 +137,6 @@ export function ProvinceMap({
     return colors;
   }, [densityMap, sigungus]);
 
-  const handleClick = useCallback(
-    (sigunguId: string) => {
-      router.push(`/regions/${provinceId}/${sigunguId}`);
-    },
-    [router, provinceId]
-  );
-
   const handleMouseEnter = useCallback(
     (sigunguId: string) => {
       setHoveredId(sigunguId);
@@ -196,34 +190,36 @@ export function ProvinceMap({
         role="group"
         aria-label="시군구 지도 — 인구밀도 기준 색상"
       >
-        {/* 시군구 paths — 본토만. 도서는 별도 칩으로 표시 */}
+        {/* 시군구 paths — 본토만. 도서는 별도 칩으로 표시.
+            10/16 QA1 🟡-1: path 를 role=button + router.push 로 두면 시·군·구 링크가 HTML 에 없어
+            크롤러가 하위 페이지를 못 찾았다(들어오는 링크 0 인 지역 91쪽). SVG 안 <a>(Next Link 는 svg 안
+            소문자 nodeName 을 지원)로 감싸 진짜 링크로 — 클릭·Enter 는 링크 기본 동작, 탭/드래그 구분은
+            브라우저 click 판정 그대로. 시·군·구 상세는 on-demand ISR 이라 화면 진입 prefetch 는 끄고
+            hover 때만 미리 받는다(예전과 같다) */}
         {mainSigungus.map((sg) => {
           const isActive = hoveredId === sg.sigunguId;
           const densityFill = densityColors?.[sg.sigunguId];
           return (
-            <path
+            <Link
               key={sg.sigunguId}
-              d={sg.path}
-              className={`${s.region} ${isActive ? s.regionActive : ""}`}
-              style={
-                densityFill && !isActive
-                  ? ({ "--density-fill": densityFill } as React.CSSProperties)
-                  : undefined
-              }
-              onClick={() => handleClick(sg.sigunguId)}
-              onMouseEnter={() => handleMouseEnter(sg.sigunguId)}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              role="button"
-              tabIndex={0}
+              href={`/regions/${provinceId}/${sg.sigunguId}`}
+              prefetch={false}
+              className={s.regionLink}
               aria-label={`${sg.name} 상세 보기`}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleClick(sg.sigunguId);
+            >
+              <path
+                d={sg.path}
+                className={`${s.region} ${isActive ? s.regionActive : ""}`}
+                style={
+                  densityFill && !isActive
+                    ? ({ "--density-fill": densityFill } as React.CSSProperties)
+                    : undefined
                 }
-              }}
-            />
+                onMouseEnter={() => handleMouseEnter(sg.sigunguId)}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+              />
+            </Link>
           );
         })}
 
@@ -251,15 +247,15 @@ export function ProvinceMap({
         <div className={s.islandsHint}>
           <span className={s.islandsLabel}>이 지역의 섬:</span>
           {islandSigungus.map((sg) => (
-            <button
+            <Link
               key={sg.sigunguId}
-              type="button"
+              href={`/regions/${provinceId}/${sg.sigunguId}`}
+              prefetch={false}
               className={s.islandChip}
-              onClick={() => handleClick(sg.sigunguId)}
               onMouseEnter={() => handleMouseEnter(sg.sigunguId)}
             >
               {sg.name}
-            </button>
+            </Link>
           ))}
         </div>
       )}

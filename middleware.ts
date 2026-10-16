@@ -4,6 +4,8 @@
  * 1) AI 학습 크롤러 강제 차단 (403) — robots.txt를 무시하는 봇 대응
  * 2) list 페이지(/events 등) searchParams 정규화 — 봇 abuse query 308 redirect
  * 3) /admin/* 인증 가드 — admin_token 쿠키 검증
+ * 0) (첫 분기) 오리진 잠금 — Cloudflare 를 거치지 않은 직접 접속 차단. 기본 꺼짐.
+ *    켜는 절차·예외는 src/lib/origin-lock.ts 상단 주석 (2026-10-16 보안 QA 🔴1)
  *
  * matcher 확장으로 정적 자산을 제외한 모든 요청에 적용.
  * 봇 차단이 우선이므로 _next/static, 이미지, favicon 등은 매처에서 제외해
@@ -25,6 +27,11 @@ import {
   normalizeSearchParams,
 } from "@/lib/search-params/normalize";
 import { INTERNAL_TRAFFIC_COOKIE } from "@/lib/internal-traffic";
+import {
+  ORIGIN_LOCK_HEADER,
+  countryForGeoBlock,
+  decideOriginLock,
+} from "@/lib/origin-lock";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/api/auth"];
 
@@ -174,6 +181,30 @@ function isFishingPath(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ua = request.headers.get("user-agent") || "";
+  const host = request.headers.get("host");
+
+  // 0) 오리진 잠금 (2026-10-16 보안 QA 🔴1) — Cloudflare Transform Rule 이 붙이는 비밀 헤더 검사.
+  // ORIGIN_LOCK_MODE 미설정(기본)이면 아무것도 하지 않는다. log 는 경고만, enforce 는 403.
+  // 값은 절대 로그에 남기지 않는다 — 경로와 cf-ray 유무(= Cloudflare 경유 여부)만.
+  const lock = decideOriginLock({
+    host,
+    pathname,
+    edgeHeader: request.headers.get(ORIGIN_LOCK_HEADER),
+  });
+  if (lock.action !== "pass") {
+    console.warn(
+      `[origin-lock] mismatch mode=${lock.action === "block" ? "enforce" : "log"} path=${pathname.slice(0, 80)} cf-ray=${request.headers.has("cf-ray") ? "yes" : "no"}`,
+    );
+    if (lock.action === "block") {
+      return new NextResponse(null, {
+        status: 403,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0",
+          "X-Robots-Tag": "noindex, nofollow",
+        },
+      });
+    }
+  }
 
   // 1) AI 학습 크롤러 즉시 403 — 모든 경로
   if (isBlockedBot(ua)) {
@@ -200,14 +231,18 @@ export async function middleware(request: NextRequest) {
   // middleware에서도 통과시켜야 e2e 실패 안 함. CF는 KR 외 GH Actions runner IP
   // (대부분 미국 데이터센터)에서 호출되므로 cf-ipcountry !== KR에 걸려 503.
   // CF가 이미 IP+UA 이중 검증으로 통과시킨 신호이므로 middleware도 동일 신뢰.
-  const country = request.headers.get("cf-ipcountry");
+  // 국가 판정: 오리진 잠금 enforce + 운영 호스트에서만 cf-ipcountry 를 믿고, 없으면 KR 외("XX")로 본다.
+  // 그 전(off·log)에는 지금까지와 같다 — 헤더가 없으면 통과(직접 접속·로컬). lib/origin-lock.ts 참조.
+  const country = countryForGeoBlock(host, request.headers.get("cf-ipcountry"));
   const isE2eUa = ua.includes("irang-e2e/1.0");
   // 2026-09-30: Sentry 웹훅(미국 발신)은 HMAC 서명으로 자체 인증하므로 geo 차단 예외.
   // 주의 — 같은 정책이 CF Worker `irang-bot-detection`(irangfarm.com/*, 오리진 앞)에도 복제돼 있다.
   // 여기 예외만 넣고 Worker 를 안 고치면 요청이 오리진에 닿지 못한다(9/30 Sentry 503 7회의 진범은
   // 이 분기가 아니라 Worker 였다). 예외 추가 시 cloudflare-workers/bot-detection/index.js 동반 수정.
   const isSentryWebhook = pathname === "/api/sentry-webhook";
-  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook) {
+  // 인증서 갱신(Let's Encrypt 는 해외 발신) — 7/24·8/17 자기잠금 사고. Worker·CF 룰과 같은 예외 (10/16)
+  const isAcmeChallenge = pathname.startsWith("/.well-known/acme-challenge/");
+  if (country && country !== "KR" && !isVerifiedBot(ua) && !isE2eUa && !isSentryWebhook && !isAcmeChallenge) {
     if (pathname.startsWith("/api/")) {
       // API 경로의 geo 차단은 서버-서버 연동(웹훅 등) 진단을 위해 남긴다 (9/30)
       console.warn(`[middleware] geo 503 path=${pathname} country=${country} ua=${ua.slice(0, 60)}`);
@@ -342,7 +377,24 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3) RSC variant 응답 캐시 차단 — Cloudflare가 vary: rsc를 무시해
+  // 3) /admin/* 인증 가드 — **RSC 분기보다 먼저** (2026-10-16 보안 QA 🟡5).
+  // 예전엔 RSC/prefetch 요청이 아래 4) 분기에서 먼저 NextResponse.next() 로 빠져나가 이 가드를 건너뛰었다.
+  // 지금은 Next 어댑터가 flight 헤더를 지워서 막혀 있지만, 그 내부 동작 하나에 관리자 데이터를 걸 수 없다.
+  // 관리자 화면 자체도 서버에서 한 번 더 확인한다(lib/admin/session.ts requireAdminPage).
+  if (pathname.startsWith("/admin")) {
+    const isPublicAdmin = PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p));
+    if (!isPublicAdmin) {
+      const token = request.cookies.get(COOKIE_NAME)?.value;
+      if (!token || !(await verifyToken(token))) {
+        const response = NextResponse.redirect(new URL("/admin/login", request.url));
+        // 5/11 박제 — redirect 는 CDN·브라우저에 남으면 안 된다 (보안 QA ⚪8: 예전엔 public, max-age=0)
+        response.headers.set("Cache-Control", "private, no-store, max-age=0");
+        return response;
+      }
+    }
+  }
+
+  // 4) RSC variant 응답 캐시 차단 — Cloudflare가 vary: rsc를 무시해
   // RSC payload(text/x-component)가 일반 HTML 응답으로 잘못 캐시되는 사고 방지.
   // Next.js prefetch는 RSC 헤더 또는 Next-Router-Prefetch 헤더를 동반함.
   const isRscRequest =
@@ -360,29 +412,26 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
-  // 4) /admin/* 인증 가드
-  if (pathname.startsWith("/admin")) {
-    if (PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
-      return NextResponse.next();
-    }
-
-    const token = request.cookies.get(COOKIE_NAME)?.value;
-    if (!token || !(await verifyToken(token))) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
   /*
    * 정적 자산 제외 (middleware 호출 비용 최소화):
-   * - _next/static, _next/image: Next.js 빌드 자산
-   * - favicon, icon, manifest, robots.txt, sitemap.xml
-   * - 모든 이미지/폰트 확장자
+   * - _next/static, _next/image: Next.js 빌드 자산·이미지 최적화
+   * - favicon.ico·icon.svg·manifest.json·robots.txt·사이트맵(.xml)
+   * - 이미지/폰트 확장자로 **끝나는** 경로만
+   *
+   * 2026-10-16 보안 2차 QA A2: 예외 패턴에 끝 고정(`$`)이 없어 `/programs/x.png`·`/programs/x.pngabc`·
+   * `/sitemapfoo` 처럼 확장자·접두가 경로 **중간**에만 있어도 미들웨어(오리진 잠금·국가 차단)를 건너뛰고
+   * 동적 상세 페이지 SSR 까지 갔다. 이제 실제 정적 파일 이름만 건너뛴다(Next proxy 문서 예시 `.*\\.png$` 와 같은 문법).
+   *
+   * `/_next/image` 는 계속 제외한다 — 미들웨어를 태우면 이미지 요청마다 함수 호출이 붙는데(Hobby 한도),
+   * 남용 면은 remotePatterns 축소(파일·경로 단위)로 좁혔다. 오리진 직접 접속으로 변환 한도를 쓰는 경로는
+   * Vercel Firewall 룰("x-irang-edge-secret 없음 → deny")로 막는 것이 정확하다(운영 결정 사항).
+   * 판정은 src/__tests__/middleware-matcher.test.ts 가 unstable_doesMiddlewareMatch 로 고정한다.
    */
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|manifest\\.json|robots\\.txt|sitemap|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico$|icon\\.svg$|manifest\\.json$|robots\\.txt$|sitemap[^/]*\\.xml$|sitemap/[^/]*\\.xml$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$).*)",
   ],
 };

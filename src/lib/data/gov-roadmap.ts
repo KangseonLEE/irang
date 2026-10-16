@@ -15,6 +15,7 @@ import {
   FOREST_VILLAGE_LOAN,
   POLICY_TEXT,
   RETURN_FARM_LOAN,
+  SMARTFARM_FUND,
   YOUTH_SETTLEMENT,
   formatManwon,
 } from "./policy-facts";
@@ -858,9 +859,9 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
     agency: "농림축산식품부 · 한국농업기술진흥원(KOAT)",
     icon: Monitor,
     summary:
-      "ICT 기술(센서, 자동제어, 데이터 분석)을 활용한 온실·축사 등 스마트 농업 창업을 지원해요. 청년창업보육센터(20개월 무료 과정), 스마트팜 종합자금(시설자금 연 1.0% 고정 융자, 청년 30억 원 한도), 혁신밸리 임대형 스마트팜 입주 등 단계별 지원이 제공돼요.",
+      `ICT 기술(센서, 자동제어, 데이터 분석)을 활용한 온실·축사 등 스마트 농업 창업을 지원해요. 청년창업보육센터(20개월 무료 과정), 스마트팜 종합자금(시설자금 ${SMARTFARM_FUND.facilityRate.value} 고정 융자, 청년 ${POLICY_TEXT.smartfarmYouthMax} 한도), 혁신밸리 임대형 스마트팜 입주 등 단계별 지원이 제공돼요.`,
     targetAudience: "스마트팜 창업 희망자 · 기존 농업인(시설 전환) · 청년 농업인",
-    supportAmount: "종합자금 융자 시설 연 1.0%·운전 연 1.5% 고정 (청년 30억 · 일반 50억 한도), 청년보육 20개월 무상 교육",
+    supportAmount: `종합자금 융자 시설 ${SMARTFARM_FUND.facilityRate.value}·운전 ${SMARTFARM_FUND.workingRate.value} 고정 (청년 ${POLICY_TEXT.smartfarmYouthMax} · 일반 ${POLICY_TEXT.smartfarmGeneralMax} 한도), 청년보육 20개월 무상 교육`,
     supportType: "혼합",
     eligibility: [
       {
@@ -985,10 +986,11 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       "데이터 수집·분석 결과 농업기술센터 공유",
       "정부 인증 설비 유지·관리 의무",
       "융자금 목적 외 사용 시 회수",
-      "융자금은 거치 기간(2~3년) 후 분할 상환",
+      // 10/16 2차 QA: 종전 '거치 기간(2~3년) 후 분할 상환'은 개보수자금 조건만이었다 — 시설자금은 5년 거치 20년
+      `융자금 상환 — ${POLICY_TEXT.smartfarmRepayment}`,
     ],
     caution:
-      "스마트팜 종합자금은 보조금이 아니라 100% 융자예요 (시설·개보수 연 1.0%, 운전자금 연 1.5% 고정, NH농협은행 취급). 지자체별 스마트팜 보조사업은 별도 공고로 운영되니 보조율·품목·신청 자격은 해당 연도 공고문을 확인하세요.",
+      `스마트팜 종합자금은 보조금이 아니라 100% 융자예요 (${POLICY_TEXT.smartfarmRates}, NH농협은행 취급). 지자체별 스마트팜 보조사업은 별도 공고로 운영되니 보조율·품목·신청 자격은 해당 연도 공고문을 확인하세요.`,
     relatedLinks: [
       { label: "지원사업 검색", href: "/programs" },
       { label: "작물 정보", href: "/crops" },
@@ -1018,7 +1020,7 @@ export const GOV_PROGRAMS: GovProgramRoadmap[] = [
       {
         name: "스마트팜 종합자금",
         target: "스마트팜 시설을 신규 설치하거나 기존 시설을 전환하려는 농업인",
-        support: "100% 융자 — 시설·개보수자금 연 1.0%·운전자금 연 1.5% 고정, 청년 30억/일반 50억 한도 (NH농협은행)",
+        support: `100% 융자 — ${POLICY_TEXT.smartfarmRates}, 청년 ${POLICY_TEXT.smartfarmYouthMax}/일반 ${POLICY_TEXT.smartfarmGeneralMax} 한도 (NH농협은행)`,
         conditions: [
           "농업경영체 등록",
           "ICT 설비 정부 인증 업체 이용",

@@ -26,6 +26,7 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { changedLinesFromDiff, isOrthographyOnlyChange } from "./correction-diff";
 import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -272,6 +273,7 @@ function checkCorrectionHistory(history: HistoryState): void {
   const candidates: CorrectionCandidate[] = [];
   let appendOnlySkipped = 0;
   let nonDataSkipped = 0;
+  let orthographySkipped = 0;
 
   for (const c of commits) {
     if (!isCorrectionCandidate(c.subject)) continue;
@@ -289,6 +291,16 @@ function checkCorrectionHistory(history: HistoryState): void {
       continue;
     }
 
+    // §9-3: 표기만 바뀐 변경(받침 어미·띄어쓰기·문장 부호·주석)은 정보가 바뀐 게 아니라 정정 아님 (10/16 QA, #178 365bae3)
+    const diff = git(["show", "-U0", "--pretty=format:", c.sha, "--", ...files]);
+    if (diff !== null) {
+      const { removed, added } = changedLinesFromDiff(diff);
+      if (isOrthographyOnlyChange(removed, added)) {
+        orthographySkipped += 1;
+        continue;
+      }
+    }
+
     candidates.push({ ...c, dataFiles: files, deletions });
   }
 
@@ -299,7 +311,8 @@ function checkCorrectionHistory(history: HistoryState): void {
   console.log(`  검사 commit ${commits.length}건 (since ${since})`);
   console.log(`  정정 후보 ${candidates.length}건` +
     (nonDataSkipped > 0 ? ` · 데이터 파일 무변경 제외 ${nonDataSkipped}건` : "") +
-    (appendOnlySkipped > 0 ? ` · append-only 제외 ${appendOnlySkipped}건` : ""));
+    (appendOnlySkipped > 0 ? ` · append-only 제외 ${appendOnlySkipped}건` : "") +
+    (orthographySkipped > 0 ? ` · 표기만 바뀜 제외 ${orthographySkipped}건` : ""));
   console.log(`  ${CORRECTIONS_PAGE} 마지막 수정: ${correctionsDate}`);
   console.log("");
 

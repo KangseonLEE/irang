@@ -4,8 +4,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { clientIp, hashIp, isE2eRequest } from "@/lib/community/ip-hash";
+import { hashIp, isE2eRequest } from "@/lib/community/ip-hash";
 import { likeNote } from "@/lib/community/queries";
+import { getClientIp } from "@/lib/client-ip";
 
 const limiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const NO_STORE = { "Cache-Control": "private, no-store, max-age=0" };
@@ -22,7 +23,8 @@ export async function POST(
   if (isE2eRequest(req)) {
     return NextResponse.json({ ok: true, skipped: "e2e", likeCount: 0 }, { status: 202, headers: NO_STORE });
   }
-  const ip = clientIp(req);
+  // 공감은 본문이 없어 Content-Type 을 강제하지 않는다 — IP 해시 멱등(1인 1회)이 남용 상한
+  const ip = getClientIp(req);
   if (limiter.isLimited(ip)) {
     return NextResponse.json({ ok: false, error: "rate limited" }, { status: 429, headers: NO_STORE });
   }

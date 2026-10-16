@@ -17,6 +17,7 @@ import { loadPrograms } from "@/lib/data/programs";
 import { NoteActions } from "./note-actions";
 import s from "../requests/page.module.css";
 import c from "./page.module.css";
+import { requireAdminPage } from "@/lib/admin/session";
 
 /** admin은 매 요청 fresh fetch가 의도. searchParams 의존이라 revalidate 추가 금지 (2026-05-11 lessons). */
 
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export default async function AdminCommunityPage({ searchParams }: Props) {
+  await requireAdminPage(); // 미들웨어와 별개의 2차 인가 — 데이터 조회보다 먼저 (보안 QA 🟡5)
   const params = await searchParams;
   const statusFilter: NoteStatus | "all" = isNoteStatus(params.status)
     ? params.status

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { ExternalLinkBlock, safeHttpUrl } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -76,6 +76,13 @@ export async function generateMetadata({
 export function generateStaticParams() {
   return EDUCATION_COURSES.map((c) => ({ id: c.id }));
 }
+
+/**
+ * 1시간마다 다시 만든다 (10/16 QA 🟡-3). 상태 배지는 렌더 순간의 날짜로 계산하는데 revalidate 가 없으면
+ * 수집 행(crawl-*) 상세가 다음 배포까지 굳어 접수 마감 뒤에도 '접수중'으로 남는다(체험 상세 🔴-1 과 같은 구조).
+ * searchParams 를 읽지 않는 [id] 라우트라 'dynamic SSR + revalidate 충돌'(5/11 Lessons) 대상이 아니다.
+ */
+export const revalidate = 3600;
 
 interface EducationDetailPageProps {
   params: Promise<{ id: string }>;
@@ -297,7 +304,8 @@ export default async function EducationDetailPage({
             </div>
             <div className={s.cardContent}>
               <ExternalLinkBlock
-                href={course.url}
+                // 수집 행 주소는 원천 값 — http(s) 가 아니면 원문 그대로 넘기지 않는다(블록이 깨진 링크 안내로 바꾼다, 10/16 2차 QA)
+                href={safeHttpUrl(course.url) ?? ""}
                 label="신청 페이지 보러가기"
                 linkStatus={course.linkStatus}
                 title={course.title}

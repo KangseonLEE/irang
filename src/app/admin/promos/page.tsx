@@ -7,12 +7,14 @@
 
 import type { Metadata } from "next";
 import { PromoAdmin } from "./promo-admin";
+import { requireAdminPage } from "@/lib/admin/session";
 
 export const metadata: Metadata = {
   title: "홍보 관리",
   robots: { index: false, follow: false },
 };
 
-export default function AdminPromosPage() {
+export default async function AdminPromosPage() {
+  await requireAdminPage(); // 미들웨어와 별개의 2차 인가 — 데이터 조회보다 먼저 (보안 QA 🟡5)
   return <PromoAdmin />;
 }

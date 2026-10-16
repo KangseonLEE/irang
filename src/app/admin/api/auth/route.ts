@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import {
+  isAdminAuthConfigured,
   verifyPassword,
   createToken,
   buildCookieHeader,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/admin/auth";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { recordAndCheckLoginAttempt } from "@/lib/admin/login-throttle";
+import { getClientIp } from "@/lib/client-ip";
 
 /**
  * 로그인 시도 제한 (2026-09-16 보안 점검).
@@ -26,16 +28,17 @@ import { recordAndCheckLoginAttempt } from "@/lib/admin/login-throttle";
  */
 const loginLimiter = createRateLimiter({ windowMs: 10 * 60_000, max: 5 });
 
-function clientIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown"
-  );
-}
-
 export async function POST(request: NextRequest) {
-  const ip = clientIp(request);
+  // 운영에서 ADMIN_SECRET(32자+)·ADMIN_PASSWORD 가 없으면 로그인 자체를 막는다 — fail-closed (보안 QA ⚪1)
+  if (!isAdminAuthConfigured()) {
+    console.error("[admin/auth] ADMIN_SECRET(32자 이상) 또는 ADMIN_PASSWORD 미설정 — 로그인 거부");
+    return NextResponse.json(
+      { error: "관리자 로그인을 쓸 수 없어요" },
+      { status: 503, headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
+
+  const ip = getClientIp(request);
 
   // 1차: 인메모리(같은 인스턴스에 몰린 폭주를 즉시 차단)
   // 2차: DB 영속 카운터(인스턴스가 흩어져도 창 전체를 집계) — 실효는 여기서 난다
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!verifyPassword(password)) {
+  if (!(await verifyPassword(password))) {
     return NextResponse.json(
       { error: "비밀번호가 일치하지 않아요" },
       { status: 401 },

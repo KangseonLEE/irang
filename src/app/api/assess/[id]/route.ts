@@ -12,6 +12,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
 
+/** 공개해도 되는 결과 컬럼 — user_agent·referrer·answers·recommended_programs 제외 */
+const PUBLIC_RESULT_COLUMNS =
+  "id,farm_type_id,top_regions,top_crops,age_group,source,persona,created_at";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -43,9 +47,11 @@ export async function GET(
     );
   }
 
+  // 화면에 필요한 컬럼만 (보안 QA 🟡6) — 공유 링크를 아는 사람에게 작성자의 user_agent·referrer·answers 를
+  // 공개 캐시(1h)로 돌려주던 것을 막는다. answers 가 필요한 소비자는 현재 없다(grep, 10/16).
   const { data, error } = await sb
     .from("assessment_results")
-    .select("*")
+    .select(PUBLIC_RESULT_COLUMNS)
     .eq("id", id)
     .single();
 

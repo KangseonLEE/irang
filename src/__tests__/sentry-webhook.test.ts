@@ -182,33 +182,116 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
 
     const body = buildIssueBody(report!);
     expect(body).toContain(sentryMarker("6612345678"));
-    expect(body).toContain("| 레벨 | error |");
-    expect(body).toContain("| 환경 | production |");
-    expect(body).toContain("| 경로 | /crops/[id] |");
-    expect(body).toContain("| error_boundary | true |");
-    expect(body).toContain("| 알림 규칙 | 새 오류가 생기면 알림 |");
+    expect(body).toContain("| 레벨 | `error` |");
+    expect(body).toContain("| 환경 | `production` |");
+    expect(body).toContain("| 경로 | `/crops/[id]` |");
+    expect(body).toContain("| error_boundary | `true` |");
+    expect(body).toContain("| 알림 규칙 | `새 오류가 생기면 알림` |");
     expect(body).toContain("[Sentry 에서 열기](https://irang.sentry.io/issues/6612345678/events/");
-    expect(buildIssueTitle(report!)).toBe(
-      "[Sentry] TypeError: Cannot read properties of undefined (reading 'name')"
-    );
+    // 제목은 고정 형식, 원문 제목은 표 안 코드 스팬으로 (2차 QA A5)
+    expect(buildIssueTitle(report!)).toBe("[Sentry] 오류 (6612345678)");
+    expect(body).toContain("| 제목 | `TypeError: Cannot read properties of undefined (reading 'name')` |");
     expect(issueLabels(report!)).toEqual(["bug"]);
   });
 
-  it("피드백 event_alert 은 메시지·이메일·첨부를 본문에 담고 라벨이 user-feedback", () => {
+  it("피드백 event_alert 은 사용자 입력(메시지·이메일·이름·첨부)을 공개 이슈에 싣지 않고 Sentry 링크만 남긴다", () => {
     const report = parseSentryWebhook("event_alert", feedbackAlertPayload);
     expect(report!.kind).toBe("feedback");
+    // 파서는 그대로 읽는다 — 무엇을 공개할지는 본문 조립이 정한다
     expect(report!.feedback?.email).toBe("grower@example.com");
-    expect(report!.feedback?.name).toBe("김농부");
     expect(report!.feedback?.attachments).toHaveLength(1);
 
     const body = buildIssueBody(report!);
+    const comment = buildCommentBody(report!);
+    const title = buildIssueTitle(report!);
+    for (const text of [body, comment, title]) {
+      expect(text).not.toContain("grower@example.com");
+      expect(text).not.toContain("김농부");
+      expect(text).not.toContain("원문 링크가 안 보여요");
+      expect(text).not.toContain("모바일에서 특히");
+      expect(text).not.toContain("attachments/9001");
+    }
     expect(body).toContain("### 사용자 피드백");
-    expect(body).toContain("> 지원사업 원문 링크가 안 보여요.");
-    expect(body).toContain("> 모바일에서 특히 그래요.");
-    expect(body).toContain("| 이메일 | grower@example.com |");
-    expect(body).toContain("| 남긴 페이지 | https://irangfarm.com/programs/SP-020 |");
-    expect(body).toContain("[스크린샷 열기](https://irang.sentry.io/api/0/attachments/9001/?download=1)");
+    expect(body).toContain("- 남긴 페이지: `/programs/SP-020`");
+    expect(body).toContain("메시지·연락처·첨부 1건이 있어요");
+    expect(body).toContain("[Sentry 에서 확인](https://irang.sentry.io/feedback/?feedbackSlug=irang%3A6698765432)");
+    expect(body).not.toContain("<summary>태그</summary>");
+    expect(title).toBe("[Sentry] 사용자 피드백 (6698765432)");
     expect(issueLabels(report!)).toEqual(["user-feedback"]);
+  });
+
+  it("남긴 페이지·경로는 쿼리를 떼고, 오류 이슈 태그는 공개 허용 키만 싣는다", () => {
+    const report = parseSentryWebhook("event_alert", {
+      action: "triggered",
+      data: {
+        event: {
+          issue_id: "77",
+          title: "Error: x",
+          tags: [
+            ["environment", "production"],
+            ["url", "https://irangfarm.com/search?q=010-1234-5678"],
+            ["user.email", "a@b.c"],
+            ["user", "ip:1.2.3.4"],
+          ],
+        },
+      },
+    });
+    const body = buildIssueBody(report!);
+    expect(body).toContain("| 경로 | `/search` |");
+    expect(body).not.toContain("010-1234-5678");
+    expect(body).not.toContain("a@b.c");
+    expect(body).not.toContain("1.2.3.4");
+    expect(body).toContain("- `environment`: `production`");
+  });
+
+  it("지어낸 이벤트의 링크·멘션·이슈 참조·백틱 탈출·주석 탈출을 무력화한다 (2차 QA A5)", () => {
+    const evil = "[클릭](https://phish.example) @KangseonLEE #1 `x` " + "가".repeat(300);
+    const report = parseSentryWebhook("event_alert", {
+      action: "triggered",
+      data: {
+        event: {
+          issue_id: "9 --> <b>x</b>",
+          title: evil,
+          culprit: evil,
+          environment: "@prod",
+          web_url: "https://phish.example/issues/1/",
+          tags: [["route", evil], ["release", "[a](https://x.example)"]],
+        },
+      },
+    });
+    const body = buildIssueBody(report!);
+    const title = buildIssueTitle(report!);
+    expect(title).toBe("[Sentry] 오류 (9--bxb)");
+    expect(title).not.toContain("phish");
+    // 링크·멘션은 코드 스팬 안에만, @ 는 전각
+    expect(body).not.toMatch(/(^|[^`])\[클릭\]\(https:\/\/phish/);
+    expect(body).not.toContain("@KangseonLEE");
+    expect(body).toContain("＠KangseonLEE");
+    expect(body).toContain("| 제목 | `[클릭](https://phish.example) ＠KangseonLEE #1 'x' ");
+    // 셀마다 120자 상한
+    for (const line of body.split("\n").filter((l) => l.startsWith("| "))) {
+      expect(line.length).toBeLessThan(160);
+    }
+    // 주석 탈출 차단 + sentry.io 밖 링크는 싣지 않는다
+    expect(body.startsWith("<!-- sentry:9--bxb -->")).toBe(true);
+    expect(body).not.toContain("<b>");
+    expect(body).not.toContain("Sentry 에서 열기](https://phish");
+  });
+
+  it("\\r 단독·유니코드 줄 구분자·양방향 제어 문자로 코드 스팬을 빠져나오지 못한다 (3차 QA B2)", () => {
+    for (const sep of ["\r", "\u2028", "\u2029", "\u0085"]) {
+      const evil = `x\`${sep}[click](https://evil.example) #1${sep}\u202e`;
+      const report = parseSentryWebhook("event_alert", {
+        action: "triggered",
+        data: { event: { issue_id: "7", title: evil, culprit: evil, tags: [["route", evil]] } },
+      });
+      const body = buildIssueBody(report!);
+      for (const line of body.split("\n").filter((l) => l.startsWith("| "))) {
+        expect(line).not.toMatch(/[\r\u0085\u2028\u2029\u202e]/);
+        // 표 행 안의 값은 코드 스팬 하나에 들어 있어야 한다
+        expect((line.match(/`/g) ?? []).length % 2).toBe(0);
+      }
+    }
   });
 
   it("issue 리소스는 shortId·발생 위치를 담고, 코멘트 본문에 Sentry id 를 남긴다", () => {
@@ -217,7 +300,7 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
     expect(report!.action).toBe("created");
     expect(report!.shortId).toBe("IRANG-3F");
     expect(report!.project).toBe("irang");
-    expect(buildIssueBody(report!)).toContain("| 이슈 번호 | IRANG-3F |");
+    expect(buildIssueBody(report!)).toContain("| 이슈 번호 | `IRANG-3F` |");
     expect(buildCommentBody(report!)).toContain("`6612345678`");
   });
 
@@ -226,7 +309,8 @@ describe("parseSentryWebhook → GitHub 이슈 본문", () => {
       action: "triggered",
       data: { event: { issue_id: "1", title: "Error: a | b\nc", tags: [] } },
     });
-    expect(buildIssueTitle(report!)).toBe("[Sentry] Error: a \\| b c");
+    expect(buildIssueTitle(report!)).toBe("[Sentry] 오류 (1)");
+    expect(buildIssueBody(report!)).toContain("| 제목 | `Error: a \\| b c` |");
   });
 
   it("다루지 않는 리소스·형태면 null", () => {

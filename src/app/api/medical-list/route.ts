@@ -18,6 +18,7 @@ import { GU_HIRA_CODES_MAP, fetchGuResidualItems, hiraListUnits, type HiraListIt
 import { GUS } from "@/lib/data/gus";
 import { PROVINCES } from "@/lib/data/regions";
 import { SIGUNGUS } from "@/lib/data/sigungus";
+import { getClientIp } from "@/lib/client-ip";
 
 // ── Rate Limiter (인메모리, Serverless 인스턴스 단위) ──
 
@@ -93,6 +94,14 @@ function provinceGuCodes(sidoCd: string): string[] {
   );
 }
 
+/**
+ * 심평원 응답 시간 변동이 커서(1~10s+, 5/12) 첫 호출이 10초에 끊겨 502 가 나던 것(10/16 QA1 🟡-2) —
+ * lib/api/hira.ts 의 카드 숫자 조회와 같게 12초 + 실패 시 1회 즉시 재시도.
+ * totalCount 가 없는 응답(원천 오류 본문)도 실패로 본다 — 빈 목록을 하루 캐시하지 않게.
+ */
+const HIRA_LIST_TIMEOUT_MS = 12_000;
+const HIRA_LIST_ATTEMPTS = 2;
+
 async function fetchHiraBody(unit: HiraUnit, pageNo: number, numOfRows: number) {
   const params: Record<string, string> = {
     sidoCd: unit.sidoCd,
@@ -103,19 +112,28 @@ async function fetchHiraBody(unit: HiraUnit, pageNo: number, numOfRows: number) 
   if (unit.sgguCd) params.sgguCd = unit.sgguCd;
   const req = buildDataGoKrRequest(HIRA_PATH, params);
   if (!req) throw new Error("API key not configured");
-  const res = await fetch(req.url, {
-    signal: AbortSignal.timeout(10_000),
-    next: { revalidate: 86400 },
-    headers: req.headers,
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  const body = json?.response?.body;
-  const raw = body?.items?.item;
-  return {
-    totalCount: Number(body?.totalCount ?? 0),
-    items: (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, string>[],
-  };
+  let lastError: unknown;
+  for (let attempt = 0; attempt < HIRA_LIST_ATTEMPTS; attempt += 1) {
+    try {
+      const res = await fetch(req.url, {
+        signal: AbortSignal.timeout(HIRA_LIST_TIMEOUT_MS),
+        next: { revalidate: 86400 },
+        headers: req.headers,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const body = json?.response?.body;
+      if (body?.totalCount == null) throw new Error("totalCount not found in response");
+      const raw = body?.items?.item;
+      return {
+        totalCount: Number(body.totalCount),
+        items: (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, string>[],
+      };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError;
 }
 
 /**
@@ -158,8 +176,7 @@ const VALID_PAGE_PATTERN = /^\d{1,3}$/;
 
 export async function GET(request: NextRequest) {
   // Rate Limit 체크
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(request); // lib/client-ip 단일 출처 (보안 2차 QA A6)
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
@@ -237,9 +254,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("Medical list API error:", error);
+    // 실패 응답은 어디에도 캐시되지 않게 — 다음 요청(안내 창 "다시 시도")이 원천을 다시 부른다
     return NextResponse.json(
       { error: "Failed to fetch medical facilities" },
-      { status: 502 }
+      { status: 502, headers: { "Cache-Control": "no-store" } }
     );
   }
 }

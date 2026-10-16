@@ -13,8 +13,6 @@ import type { SentryReport } from "./payload";
 
 const GITHUB_API = "https://api.github.com";
 const FETCH_TIMEOUT_MS = 10_000;
-/** GitHub 이슈 제목 상한은 256자 — 접두사 여유를 두고 자른다 */
-const MAX_TITLE_LENGTH = 200;
 
 export interface GitHubIssueOptions {
   token: string;
@@ -30,18 +28,66 @@ export type EnsureIssueResult = {
 
 /** 본문에 심는 중복 방지 마커 */
 export function sentryMarker(issueId: string): string {
-  return `<!-- sentry:${issueId} -->`;
+  // id 를 영숫자로 거른다 — `-->` 등으로 주석을 닫고 본문에 끼어들지 못하게 (2차 QA A5)
+  return `<!-- sentry:${safeId(issueId)} -->`;
 }
 
 /** 표 셀·제목 안의 개행·파이프는 마크다운 표를 깨뜨린다 */
 function cell(value: string): string {
-  return value.replace(/\s*\r?\n\s*/g, " ").replace(/\|/g, "\\|").trim();
+  // 줄 구분자 전부(\r 단독 포함 — CommonMark 는 \r 도 줄 끝)·제어 문자·양방향 제어 문자를 지운다(10/16 보안 3차 QA B2:
+  // \r 하나로 코드 스팬을 빠져나와 링크·이슈 참조가 렌더됐다)
+  return value
+    .replace(/[\r\n\u0085\u2028\u2029]+/g, " ")
+    .replace(/[\u0000-\u001f\u007f\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\|/g, "\\|")
+    .trim();
 }
 
+/** 표 값 한 칸 상한 — 길게 지어낸 문구가 이슈 본문을 채우지 못하게 */
+const MAX_CELL_LENGTH = 120;
+
+/**
+ * 공개 이슈에 싣는 **외부 유래 값**(title·culprit·route·environment·태그 값…)은 전부 코드 스팬으로 감싼다
+ * (2026-10-16 보안 2차 QA A5).
+ *
+ * 클라이언트 번들에 공개된 DSN 으로 누구나 오류 이벤트를 지어 보낼 수 있다. 원문을 표에 그대로 두면
+ * 공개 리포 이슈에 마크다운 링크(`[..](https://피싱)`)·`@멘션`·`#번호` 이슈 링크가 그대로 렌더되고,
+ * 회장 폰으로 푸시까지 간다. 코드 스팬 안에서는 GitHub 가 링크·멘션·이슈 참조를 만들지 않는다.
+ * 백틱은 지워 코드 스팬을 벗어나지 못하게 하고, `@` 는 전각으로 한 번 더 무력화한다.
+ */
+function code(value: string): string {
+  const flat = cell(value).replace(/`/g, "'").replace(/@/g, "＠");
+  const clipped = flat.length > MAX_CELL_LENGTH ? `${flat.slice(0, MAX_CELL_LENGTH - 1)}…` : flat;
+  return `\`${clipped}\``;
+}
+
+/** 제목·식별자에 쓰는 id — 영숫자·`-`·`_` 만 */
+function safeId(value: string): string {
+  return value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40) || "unknown";
+}
+
+/** Sentry 링크는 sentry.io 하위 https 주소일 때만 — 페이로드 값으로 다른 곳을 가리키지 못하게 */
+function safeSentryUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return undefined;
+    const host = u.hostname.toLowerCase();
+    if (host !== "sentry.io" && !host.endsWith(".sentry.io")) return undefined;
+    return u.toString().replace(/[()<>\s]/g, (c) => encodeURIComponent(c));
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * 이슈 제목은 **고정 형식** — 원문(title)은 Sentry 링크로만 본다 (2차 QA A5, 피드백은 1차 🔴2).
+ * 제목에는 링크·멘션이 렌더되지 않지만 검색·알림 미리보기에 지어낸 문구가 그대로 노출되기 때문.
+ */
 export function buildIssueTitle(report: SentryReport): string {
-  const raw = cell(report.title);
-  const clipped = raw.length > MAX_TITLE_LENGTH ? `${raw.slice(0, MAX_TITLE_LENGTH - 1)}…` : raw;
-  return `[Sentry] ${clipped}`;
+  const id = safeId(report.shortId ?? report.issueId);
+  return report.kind === "feedback" ? `[Sentry] 사용자 피드백 (${id})` : `[Sentry] 오류 (${id})`;
 }
 
 export function issueLabels(report: SentryReport): string[] {
@@ -51,56 +97,93 @@ export function issueLabels(report: SentryReport): string[] {
 function metaTable(report: SentryReport): string {
   const rows: [string, string][] = [];
   const push = (label: string, value?: string) => {
-    if (value) rows.push([label, cell(value)]);
+    if (value) rows.push([label, code(value)]);
   };
 
   push("종류", report.kind === "feedback" ? "사용자 피드백" : "오류");
+  // 오류 원문 제목 — 고정 형식 이슈 제목 대신 표 안에서 코드 스팬으로만 (피드백은 사용자 문장일 수 있어 생략)
+  if (report.kind !== "feedback") push("제목", report.title);
   push("레벨", report.level);
   push("환경", report.environment);
   push("프로젝트", report.project);
-  push("경로", report.route);
+  // url 태그에서 온 경로는 쿼리(검색어 등 사용자 입력)를 떼고 경로만
+  push("경로", report.route && /^https?:\/\//i.test(report.route) ? pagePath(report.route) : report.route);
   push("error_boundary", report.errorBoundary);
   push("발생 위치", report.culprit);
   push("이슈 번호", report.shortId);
   push("알림 규칙", report.alertRule);
-  push("Sentry 이슈 id", report.issueId);
+  push("Sentry 이슈 id", safeId(report.issueId));
 
   if (rows.length === 0) return "";
   return ["| 항목 | 값 |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`)].join("\n");
 }
 
+/**
+ * 사용자 피드백 블록 — **사용자가 쓴 내용은 싣지 않는다** (2026-10-16 보안 QA 🔴2).
+ *
+ * 이슈가 올라가는 리포는 공개라 검색 엔진에 색인된다. 오류 보고 창의 메시지·이메일·이름·
+ * 스크린샷을 여기 옮기면 개인정보를 목적 외로 공개하는 셈이다. 운영자는 링크를 눌러
+ * Sentry(비공개)에서 원문을 본다. 남긴 페이지는 경로만 — 쿼리(`?q=` 검색어 등)도 사용자 입력이다.
+ */
 function feedbackBlock(report: SentryReport): string {
   const fb = report.feedback;
   if (!fb) return "";
 
-  const parts: string[] = ["### 사용자 피드백"];
-  if (fb.message) {
-    parts.push(
-      fb.message
-        .split(/\r?\n/)
-        .map((line) => `> ${line}`)
-        .join("\n")
-    );
-  }
-
-  const rows: [string, string][] = [];
-  if (fb.email) rows.push(["이메일", cell(fb.email)]);
-  if (fb.name) rows.push(["이름", cell(fb.name)]);
-  if (fb.url) rows.push(["남긴 페이지", cell(fb.url)]);
-  fb.attachments.forEach((url, i) => {
-    rows.push([`첨부 ${i + 1}`, `[스크린샷 열기](${url})`]);
-  });
-  if (rows.length > 0) {
-    parts.push(
-      ["| 항목 | 값 |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`)].join("\n")
-    );
-  }
-  return parts.join("\n\n");
+  const lines: string[] = ["### 사용자 피드백"];
+  const page = pagePath(fb.url);
+  if (page) lines.push(`- 남긴 페이지: ${code(page)}`);
+  const has: string[] = [];
+  if (fb.message) has.push("메시지");
+  if (fb.email || fb.name) has.push("연락처");
+  if (fb.attachments.length > 0) has.push(`첨부 ${fb.attachments.length}건`);
+  lines.push(
+    `- ${has.length > 0 ? `${has.join("·")}이 있어요. ` : ""}내용은 공개 이슈에 옮기지 않아요 — ${
+      safeSentryUrl(report.sentryUrl) ? `[Sentry 에서 확인](${safeSentryUrl(report.sentryUrl)})` : "Sentry 에서 확인"
+    }하세요.`,
+  );
+  return lines.join("\n");
 }
 
+/** URL → 경로만 (호스트·쿼리·해시 제거). 해석 불가면 생략 */
+function pagePath(url?: string): string | undefined {
+  if (!url) return undefined;
+  try {
+    const p = new URL(url).pathname;
+    return cell(p).replace(/`/g, "").slice(0, 120) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * 공개 이슈에 옮길 수 있는 태그만 — 사용자 식별·입력 값이 담길 수 있는 키는 버린다.
+ * 피드백 이벤트는 태그 전체를 생략한다(url·user 계열이 대부분).
+ */
+const PUBLIC_TAG_KEYS = new Set([
+  "environment",
+  "level",
+  "release",
+  "runtime",
+  "runtime.name",
+  "browser",
+  "browser.name",
+  "os",
+  "os.name",
+  "device",
+  "device.family",
+  "handled",
+  "mechanism",
+  "error_boundary",
+  "errorBoundary",
+  "transaction",
+  "route",
+]);
+
 function tagBlock(report: SentryReport): string {
-  if (report.tags.length === 0) return "";
-  const lines = report.tags.slice(0, 20).map(([k, v]) => `- \`${k}\`: ${cell(v)}`);
+  if (report.kind === "feedback") return "";
+  const tags = report.tags.filter(([k]) => PUBLIC_TAG_KEYS.has(k));
+  if (tags.length === 0) return "";
+  const lines = tags.slice(0, 20).map(([k, v]) => `- \`${k}\`: ${code(v)}`);
   return ["<details><summary>태그</summary>", "", ...lines, "</details>"].join("\n");
 }
 
@@ -109,7 +192,7 @@ export function buildIssueBody(report: SentryReport): string {
     sentryMarker(report.issueId),
     metaTable(report),
     feedbackBlock(report),
-    report.sentryUrl ? `[Sentry 에서 열기](${report.sentryUrl})` : "",
+    safeSentryUrl(report.sentryUrl) ? `[Sentry 에서 열기](${safeSentryUrl(report.sentryUrl)})` : "",
     tagBlock(report),
     "_Sentry 웹훅(`/api/sentry-webhook`)이 자동 생성한 이슈예요._",
   ];
@@ -118,12 +201,12 @@ export function buildIssueBody(report: SentryReport): string {
 
 export function buildCommentBody(report: SentryReport): string {
   const blocks = [
-    `같은 Sentry 이슈(\`${report.issueId}\`)가 다시 알림됐어요${
-      report.action ? ` — \`${report.action}\`` : ""
+    `같은 Sentry 이슈(\`${safeId(report.issueId)}\`)가 다시 알림됐어요${
+      report.action ? ` — ${code(report.action)}` : ""
     }.`,
     metaTable(report),
     feedbackBlock(report),
-    report.sentryUrl ? `[Sentry 에서 열기](${report.sentryUrl})` : "",
+    safeSentryUrl(report.sentryUrl) ? `[Sentry 에서 열기](${safeSentryUrl(report.sentryUrl)})` : "",
   ];
   return blocks.filter(Boolean).join("\n\n");
 }
@@ -142,7 +225,7 @@ async function findExistingIssue(
   report: SentryReport,
   { token, repo }: GitHubIssueOptions
 ): Promise<number | null> {
-  const q = `repo:${repo} "sentry:${report.issueId}" in:body`;
+  const q = `repo:${repo} "sentry:${safeId(report.issueId)}" in:body`;
   const url = `${GITHUB_API}/search/issues?q=${encodeURIComponent(q)}&per_page=5&sort=created&order=desc`;
 
   const res = await fetch(url, {

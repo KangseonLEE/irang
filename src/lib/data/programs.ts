@@ -45,7 +45,12 @@ export interface SupportProgram {
   organization: string;
   supportType: "보조금" | "융자" | "교육" | "현물" | "컨설팅";
   supportAmount: string;
+  /**
+   * 대상 연령 하한(만 나이). **0 = 하한 없음** — 원문에 하한이 없으면 0 으로 둔다(10/16 QA: 근거 없는 18 이 57건).
+   * 0 보다 크면 요약·설명·자격 문장에 그 나이(만 N세)가 있어야 한다 — `programs-age-evidence.test.ts` 가 강제.
+   */
   eligibilityAgeMin: number;
+  /** 대상 연령 상한(만 나이). **99 = 상한 없음** 관례(formatAgeRange). */
   eligibilityAgeMax: number;
   eligibilityDetail: string;
   applicationStart: string;
@@ -259,11 +264,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "함평군 귀농어귀촌 체류형 지원센터",
     supportType: "현물",
     supportAmount: "주거공간 제공 + 공동실습농지·시설하우스·작업장 이용 (21세대)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "만 65세 이하. 도시지역 1년 이상 거주 후 함평군 전입 6개월 이내 또는 이주 희망 예비귀농인.",
-    applicationStart: "2026-01-10",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 아시아에이 237422(2026.01.19) '다음달 10일까지 모집한다고 19일 밝혔다'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-10 삭제)
+    applicationStart: "2026-01-19",
     applicationEnd: "2026-02-10",
     relatedCrops: [],
     sourceUrl: "https://www.asiaa.co.kr/news/articleView.html?idxno=237422",
@@ -281,11 +287,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "금산군귀농교육센터",
     supportType: "현물",
     supportAmount: "체류형 주택 제공 (76㎡ 2세대, 69.4㎡ 1세대, 총 3세대 선발)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 금산 체류형 귀농교육센터 — 대전투데이 기사에 연령 조건 없음
     eligibilityDetail:
       "귀농을 희망하는 도시민. 1년간(2026.3~2027.2) 체류하며 교육 참여. 보증금·월 사용료·관리비 납부.",
-    applicationStart: "2026-01-15",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 대전투데이 722515(2026.01.20) '모집 기간은 2월 10일까지'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-15 삭제)
+    applicationStart: "2026-01-20",
     applicationEnd: "2026-02-10",
     relatedCrops: [],
     sourceUrl: "http://www.daejeontoday.com/news/articleView.html?idxno=722515",
@@ -303,11 +310,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "무안군",
     supportType: "현물",
     supportAmount: "약 10개월간 체류 주거 제공 + 영농 이론·실습 교육",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "무안군으로 귀농을 희망하는 만 65세 이하 도시민. 약 10개월간 체류하며 영농 이론·실습 교육.",
-    applicationStart: "2026-01-10",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — 스마트비즈 132387(2026.01.13) '2026년 2월 6일까지 접수'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-01-10 삭제)
+    applicationStart: "2026-01-13",
     applicationEnd: "2026-02-06",
     relatedCrops: [],
     sourceUrl: "https://www.smartbizn.com/news/articleView.html?idxno=132387",
@@ -325,7 +333,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "연천군 농업기술센터",
     supportType: "교육",
     supportAmount: "연수생 월 최대 80만 원 교육훈련비 + 선도농가 월 최대 40만 원 교수수당",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 연천 현장실습 — 귀농귀촌인 또는 만 40세 미만 중 하나(상한 없음)
     eligibilityDetail:
       "최근 5년 이내 해당 지역 농촌으로 이주한 귀농귀촌인 또는 만 40세 미만 청장년. 교육기간 2026.6~10월.",
@@ -347,10 +355,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "영월군 / 요선농촌체험휴양마을",
     supportType: "현물",
     supportAmount: "3개월 체류 지원 (주거+영농실습+지역교류)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 영월 살아보기 — 기사에 연령 조건 없음
     eligibilityDetail:
       "농촌 정착 희망자. 3개월간 영월군에 체류하며 주요 작물 재배기술 습득. 5명 선발.",
+    // 2026-10-16 2차 QA: 원문(그린뉴스 552867, 2026.04.03)은 '지난 3월 참가자 모집'만 적었다 — 3/1~3/31 은 그 달의 범위일 뿐 공고 일자가 아니다.
+    //   모집 공고를 찾지 못했다(군청·검색). 지난 사업이라 '마감' 표시는 같다. 공고를 찾으면 일자를 교체할 것
     applicationStart: "2026-03-01",
     applicationEnd: "2026-03-31",
     relatedCrops: [],
@@ -369,7 +379,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "영암군 인구청년과",
     supportType: "현물",
     supportAmount: "농업·관광·지역문화 체험 + 체류비용 지원",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 영암 살아보기 — 기사에 연령 조건 없음
     eligibilityDetail:
       "귀농귀촌 관심자. 3개월간 영암군에 체류하며 농업·관광·지역문화 체험.",
@@ -414,7 +424,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 각 시군 농업기술센터·읍면동",
     supportType: "융자",
     supportAmount: POLICY_TEXT.excellentSuccessorLoan,
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 우수후계농 — 서울농기센터 공고 제2026-24호에 연령 조건 없음
     eligibilityDetail:
       `후계농업경영인 선정 후 5년 이상 영농 종사자(2021년까지 선정자). 금융기관 여신제한 대상자 불가. 공고에 연령 제한은 없어요. 전국 ${EXCELLENT_SUCCESSOR.quota.value}명 선발(시·도별 인원배정 없음).`,
@@ -438,7 +448,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "서울특별시 농업기술센터",
     supportType: "교육",
     supportAmount: "교육비 무료 (총 14시간, 3일 과정, 교육 인원 40명 · 예비 포함 45명 선착순)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 서울 스마트팜 실용교육 — 공고 신청자격 '주민등록상 서울 거주자'만
     eligibilityDetail:
       "주민등록상 서울 거주자(공고에 연령 제한 없음). 교육 인원 40명, 예비 5명을 더해 45명까지 선착순 접수했어요. 스마트팜 도입 또는 창업에 관심 있는 시민 대상.",
@@ -463,7 +473,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림수산식품교육문화정보원 귀농귀촌종합센터",
     supportType: "컨설팅",
     supportAmount: "1:1 현장 멘토링 연 최대 8회 (교육비 무료)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "귀농귀촌을 희망하는 도시민, 농촌 거주 만 6년 미만(전입일 기준) 귀농귀촌인 또는 영농정착지원사업 선정자. 멘토(귀농닥터)의 가족(배우자·직계존속·형제자매)은 제외. 그린대로(greendaero.go.kr)에서 신청.",
@@ -508,7 +518,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "영광군 농업기술센터",
     supportType: "교육",
     supportAmount: "임시 숙소 제공 + 연수비 지급 (2개월간 농촌 체험 프로그램)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 영광 살아보기 — 기사에 연령 조건 없음
     eligibilityDetail:
       "전남 외 지역 거주 도시민. 그린대로 누리집에서 신청. 5명 선발.",
@@ -531,7 +541,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 귀농귀촌종합센터",
     supportType: "현물",
     supportAmount: "임시 숙소 제공 + 연수비 월 30만 원 (월 15일 이상 참여 시, 마을별 상이 · 1~8개월)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 농촌에서 살아보기 — 마을별 공고, 통합 안내에 연령 상한 없음
     eligibilityDetail:
       "귀농귀촌 희망자. 마을별 자격 요건 상이. 그린대로 누리집에서 마을별 공고 확인.",
@@ -556,7 +566,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "한국농어촌공사 농지은행",
     supportType: "현물",
     supportAmount: "농지 임대 중개 (농업인 위탁자 수수료 면제, 그 외 연 임대차료 5%)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 농지은행 임대수탁 — 연령 조건 없음
     eligibilityDetail:
       "농지가 필요한 농업인 또는 농촌 정착 예정자. 농지은행 통합포털(fbo.or.kr) 신청 또는 콜센터 1577-7770 상담.",
@@ -596,24 +606,31 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
   },
   {
     id: "SP-021",
+    verifiedAt: "2026-10-16",
+    // 2026-10-16 정정(2차 QA 🔴-1): 모집은 **2025년** 9/1~9/26 — 예산군 농업기술센터 공고 제2025-41호(2025.8.29 게시,
+    // 공고 첨부 hwp '접수기간 2025. 9. 1.(월) ~ 9. 26.(금)'), 사용허가 2026.8~2029.7. 5/14 큐레이션이 '2026년 하반기 준공'을
+    // 모집 연도로 읽어 2026-09-01~26 으로 적었다. 연령은 첨부 '운영 지침' 2.가.1) '선발 공고연도 기준 만18세 이상 ~ 만44세 이하'
+    // (1981~2007년생) — 종전 '만 18세 이상 40세 미만'은 원문에 없었다. 대부기간은 '기본 1년, 최대 3년(1년 단위, 최대 2회 연장)' —
+    // '기본 3년·최대 3년 더 연장(최대 6년)'도 원문에 없었다. 2026년 재모집 공고는 군청 통합검색(10/16)에서 찾지 못했다.
+    // 출처를 기사(충청도민일보 245110) → 군청 고시·공고 원문으로 교체.
     title: "예산군 임대형 스마트팜 청년농업인 입주자 모집",
     summary:
-      "충남 예산군이 2026년 하반기 준공 예정 임대형 스마트팜 2개소(역리 6팀·신양 4팀, 총 10팀)에 청년농 입주자를 9월 한 달간 모집해요.",
+      "충남 예산군이 2026년 하반기 준공 예정 임대형 스마트팜 2개소(역리 6팀·신양 4팀, 총 10팀) 입주 청년농업인을 2025년 9월 1일부터 26일까지 모집했어요.",
     description:
-      "예산군농업기술센터가 2023년 충청남도 공모사업으로 선정·조성한 임대형 스마트팜 2개소(삽교읍 역리지구 6팀, 신양지구 4팀, 총 10팀) 입주 청년농을 모집해요. 팀별 2~3인으로 구성하며 만 18세 이상 40세 미만 청년농업인이 대상이에요. 신청은 2026년 9월 1일부터 9월 26일까지 4주간 진행되고, 신청서와 증빙자료를 농업기술센터 스마트농업과에 방문 제출하면 돼요. 임대 기간은 기본 3년이며 성과에 따라 최대 3년 더 연장 가능해요. 충남 권역 청년농 진입 장벽을 크게 낮춰 주는 사업이에요.",
+      "예산군농업기술센터가 충청남도 공모사업으로 조성 중인 임대형 스마트팜 2개소(삽교읍 역리지구 6팀, 신양면 신양지구 4팀, 총 10팀)에 입주할 청년농업인을 모집했어요. 역리지구는 2~3인, 신양지구는 3인이 한 팀이에요. 공고 연도 기준 만 18세 이상 만 44세 이하이고 본인 명의 스마트팜 시설이 없으며 병역을 마친(또는 면제된) 사람이 신청할 수 있어요(타 시·도 거주자는 선정 후 계약 전까지 예산군 전입). 접수는 2025년 9월 1일부터 26일까지 이메일 또는 농업기술센터 스마트농업과 방문으로 받았어요. 사용 기간은 1년 단위 계약으로 최대 3년(2026년 8월~2029년 7월 예정, 온실 조성에 따라 늦어질 수 있음)이에요.",
     region: "충청남도",
     organization: "예산군농업기술센터 스마트농업과",
     supportType: "현물",
-    supportAmount: "임대형 스마트팜 시설 임대 (2개소 총 10팀, 기본 3년 최대 6년)",
+    supportAmount: "임대형 스마트팜 시설 임대 (2개소 총 10팀, 1년 단위 계약·최대 3년)",
     eligibilityAgeMin: 18,
-    eligibilityAgeMax: 39,
+    eligibilityAgeMax: 44,
     eligibilityDetail:
-      "만 18세 이상 40세 미만 청년농업인. 팀별 2~3인 구성. 신청서·증빙자료 농업기술센터 스마트농업과 방문 제출.",
-    applicationStart: "2026-09-01",
-    applicationEnd: "2026-09-26",
+      "공고 연도 기준 만 18세 이상 만 44세 이하 청년농업인(1981~2007년생). 본인 명의 스마트팜 시설 영농기반이 없고 병역필 또는 면제. 예산군 실거주(타 시·도 거주자는 선정 후 계약 전 전입). 역리지구 2~3인·신양지구 3인 1팀. 이메일 또는 농업기술센터 스마트농업과 방문 접수.",
+    applicationStart: "2025-09-01",
+    applicationEnd: "2025-09-26",
     relatedCrops: [],
-    sourceUrl: "https://www.dominilbo.com/news/articleView.html?idxno=245110",
-    year: 2026,
+    sourceUrl: "https://www.yesan.go.kr/prog/saeolGosi/GOSI/kor/sub04_02_01/view.do?notAncmtMgtNo=43827",
+    year: 2025,
     category: "youth",
   },
   {
@@ -677,11 +694,12 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "고성군농업기술센터",
     supportType: "현물",
     supportAmount: "임시 주거지 제공 (3개소, 6개월~1년 거주 가능)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "귀농 희망 도시민. 7월 입주 2개소·8월 입주 1개소. 신청 마감 2026-05-22. 고성군농업기술센터 신청.",
-    applicationStart: "2026-05-01",
+    // 2026-10-16 2차 QA: 원문에 접수 시작일이 없다 — GNN뉴스 168675(2026.05.12) '22일까지 모집'. 시작일은 원문이 모집 중임을 알린 게시일로 둔다(지어낸 2026-05-01 삭제)
+    applicationStart: "2026-05-12",
     applicationEnd: "2026-05-22",
     relatedCrops: [],
     sourceUrl: "https://www.gnnnews.kr/168675",
@@ -702,7 +720,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "논산시 농업기술센터",
     supportType: "현물",
     supportAmount: "임시 주거지 제공 (석종리 55.1㎡, 보증금 100만 원 + 월세 10만 원, 1년 거주)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "모집 공고일 현재 논산시 외 지역에서 1년 이상 살고, 농업 외 직업에 종사한 사람 중 논산시로 귀농을 희망하는 사람(직업군인은 농어촌 거주자도 가능). 고등학교·대학 재학생은 제외(방송통신대·야간대 등은 가능). 방문 또는 팩스(041-746-8319) 신청 — 팩스는 귀농귀촌팀(041-746-8347) 전화로 접수 확인 필수.",
@@ -724,7 +742,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "제주특별자치도 농업기술원",
     supportType: "교육",
     supportAmount: "연수생 월 최대 80만 원 + 선도농가 월 최대 40만 원 (1:1 매칭 현장실습)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 제주 현장실습 — 귀농인·신규농업인·만 40세 미만 중 하나(상한 없음)
     eligibilityDetail:
       "신규농업인 3명·선도농가 3명. 신청 2월 5일~25일 (방문 접수). 제주농업기술센터(제주시 애월읍 상귀리 173, 2층).",
@@ -774,7 +792,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농촌진흥청 / 한국농업기술진흥원",
     supportType: "교육",
     supportAmount: "자격시험 운영 (응시료 별도, 양성기관 100~150만 원)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99, // 2026-10-10: 65 상한은 원문 근거 없음 — 치유농업사 자격시험 — 응시 연령 조건 없음
     eligibilityDetail:
       "2급 — 농진청 인증 양성기관 교육과정 이수. 1급 — 2급 취득 후 5년 이상 관련 업무 경력. 한국농업기술진흥원 주관.",
@@ -799,7 +817,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부",
     supportType: "보조금",
     supportAmount: "농촌돌봄농장 운영비 지원 (단가는 농식품부 시행지침 발표 시 확정)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농촌 지역 사회적 농업 운영 의지가 있는 농가·법인. 장애인·노약자 등 취약계층 돌봄 프로그램 운영 가능. 매년 12월 신청 (2026년 사업은 2025.12.15~31).",
@@ -825,7 +843,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부",
     supportType: "보조금",
     supportAmount: "주민생활돌봄공동체 운영비 지원 (단가는 농식품부 시행지침 발표 시 확정)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농촌 지역 주민 공동체. 반찬배달·교통편의·소규모 집수리 등 생활서비스 제공 의지. 매년 12월 신청 (2026년 사업은 2025.12.15~31).",
@@ -849,7 +867,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "홍천군농업기술센터",
     supportType: "현물",
     supportAmount: "임시 주거지 제공 (단독주택 1동, 임대 1년 + 협의 시 3개월 연장)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "농어촌 외 지역 1년 이상 거주한 65세 이하 도시민. 서석면 풍암2리 단독주택 1동. 신청 마감 2026-06-24. 홍천군농업기술센터 신청.",
@@ -871,7 +889,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "하동군청 지역활력추진단 귀농귀촌부서",
     supportType: "현물",
     supportAmount: "임시 주거지 5가구 제공 (월 사용료 20만 원 · 입주 최소 6개월~최대 1년)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "하동군 전입 직전 농어촌 외 지역 1년 이상 거주 + 2024. 1. 1. 이후 전입한 (예비)귀농귀촌인. 선정 후 귀농인의 집으로 전입신고 가능해야 함. 대상 5가구(진교 구영·악양 상중대·화개 의신 이동식주택 B동·하동읍 서동 101호·102호). 월 사용료 20만 원(추가 1인당 5만 원, 최대 30만 원). 신청 마감 2026-09-09. 하동군청 지역활력추진단 귀농귀촌담당(055-880-2849) 방문·등기우편·이메일 접수.",
@@ -893,7 +911,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "하동군청 지역활력추진단 귀농귀촌부서",
     supportType: "교육",
     supportAmount: "8회차 40시간 교육 (농업·농촌의 이해, 품종별 현장 견학)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "하동군 전입 7년 이내(2019. 1. 1. 이후) 귀농귀촌인, 또는 하동군 귀농귀촌 희망자·지역을 정하지 않은 도시민. 교육 기간 2026-09-08~2026-09-18(매주 화~금, 8회차 40시간). 추가모집 10명(기 모집 5명). 신청 마감 2026-09-03. 하동군청 지역활력추진단 귀농귀촌부서(055-880-2428) 접수. 입학원서·주민등록초본 제출.",
@@ -939,7 +957,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "청도군 농촌기술지원과 귀농귀촌팀",
     supportType: "보조금",
     supportAmount: "2인 이상 가구 월 최대 15만 원 / 1인 가구 월 최대 10만 원 (지원기간 최대 10개월)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "아래 두 조건 모두 충족 필요. ① 타 시군에서 1년 이상 거주하다 기준일(2026. 1. 1.) 현재 농업경영 목적으로 청도군에 전입한 지 3년 이내(2023. 1. 1. 이후 전입)인 만 65세 이하(1960. 1. 1. 이후 출생) 세대주. ② 청도군 농민사관학교 귀농영농교육과정 교육생·수료생 또는 청도군 귀농귀촌 프로그램 이수자. 신청기간 2026-01-08 ~ 예산 소진 시까지(마감일 미지정), 매달 마지막 주 선정. 청도군농업기술센터 귀농귀촌팀 또는 주소지 읍·면사무소 산업팀 신청. 청도군 공고 제2026-40호(054-370-6523).",
@@ -961,7 +979,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "구미시 농촌활력과",
     supportType: "보조금",
     supportAmount: "개소당 500만 원 (보조 80% · 자부담 20%), 5차 사업량 2개소",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "농촌 이외 지역에서 농업 외 산업에 종사하며 1년 이상 거주하다 기준일(2026. 1. 1.) 현재 농업경영 목적으로 가족(부부 이상)이 함께 구미시 농촌으로 전입한 지 5년 이내인 만 65세 이하(1960. 1. 1. 이후 출생) 세대주로 실제 영농 종사자. 신청 마감 2026-09-16(공고 본문에 마감일만 명시, 시작일은 공고 등록일 2026-08-13 기준). 주소지 행정복지센터 신청. 구미시 공고 제2026-2327호(054-480-5802).",
@@ -985,7 +1003,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     supportType: "보조금",
     supportAmount:
       "분기별 정착지원금 12개월 지급 — 1분기 기준 2인 이상 60만 원 / 1인 30만 원 (2026년 사업량 25가구, 사업비 6,000만 원 전액 보조)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "농촌 외 지역에서 농업 외 산업에 종사하며 1년 이상 거주하다 농업경영을 목적으로 가족(부부 이상)과 함께 고령군에 전입한 지 1년 이후 3년 이내인 만 65세 이하(1960. 1. 1. 이후 출생) 세대주로 실제 영농 종사자(부부는 2명 중 1명만 지원, 가족관계증명서상 배우자가 없으면 1인도 지원 가능). 고령군이 실시하는 귀농·귀촌 교육 이수 + 고령군에 농업경영체 등록(농지 소재지도 고령) 필요. 신청 전년도 농어업 외 종합소득 3,700만 원 이하. 청년농업인 영농정착지원금 중복 수령자 제외, 농업 외 다른 직업 겸업자 제외. 지급 방식은 신청일 익월부터 1개월 거주 시 분기별 지급(1분기 12·1·2월분 3월 중, 2분기 3·4·5월분 6월 중, 3분기 6·7·8월분 9월 중, 4분기 9·10·11월분 12월 중). 신청기간 2026년 1월 ~ 12월(예산 소진 시 신청 불가 — 조기 마감 가능), 하반기 공고기간 2026. 6. 30. ~ 12. 31. 신청장소는 거주지 읍·면사무소. 고령군 공고 제2026-1062호(054-950-7304).",
@@ -1008,7 +1026,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     supportType: "현물",
     supportAmount:
       "귀농인의 집 5개소 임대 (보증금 50만 원 · 연 사용료 4만 6,450원~14만 6,780원, 입주기간 12개월 이내·1회 연장 가능)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "만 65세 이하(1960. 1. 1. 이후 출생) + 현재 도시 지역(시의 동지역)에서 1년 이상 지속 거주 + 현재 농어촌지역(읍·면)에 주소를 두지 않은 자 + 현재 직업이 없고 사업자등록을 하지 않은 자. 의성군으로 전입한 지 12개월 이내이며 의성군 내 무주택인 경우도 신청 가능. 대상 5개소 — 춘산 효선1길 4 B호(58.37㎡)·봉양 장대2길 34 A호(65.4㎡)·비안 산제2길 13-10 B호(23.67㎡)·다인 자미로 503-2 B호(22.76㎡)·신평 왜가리길 1388 A호(33.83㎡). 보증금 500,000원, 연 사용료 46,450원~146,780원(의성군공유재산관리조례에 따라 변경 가능). 입주기간 12개월 이하, 점수표 50점 이상 + 마을운영위원회 동의 시 1회(12개월 이하) 연장 가능. 수도·전기 등 공공요금 입주자 부담, 입주 후 귀농인의 집 주소지로 전입신고 필요. 신청기간 2026-08-27 ~ 2026-09-25, 신청자 본인 방문접수(경북 의성군 봉양면 경북대로 5225). 의성군농업기술센터 귀농귀촌팀(054-830-6726, 6729).",
@@ -1074,7 +1092,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "장수군 농산업정책과 귀농귀촌팀",
     supportType: "현물",
     supportAmount: "숙소동 원룸 1세대 임대 (37.9㎡·11.4평, 보증금 50만 원 · 임대료 연 143만 7,120원, 거주 12개월)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "공고일 현재 장수군으로 귀농귀촌 의사가 있는 (예비)귀농귀촌인(농어촌 외 지역에서 장수군으로 전입하려는 자)으로, 타 도시의 농촌 이외 도시지역에서 1년 이상 거주 중이거나 장수군으로 전입한 지 1년 이내인 자. 연령 제한 없음. 귀농귀촌 교육 이수 시간이 많은 신청자·장수군 귀농귀촌 교육 이수자·장수군 농지 구입 등 기반 마련자 우대. 단순 농촌 살아보기·관광·여행 목적 신청 제외. 모집 1세대(동거는 가족관계증명서상 가족만 가능). 시설 위치 장수군 계남면 사곡1길 20, 숙소동 원룸 37.9㎡, 보증금 500,000원·임대료 1,437,120원/연(공과금 개별 부담). 입주기간 2026. 9. ~ 2027. 9.(12개월, 1년까지 연장 가능), 선정 후 15일 이내 장수군 전입 의무. 신청기간 2026-08-24 09:00 ~ 2026-09-10 17:00, 우편(기한 내 소인분)·방문 접수. 접수처 장수군청 3층 농산업정책과 귀농귀촌팀(063-350-2396). 서류심사 40%(2026. 9. 14.) + 면접심사 60%(2026. 9. 16.), 합격자 발표 2026. 9. 17.까지 개별 통보. 장수군 공고 제2026-850호.",
@@ -1098,7 +1116,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     supportType: "현물",
     supportAmount:
       "단독주택 1세대 임대 (거실+방1 50㎡·15평 + 텃밭 33㎡, 보증금 50만 원 · 임대료 연 175만 4,400원, 거주 12개월)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "① (귀농귀촌인) 공고일 현재 장수군으로 귀농귀촌 의사가 있는 (예비)귀농귀촌인으로 타 도시의 농촌 이외 도시지역에서 1년 이상 거주 중이거나 장수군 전입 1년 이내인 자, 또는 ② 장수군 농군사관학교 입교생·장수군 임대형 스마트팜 농업인. 연령 제한 없음(40세 미만 청년 귀농귀촌 세대는 우대 항목). 귀농귀촌 교육 이수 시간이 많은 신청자·장수군 교육 이수자·농지 구입 등 기반 마련자 우대. 단순 농촌 살아보기·관광·여행 목적 신청 제외. 모집 1세대. 시설 위치 장수군 장수읍 두산리 41번지 일원(단독주택 18호, 호당 50㎡ + 텃밭 33㎡), 보증금 500,000원·임대료 1,754,400원/연(공과금 개별 부담). 입주기간 2026. 9. ~ 2027. 9.(12개월, 1년까지 연장 가능), 선정 후 15일 이내 장수군 전입 의무, 최종 선정자는 추첨으로 주택 배정. 신청기간 2026-08-24 09:00 ~ 2026-09-10 17:00(토·일·공휴일 제외), 우편(기한 내 소인분)·방문 접수. 접수처 장수군청 3층 농산업정책과 귀농귀촌팀(063-350-2396). 장수군 공고 제2026-849호.",
@@ -1121,10 +1139,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "괴산군농업기술센터 기술지원과 귀농귀촌지원팀",
     supportType: "현물",
     supportAmount: "단독주택 1세대 임대 (임대료 월 25만 원 정도, 2~3년 거주)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "도시지역에서 1년 이상 주민등록상 거주하다가 괴산군에 정착하기 위해 전입하여 실거주하려는 자로, 현재 주민등록상 주소가 도시지역이고 그곳에서 1년 이상 거주 중인 자. 공고 본문에 연령 제한 명시 없음. 모집 1세대. 대상지 괴산군 청안면 광장로 634(단독주택) 1개소. 임대조건 임대료 월 25만 원 정도, 2~3년 거주. 공고 및 접수기간 2026년 7월 14일 ~ 모집완료 시까지(마감일 미지정 — 모집이 완료되면 조기 마감). 접수처 괴산군농업기술센터 귀농귀촌지원팀 방문·우편 접수. 문의 괴산군농업기술센터 기술지원과 귀농귀촌지원팀(043-830-2776, 2735). 상세 조건·주택 상태는 공고 첨부 자료 참조.",
+      "도시지역에서 1년 이상 주민등록상 거주하다가 괴산군에 정착하기 위해 전입하여 실거주하려는 자로, 현재 주민등록상 주소가 도시지역이고 그곳에서 1년 이상 거주 중인 자. 모집 1세대. 대상지 괴산군 청안면 광장로 634(단독주택) 1개소. 임대조건 임대료 월 25만 원 정도, 2~3년 거주. 공고 및 접수기간 2026년 7월 14일 ~ 모집완료 시까지(마감일 미지정 — 모집이 완료되면 조기 마감). 접수처 괴산군농업기술센터 귀농귀촌지원팀 방문·우편 접수. 문의 괴산군농업기술센터 기술지원과 귀농귀촌지원팀(043-830-2776, 2735). 상세 조건·주택 상태는 공고 첨부 자료 참조.",
     applicationStart: "2026-07-14",
     applicationEnd: "9999-12-31",
     relatedCrops: [],
@@ -1144,10 +1162,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "괴산군농업기술센터 기술지원과 귀농귀촌지원팀",
     supportType: "현물",
     supportAmount: "단독주택 1세대 임대 (임대료 월 30만 원, 2~3년 거주)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "도시지역에서 1년 이상 주민등록상 거주하다가 괴산군에 정착하기 위해 전입하여 실거주하려는 자로, 현재 주민등록상 주소가 도시지역이고 그곳에서 1년 이상 거주 중인 자. 공고 본문에 연령 제한 명시 없음. 모집 1세대. 대상지 괴산군 소수면 옥현리 383(단독주택) 1개소. 임대조건 임대료 월 30만 원, 2~3년 거주. 공고 및 접수기간 2026년 7월 14일 ~ 모집완료 시까지(마감일 미지정 — 모집이 완료되면 조기 마감). 접수처 괴산군농업기술센터 귀농귀촌지원팀 방문·우편 접수. 문의 괴산군농업기술센터 기술지원과 귀농귀촌지원팀(043-830-2776, 2735). 상세 조건·주택 상태는 공고 첨부 자료 참조.",
+      "도시지역에서 1년 이상 주민등록상 거주하다가 괴산군에 정착하기 위해 전입하여 실거주하려는 자로, 현재 주민등록상 주소가 도시지역이고 그곳에서 1년 이상 거주 중인 자. 모집 1세대. 대상지 괴산군 소수면 옥현리 383(단독주택) 1개소. 임대조건 임대료 월 30만 원, 2~3년 거주. 공고 및 접수기간 2026년 7월 14일 ~ 모집완료 시까지(마감일 미지정 — 모집이 완료되면 조기 마감). 접수처 괴산군농업기술센터 귀농귀촌지원팀 방문·우편 접수. 문의 괴산군농업기술센터 기술지원과 귀농귀촌지원팀(043-830-2776, 2735). 상세 조건·주택 상태는 공고 첨부 자료 참조.",
     applicationStart: "2026-07-14",
     applicationEnd: "9999-12-31",
     relatedCrops: [],
@@ -1167,7 +1185,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     supportType: "보조금",
     supportAmount:
       "가구당 사업비 500만 원 (보조 50% — 시비 50%·자부담 50%, 추가신청 사업량 9가구·소진 시 마감)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "안동시 이외의 도시지역에서 농업 외 타 산업 분야에 종사하며 1년 이상 거주한 귀농인이 안동시 농촌지역에 가족(부부 이상)과 함께 전입한 지 5년 이내인 세대주로, 만 65세 이하만 신청 가능. 지원제외 — 직전 거주지가 읍·면지역이거나 안동시에 주소를 둔 자, 도시지역에 주민등록을 두고 농지원부·농업경영체를 등록한 지 2년이 경과한 자, 재촌 비농업인, 무허가 건물·불법 증개축·아파트·빌라·다가구·다세대 주택, 2023. 1. 1. 이후 신축주택. 지원범위는 보일러 교체, 지붕·부엌·화장실 개량 등 주택시설 수리에 한함. 추가신청 사업량 9가구(사업량 소진 시 마감), 사업비 5,000천원/가구, 보조 50%(시비 50%/자부담 50%). 신청기간 2026. 3. 12. ~ 2026. 10. 30., 신청장소는 지원대상자의 주소지 관할 읍·면·동 행정복지센터. 안동시농업기술센터 영농지원과(054-840-5854).",
@@ -1190,7 +1208,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "안동시농업기술센터 영농지원과",
     supportType: "보조금",
     supportAmount: "가구당 설계비 75만 원 전액 보조 (시비 100%, 2026년 사업량 5가구·사업비 375만 원)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 65,
     eligibilityDetail:
       "안동시 이외의 도시지역에서 농업 외 타 산업 분야에 종사하며 1년 이상 거주한 귀농인이 기준일(2026. 1. 1.) 현재 안동시 농촌지역에 가족(부부 이상)과 함께 전입한 지 5년 이내이고 농업에 종사하는(하려는) 세대주로, 만 65세 이하만 신청 가능. 지원제외 — 직전 거주지가 읍·면지역이거나 안동시에 주소를 둔 자, 도시지역에 주민등록을 두고 농지원부·농업경영체를 등록한 지 2년이 경과한 자, 재촌 비농업인. 지원내용은 귀농인이 농가주택을 신축할 때의 설계비. 사업량 5가구, 사업비 3,750천원(750천원/가구), 보조 100%(시비 100%). 2026. 1. 1. 이후 건축설계 및 건축인허가를 득하고 2026. 11. 30.까지 준공된 경우만 지원. 신청기간 2026. 1. ~ 2026. 11. 30.(공고 본문 월 단위 표기), 신청장소는 지원대상자의 주소지 관할 읍·면·동 행정복지센터. 안동시농업기술센터 영농지원과(054-840-5854).",
@@ -1212,10 +1230,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "진안군 농산촌미래국 농촌활력과 마을귀농촌",
     supportType: "교육",
     supportAmount: "2주간 교육·체험·탐방 프로그램 운영 (5가구 모집, 참가비 1인 5만 원 자부담)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "귀향에 관심 있는 진안군 출신 출향민 및 그 가족(친척 포함)만 신청 가능 — 진안 연고가 없는 일반 도시민은 대상 아님. 모집인원 5가구(부부 또는 가족), 1인 가구도 신청 가능하나 부부·가족 단위 우선 선발. 연령 제한 공고 본문에 명시 없음. 참가비 1인 50,000원 자부담. 모집기간 2026. 9. 6.(일)까지, 선정안내 2026. 9. 7.(월), 운영기간 2026. 9. 10.(목) ~ 9. 23.(수) 2주간 평일(월~금). 신청 시작일은 공고 본문에 명시되지 않아 공고 게시일(2026-08-24)을 시작일로 표기함. 신청은 공고에 안내된 네이버폼 링크·QR코드로 접수. 진안군 농산촌미래국 농촌활력과 마을귀농촌(063-430-8072).",
+      "귀향에 관심 있는 진안군 출신 출향민 및 그 가족(친척 포함)만 신청 가능 — 진안 연고가 없는 일반 도시민은 대상 아님. 모집인원 5가구(부부 또는 가족), 1인 가구도 신청 가능하나 부부·가족 단위 우선 선발. 참가비 1인 50,000원 자부담. 모집기간 2026. 9. 6.(일)까지, 선정안내 2026. 9. 7.(월), 운영기간 2026. 9. 10.(목) ~ 9. 23.(수) 2주간 평일(월~금). 신청 시작일은 공고 본문에 명시되지 않아 공고 게시일(2026-08-24)을 시작일로 표기함. 신청은 공고에 안내된 네이버폼 링크·QR코드로 접수. 진안군 농산촌미래국 농촌활력과 마을귀농촌(063-430-8072).",
     applicationStart: "2026-08-24",
     applicationEnd: "2026-09-06",
     relatedCrops: [],
@@ -1235,10 +1253,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "진안군 농산촌미래국 농촌활력과 마을귀농촌",
     supportType: "교육",
     supportAmount: "귀농귀촌 정책 안내 + 맞춤형 1:1 상담 교육 6회 무료 (회차별 정원 10명)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "진안군민(신규 전입 5년 이내)만 신청 가능 — 진안군 전입 전인 예비 귀농귀촌인은 대상 아님. 연령 제한 공고 본문에 명시 없음. 모집인원 회차별 10명(정원 모집 시 마감). 교육비 무료. 모집기간 2026년 8월 28일(금) ~ 선착순 마감(마감일 미지정 — 정원이 차면 마감). 교육기간 2026년 9월 16일(수) ~ 11월 25일(수) 매주 수요일 총 6회, 교육장소는 진안군귀농귀촌종합지원센터. 신청은 공고에 안내된 네이버폼·QR코드로 접수. 문의 진안군 귀농귀촌종합지원센터(063-433-0243), 게시 부서 진안군 농산촌미래국 농촌활력과 마을귀농촌(063-430-8072).",
+      "진안군민(신규 전입 5년 이내)만 신청 가능 — 진안군 전입 전인 예비 귀농귀촌인은 대상 아님. 모집인원 회차별 10명(정원 모집 시 마감). 교육비 무료. 모집기간 2026년 8월 28일(금) ~ 선착순 마감(마감일 미지정 — 정원이 차면 마감). 교육기간 2026년 9월 16일(수) ~ 11월 25일(수) 매주 수요일 총 6회, 교육장소는 진안군귀농귀촌종합지원센터. 신청은 공고에 안내된 네이버폼·QR코드로 접수. 문의 진안군 귀농귀촌종합지원센터(063-433-0243), 게시 부서 진안군 농산촌미래국 농촌활력과 마을귀농촌(063-430-8072).",
     applicationStart: "2026-08-28",
     applicationEnd: "9999-12-31",
     relatedCrops: [],
@@ -1262,7 +1280,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "한국농어촌공사 농지은행",
     supportType: "융자",
     supportAmount: "㎡당 2만 원 한도(과수목 포함) · 연리 2% · 11~30년 원금균분상환",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 64,
     eligibilityDetail:
       "사업시행연도 1월 1일 기준 만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내) 요건이 있어요. 농업 외 종합소득 연 3,700만 원 이상은 제외예요. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
@@ -1286,7 +1304,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "한국농어촌공사 농지은행",
     supportType: "현물",
     supportAmount: "과원 장기 임차 중개 (임대기간 5~10년, 임차료는 지역 관행 상한 내 협의)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 64,
     eligibilityDetail:
       "만 64세 이하 과수전업농육성대상자(과원 0.3ha 이상·최근 3년 이상 과수 전업), 청년창업형후계농업경영인, 2030세대, 과수 주작목 영농조합·농업회사법인. 농지 소재 시·군·구 또는 연접 시·군·구 거주(또는 직선 30km 이내). 농업 외 종합소득 연 3,700만 원 이상 제외. 접수 기간은 별도 공고가 없어 관할 지사(1577-7770)에 확인하세요.",
@@ -1310,7 +1328,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "청송군 농정과",
     supportType: "보조금",
     supportAmount: "시설·자재별 보조 30~50% (FTA기금 과수고품질시설현대화 50%)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "청송군 과수 재배 농업경영체. 세부사업별 조건이 달라 청송군 농정과(054-870-6273)에 확인해야 해요. 신청은 읍·면사무소 산업팀 경유가 일반적이에요. 신청 기간은 사업별 공고를 확인하세요.",
@@ -1334,7 +1352,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "거창군농업기술센터 농업소득과",
     supportType: "교육",
     supportAmount: "이론·실습·선진지 견학 9회 44시간, 기수당 40명",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "거창군에 주소를 두고 실제 거주하는 농업인으로 다축과원 조성 의지가 있고 전 과정을 이수할 수 있는 사람. 청년농업인·후계농업경영인·2027~2028년 다축과원 전환 희망자 우선 선발. 신청은 주소지 읍·면 행정복지센터. 2026년 10기는 9월 14~28일 접수(마감), 교육 10월 1일~11월 26일 매주 목요일. 모집 시기가 해마다 달라(2023·2024년 2월·10월, 2025년 2월, 2026년 9월) 공고를 확인해야 해요.",
@@ -1361,7 +1379,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 각 시·군·구청",
     supportType: "보조금",
     supportAmount: "국고보조 25% + 융자 25%(고정 2.0%, 3년 거치 7년 분할) + 지방비 30% / 자부담 20%",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "채소·화훼류 재배 시설을 운영하는 농업인·농업법인·생산자단체. 재배 또는 온실 운영·종사 경력 3년 이상(신청 품목 1년 이상)이 필요하고, 원예시설은 신청일 기준 경영정보등록 1년 이상이어야 해요. 여러 품목을 재배하는 시설이면 면적이 가장 넓은 품목을 기준으로 봐요. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요(농식품부 044-201-2259).",
@@ -1385,7 +1403,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 농지 소재지 읍·면·동사무소(행정복지센터)",
     supportType: "보조금",
     supportAmount: "ha당 50~600만 원 (하계 두류·가루쌀 200만 / 옥수수·깨 100만 / 하계조사료 500만 / 동계 밀 100만·보리 등 50만 / 이모작 100만 추가)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업경영정보를 등록하고, 농업 외 종합소득 3,700만 원 미만이며 0.1ha(1천㎡) 이상 지급대상 논에서 전략작물을 재배하는 농업인·농업법인·공동농업경영체. 지급대상 농지는 종전 쌀·밭고정직불금 대상 농지이거나 1998년 1월 1일 이후 조성돼 현재 논으로 활용되는 농지예요. 하천구역 농지, 농지처분 명령을 받은 농지, 농지전용 신고·허가를 거친 농지는 제외돼요. 감자는 이동식 하우스를 설치해 6월까지 수확하는 동계 이모작일 때만 해당해요. 연령 제한은 본문에 명시 없어요. 신청 기간은 동계·하계로 나뉘어 해마다 달라 읍·면·동사무소에 확인하세요(상담 1334).",
@@ -1409,7 +1427,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 각 시·군·구청 원예과·유통과",
     supportType: "보조금",
     supportAmount: "고추비가림재배시설 + 관수시설(점적관수·스프링클러·관정) + 환경관리시설(자동개폐기·차광망) — 보조율은 시군 공고 확인",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "고추비가림재배시설에서 건고추용 고추 재배를 희망하는 농업인·농업법인. 시군이 제출된 사업계획서를 바탕으로 지원 자격·요건에 따라 선정해요. 연령 제한은 본문에 명시 없어요. 신청 시기는 본문에 '매년 12월'로만 안내돼 있고 구체적 일자는 시군 공고로 정해져요. 구비서류는 고추비가림재배시설지원 사업신청서와 사업계획서예요. 문의는 해당 지역 시·군·구청(농식품부 044-201-2237).",
@@ -1433,7 +1451,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "산림청 / 각 시·군·구청 산림부서",
     supportType: "보조금",
     supportAmount: "공모: 총사업비 1억~7억 (국비 40·지방비 20·자부담 40) / 소액: 총사업비 1억 미만 (국비 20·지방비 30·융자 30·자부담 20)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "임업인, 임업후계자, 독림가, 신지식농업인(임업분야), 생산자단체(영농조합법인·농업회사법인·산림조합). 공모사업은 임업후계자·독림가·신지식농업인·생산자단체만 대상이고, 소액사업은 일반 임업인도 신청할 수 있어요. 대상 토지는 근저당·지상권 등 재산권 제한이 없어야 하고 신청자나 생산자단체 소유여야 해요. 대상 품목은 「임업 및 산촌 진흥촉진에 관한 법률 시행규칙」의 임산물 소득원 지원 대상 품목이에요. 연령 제한은 본문에 명시 없어요. 신청 시기는 소액사업 전년도 6~7월, 공모사업 전년도 4~6월경으로만 안내돼 정확한 일자는 시·군·구 공고를 확인하세요.",
@@ -1457,7 +1475,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / aT화훼사업센터",
     supportType: "보조금",
     supportAmount: "습식대차·습식물통·화훼포장망·수명연장제 등 습식유통 기자재 구입·임차 비용",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "화훼농가 및 화훼생산자단체. 화훼류 습식유통 실적이 있거나 새롭게 참여하려는 곳을 선정해요. 구비서류는 신청서, 사업자등록증, 법인등기부등본, 정관, 통장사본, 소속농가 목록 및 출하실적증명서예요. 연령 제한은 본문에 명시 없어요. 신청 시기는 '연초 선정공고기간 내'로만 안내돼 정확한 일자는 aT화훼사업센터(02-570-1841)에 확인하세요. 접수는 aT 화훼센터 절화부 우편·방문.",
@@ -1481,7 +1499,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 원예산업과 / 각 시·군",
     supportType: "보조금",
     supportAmount: "국고 20% + 지방비 30% + 융자 30% / 자부담 20% (내재해시설·무인방제·점적관수·방풍망·인삼 이식기·파종기·수확기)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업인 또는 농업법인. 연령 제한은 본문에 명시 없어요. 사업신청서 등을 작성해 시장·군수에게 제출하고, 신청 시기는 '매년 2월까지'로 안내돼 있어요. 목재 해가림 시설은 지원 대상이 아니에요.",
@@ -1504,7 +1522,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "농림축산식품부 / 각 시·군·구청",
     supportType: "보조금",
     supportAmount: "국고보조 25% + 융자 25% + 지방비 30% / 자부담 20% (다겹보온커튼·자동보온덮개·순환식 수막재배·열회수형 환기·배기열 회수)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "채소·화훼·버섯류 재배 농업인·농업법인·생산자단체. 연령 제한은 본문에 명시 없어요. 접수 시기는 시·군·구청마다 달라 담당 부서에 확인하세요.",
@@ -1529,7 +1547,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "전라남도 식량원예과 / 거주지 읍·면·동 주민센터",
     supportType: "현물",
     supportAmount: "연작장해 경감제 ha당 360만 원 (현물)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업경영체 등록 시설원예 및 노지채소 1,000㎡ 이상 재배농가. 지원내용 항목에는 '1,000㎡ 이상 시설원예 재배농가, 작목반'으로 적혀 있어 지원대상 항목(노지채소 포함)과 표기가 달라요 — 노지 재배분 인정 여부는 식량원예과에 확인하세요. 연령 제한은 본문에 명시 없어요. 상시 신청.",
@@ -1551,10 +1569,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "강원특별자치도 / 각 시·군 농업기술센터·농정과",
     supportType: "보조금",
     supportAmount: "고랭지채소 안정생산 지원 4,000ha·2,560백만 원 (도비 384·시군비 896·자부담 1,280) 등 5개 사업",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "도 안내 페이지에는 지원대상·신청 요건이 명시돼 있지 않아요. 자부담이 편성된 농가 참여 사업이지만 개인 농가 신청 절차는 시·군 공고로 확인해야 해요(인제군은 무·배추 무사마귀병 방제약제 50% 보조를 매년 1~2월 접수). 연령 제한 명시 없음.",
+      "도 안내 페이지에는 지원대상·신청 요건이 명시돼 있지 않아요. 자부담이 편성된 농가 참여 사업이지만 개인 농가 신청 절차는 시·군 공고로 확인해야 해요(인제군은 무·배추 무사마귀병 방제약제 50% 보조를 매년 1~2월 접수).",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
     applicationCycle: "매년 1~2월 시·군 접수 (인제군 기준)",
@@ -1575,10 +1593,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "전북특별자치도 농생명정책과 / 농지 소재지 읍·면·동사무소",
     supportType: "보조금",
     supportAmount: "밭농업 소득안정 직불금 — 농업인당 0.1ha~1.0ha (현금)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "농업경영체에 등록하고 도내에 거주(주민등록 주소)하는 농업인 중, 기본형 공익직접지불제(소농·면적직불) 지급대상 농지(타 시·도 농지 제외)에서 1,000㎡ 이상 밭농업을 하는 사람이에요. 개인 기준이고 법인은 제외예요. 별도 신청서·구비서류는 없고 기본형 공익직불 신청(매년 2.1.~5.30.)으로 대체돼요. 연령 제한 명시 없음.",
+      "농업경영체에 등록하고 도내에 거주(주민등록 주소)하는 농업인 중, 기본형 공익직접지불제(소농·면적직불) 지급대상 농지(타 시·도 농지 제외)에서 1,000㎡ 이상 밭농업을 하는 사람이에요. 개인 기준이고 법인은 제외예요. 별도 신청서·구비서류는 없고 기본형 공익직불 신청(매년 2.1.~5.30.)으로 대체돼요.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
     applicationCycle: "매년 2~5월 공익직불 신청과 함께 접수",
@@ -1598,10 +1616,10 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "제주특별자치도 / 읍·면·동 주민센터 (문의 제주시청 감귤유통과)",
     supportType: "보조금",
     supportAmount: "200㎥ 이하 암반 제거 및 지반 정리 장비 사용료",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
-      "농업경영체에 등록한 밭작물 재배농지(과수원 제외)에 암반이 있는 경우예요. 농업경영체 등록확인서·건강보험자격득실확인서·토지등기부등본·가산점 서류를 내고, 읍·면·동 담당자가 현지확인 복명서를 첨부해요. 신청 시기는 '매년 1월 중'. 연령 제한 명시 없음.",
+      "농업경영체에 등록한 밭작물 재배농지(과수원 제외)에 암반이 있는 경우예요. 농업경영체 등록확인서·건강보험자격득실확인서·토지등기부등본·가산점 서류를 내고, 읍·면·동 담당자가 현지확인 복명서를 첨부해요. 신청 시기는 '매년 1월 중'.",
     applicationStart: "9999-12-31",
     applicationEnd: "9999-12-31",
     applicationCycle: "매년 1월 읍·면·동 접수",
@@ -1624,7 +1642,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "당진시농업기술센터 농업기술과",
     supportType: "현물",
     supportAmount: "종순 주당 120원 유상공급(국립식량과학원산 가격의 80%), 농가당 100~300주",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업경영체를 등록한 당진시 농업인, 농가당 1명. 재배 경력 요건이 없어 신규·귀농인도 신청할 수 있어요. 전화 신청(041-360-6417~8)이고 계획량이 소진되면 마감돼요. 신청 시기는 해마다 4월 초 공고를 확인하세요.",
@@ -1647,7 +1665,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "진도군 농업지원과",
     supportType: "보조금",
     supportAmount: "부직포 40,000원/롤 중 군비 50% (0.1ha당 5롤 기준), 2025년 사업량 20ha",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "신청일 기준 진도군에 주소를 두고 농업경영체를 등록한 겨울배추 재배 농업인. 재배 사실이 요건이라 첫 작기를 시작하기 전에는 신청이 어려워요. 신청은 읍·면사무소, 문의는 진도군 농업지원과예요. 해마다 10월 말~11월 중순에 공고되고 접수는 2주 안팎이니 정확한 일자는 그해 공고를 확인하세요.",
@@ -1670,7 +1688,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "고흥군 농업정책과 원예특작팀",
     supportType: "현물",
     supportAmount: "흑색썩음균핵병 예방·토양선충 방제약제 (공동 구입·공동방제 권장, 보조 비율은 시행지침 확인)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "마늘·양파 재배농가 또는 시설원예 생산 법인·작목반·생산단체. 전년산 마늘·양파 재배 경작신고를 하지 않은 농가는 지원에서 제외돼요. 신청은 사업장 소재지 읍·면사무소 산업팀, 문의는 고흥군청 원예특작팀(061-830-5763)이에요. 해마다 1월이나 전년 11~12월에 접수하니 정확한 일자는 그해 공고를 확인하세요.",
@@ -1693,7 +1711,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "합천군 농업기술센터 농업지도과",
     supportType: "보조금",
     supportAmount: "5개 사업 — 양파 종자대(정액), 생력화 농기계(정식기·파종기·수확기), 연작장해 토양개량제, 톤백, 흡입식 건조기. 단가는 사업별 공고 확인",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "양파·마늘을 재배하는 농업인·작목반·생산자단체. 법인 전용이 아니고 재배 연차 제한도 없어요. 상설 안내표라 지원단가·신청 시기가 없으니 농업지도과 스마트원예담당(055-930-3975~3976)에 확인해야 해요.",
@@ -1716,7 +1734,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "서산시 농업기술센터 농업정책과",
     supportType: "보조금",
     supportAmount: "기준가격 대비 20% 이상 하락 시 차액의 80% 지원, 농가당 1품목·1기작 300만 원 한도 (대상면적 10,000㎡ 이하·시설 5,000㎡)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "충남에 주소를 두고 도내 농지에서 직접 생산하는 농업인으로, 통합마케팅조직·농협·도매시장·로컬푸드 매장·대형마트 등에 출하한 사람. 파종 전후 출하약정 체결이 요건이고 재배 연차 제한은 없어 신규·귀농인도 신청할 수 있어요. 신청은 각 품목 파종 전·후 1개월에 농지 소재지 읍·면·동 행정복지센터. 대파는 2026년에 새로 들어온 품목이고, 가을대파는 정부 가격안정제 대상이라 이 사업에서는 제외돼요.",
@@ -1739,7 +1757,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "진도군 농업지원과",
     supportType: "보조금",
     supportAmount: "생강(종자 및 자재) ha당 7,200천 원 — 군비 70%(5,040천 원)·자부담 30%, 사업량 1ha",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업경영체를 등록한 진도군 농업인·농업법인·농협. 재배 경력 요건이 없어 신규·귀농인도 신청할 수 있어요. 신청은 주소지 읍·면사무소, 문의는 진도군 농업지원과(061-540-3522)예요. 2026년은 4월 13일~30일 접수였고 생강 사업량이 1ha라 조기 마감될 수 있어요.",
@@ -1762,7 +1780,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "제주특별자치도 / 품목별 계약재배 지역농협",
     supportType: "보조금",
     supportAmount: "목표관리 기준가격보다 하락 시 차액의 90% 보전. 신청 상한 농가당 당근 200톤·브로콜리 40톤",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "제주도에 주소와 농업경영체를 등록하고 당근·브로콜리를 실제 재배하는 농업인 또는 영농조합법인. 세 조건을 모두 채워야 해요 — ① 밭작물 제주형 자조금 단체 가입 및 지역농협 계통출하 ② 주요 채소류 재배면적 신고제 참여 ③ 자율감축 추진 시 신청량 10% 이상 의무 참여. 재배 연차 요건은 없고, 2026년분부터는 그해(2025년) 자조금 단체에 새로 가입한 농가도 신청할 수 있어요(나중에 자조금을 내지 않으면 지원에서 빠져요). 농업수입안정보험 가입 필지는 제외예요. 신청은 품목별 계약재배 지역농협, 문의는 제주특별자치도 식품산업과(064-710-3184)예요.",
@@ -1785,7 +1803,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     organization: "제주특별자치도 식품산업과",
     supportType: "보조금",
     supportAmount: "㎡당 400원, 농가당 최대 1,500천 원 (2025년 300원/㎡·18품종 → 2026년 400원/㎡·40품종)",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "농업경영체를 등록하고 제주도에 주소를 둔 농업인으로 도내 농지에서 토종농작물을 재배·관리한 사람. 재배 연차 요건이 없어 그해 토종종자를 분양받으면 신규·귀농인도 신청할 수 있어요. 구비서류는 토종종자 분양 확인서(전년도 지급 대상자는 생략 가능)예요. 신청은 농지 소재지 읍·면·동 주민센터, 문의는 제주특별자치도 식품산업과(064-710-3143)예요. 2026년 접수는 9월 3일 마감됐고 해마다 8월 말에 공고돼요.",
@@ -1815,7 +1833,7 @@ const PROGRAMS_RAW: Omit<SupportProgram, "status">[] = [
     supportType: "보조금",
     supportAmount:
       "사업비의 50% 보조(자부담 50%) — 품종갱신·관수·지주시설·관정 등 생산시설, 방풍망·야생동물 방지·서리·우박 방지 등 재해예방시설",
-    eligibilityAgeMin: 18,
+    eligibilityAgeMin: 0,
     eligibilityAgeMax: 99,
     eligibilityDetail:
       "생산유통통합조직(충북원협·충주조공 등) 또는 지역 푸드플랜에 참여하고 있는 농업경영체. 2024년 12월 31일 이전에 조성한 기존 과원은 국비 '과수 고품질 시설현대화사업'(생산유통통합조직 또는 지역농협 접수), 2027년 신규 과원 조성은 '명품과원조성사업'(농지 소재지 읍·면·동 행정복지센터 산업팀 접수). 신청기간 2026. 7. 15. ~ 10. 16. 연령 요건은 보도자료에 나와 있지 않아요. 소득·출하 약정 같은 세부 자격은 시행지침을 따르니 충주시 친환경농산과 원예산업팀(043-850-5770)에 확인하세요.",

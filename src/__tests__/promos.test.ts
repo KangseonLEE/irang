@@ -176,6 +176,14 @@ describe("저장 입력 검증", () => {
     if (!r.ok) expect(r.errors.some((e) => e.field === "until")).toBe(true);
   });
 
+  it("포스터 주소는 사이트 경로 또는 https — 프로토콜 상대(//)·역슬래시(/\\) 외부 주소는 거부 (보안 2차 QA)", () => {
+    expect(validatePromoInput({ ...base, image: "/promo/x.webp" }).ok).toBe(true);
+    expect(validatePromoInput({ ...base, image: "https://cdn.example.com/x.png" }).ok).toBe(true);
+    expect(validatePromoInput({ ...base, image: "//evil.com/x.png" }).ok).toBe(false);
+    expect(validatePromoInput({ ...base, image: "/\\evil.com/x.png" }).ok).toBe(false);
+    expect(validatePromoInput({ ...base, image: "http://x.kr/a.png" }).ok).toBe(false);
+  });
+
   it("href 는 https, 정보 행 링크는 https 또는 tel", () => {
     expect(validatePromoInput({ ...base, href: "http://x.kr" }).ok).toBe(false);
     expect(

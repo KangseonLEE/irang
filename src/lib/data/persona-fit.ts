@@ -12,7 +12,7 @@
 import type { CropInfo } from "./crops";
 import type { SupportProgram } from "./programs";
 import type { PersonaId } from "./personas";
-import { hasCollectorDefaults } from "@/lib/programs/display";
+import { hasCollectorDefaults, isAgeUnstated } from "@/lib/programs/display";
 import { POLICY_TEXT } from "./policy-facts";
 
 export type FitScore = 1 | 2 | 3 | 4 | 5;
@@ -384,7 +384,7 @@ const PROGRAM_FIT_OVERRIDES: Record<string, Partial<PersonaFit>> = {
   // 청년농 영농정착 2차 (40세 미만 핵심)
   "SP-020": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
   // 2026-05-14: 6/15 큐레이션 sprint 당김 (7월 모집 시즌 대비)
-  // 예산군 임대형 스마트팜 (40세 미만 청년)
+  // 예산군 임대형 스마트팜 (만 18~44세 청년 — 운영 지침, 10/16 정정)
   "SP-021": { farmYouth: 5, family: 3, elderRural: 1, commuter: 1 },
   // 청년농 R&D 아이디어 사업화 공모 (40세 이하 청년)
   "SP-022": { farmYouth: 5, family: 2, elderRural: 1, commuter: 2 },
@@ -495,7 +495,7 @@ const PROGRAM_OVERRIDE_REASONS: Record<string, string> = {
   "SP-017": "전국 체류 허브라 모든 페르소나에 폭넓게 맞아요",
   "SP-018": "농지 임대수탁이라 자본 부담이 큰 가족·노년에 강점이에요",
   "SP-020": "40세 미만 청년농 정착지원 2차 모집이에요",
-  "SP-021": "40세 미만 청년 대상 임대형 스마트팜 입주(예산)이에요",
+  "SP-021": "만 44세 이하 청년 대상 임대형 스마트팜 입주(예산)예요",
   "SP-022": "청년농 아이디어 사업화 보조사업이라 본업 청년농에 맞아요",
   "SP-023": "만 49세 이하 후계농 융자(최대 5억원)라 가족·본업 농가 핵심이에요",
   "SP-024": "체류형 귀농인의 집(고성)이라 가족·노년에 잘 맞아요",
@@ -596,7 +596,13 @@ export function getProgramPersonaFitTrace(
     // 99 = 상한 없음 관례(8/30, formatAgeRange와 동일) — "99세 이하 (노년 친화)"로 새지 않게
     reasons.push({
       kind: "age",
-      label: ageMin > 0 ? `${ageMin}세 이상 신청 가능해요` : "연령 제한이 없어요",
+      // 원문에 연령 언급이 없으면 '제한 없음'으로 단정하지 않는다 (10/16 2차 QA — display.ts isAgeUnstated)
+      label:
+        ageMin > 0
+          ? `${ageMin}세 이상 신청 가능해요`
+          : isAgeUnstated(program.id, ageMin, ageMax)
+            ? "연령 조건은 공고에서 확인해 주세요"
+            : "연령 제한이 없어요",
     });
   } else if (ageMax >= 60) {
     reasons.push({
@@ -604,9 +610,10 @@ export function getProgramPersonaFitTrace(
       label: `${ageMax}세 이하 신청 가능해요 (노년 친화)`,
     });
   } else {
+    // 하한 0 = 원문에 하한 없음 (10/16) — "0~45세"로 새지 않게
     reasons.push({
       kind: "age",
-      label: `${ageMin}~${ageMax}세 대상이에요`,
+      label: ageMin > 0 ? `${ageMin}~${ageMax}세 대상이에요` : `${ageMax}세 이하 대상이에요`,
     });
   }
 

@@ -24,12 +24,16 @@ export interface EligibilityItem {
 const EXCLUDE_PATTERN =
   /(신청|누리집|포털|콜센터|고객센터|선발|선정|팀별|구성|약 \d+명|연간 약|교육기간|체류하|과정 운영|공고 시 확정|발표 시 확정|예정 — 정확|월 과정|개월 과정|개월 간|개월간|접수 기간|접수 시기|접수는|접수했|온라인 전용|오프라인 접수|담당 부서|문의|확인해야)/;
 
+const LEADING_BASE_DATE = /^신청일\s*(?:기준|현재)\s*/;
+
 export function parseEligibilityItems(detail: string): EligibilityItem[] {
   return splitSentences(detail)
     .map((part) => part.trim().replace(/\.$/, "")) // 끝 마침표만 제거 (라벨은 문장 그대로)
     .filter((label) => label.length >= 5) // URL fragment("or", "kr") 등 짧은 잔여 제외
     .filter((label) => /[가-힣]/.test(label)) // 한글 없는 영문/숫자 단편 제외
-    .filter((label) => !EXCLUDE_PATTERN.test(label))
+    // 문장 첫머리의 "신청일 기준·현재"는 자격의 기준 시점이라 신청 방법 키워드로 보지 않는다
+    // (10/16 2차 QA: SP-071 '신청일 기준 진도군에 주소를 두고 농업경영체를 등록한 겨울배추 재배 농업인'이 빠져 셀프 체크 탭이 사라졌다)
+    .filter((label) => !EXCLUDE_PATTERN.test(label.replace(LEADING_BASE_DATE, "")))
     .filter((label) => !/^만 \d+세/.test(label)) // "만 N세 이상…" — 연령 자동 항목과 중복
     .map((label) => ({ label, detail: "" }));
 }

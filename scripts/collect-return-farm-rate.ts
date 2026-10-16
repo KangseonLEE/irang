@@ -38,7 +38,8 @@ import { resolve } from "node:path";
 config({ path: resolve(__dirname, "../.env.local") });
 
 import { SIGUNGUS } from "../src/lib/data/sigungus";
-import { fetchReturnFarmStats, fetchReturnFarmStatsOfYear, isSameRegionName } from "../src/lib/api/kosis";
+import { fetchReturnFarmStatsStrict, fetchReturnFarmStatsOfYear, isSameRegionName } from "../src/lib/api/kosis";
+import { RETURN_FARM_RATE_SIGUNGU } from "../src/lib/data/return-farm-rate";
 import { POPULATION_TREND_SIGUNGU, POPULATION_TREND_YEARS } from "../src/lib/data/population-trend";
 
 interface ReturnFarmRate {
@@ -63,13 +64,20 @@ async function main() {
 
   // 1) KOSIS 전국 시군구 귀농 통계 1회 호출
   console.log(`[collect-return-farm] fetching KOSIS (regionCode=ALL)…`);
-  const kosisData = await fetchReturnFarmStats();
+  // 시간 초과·오류는 재시도(2회) 후에도 실패면 던진다 — 전년도로 조용히 내려가지 않는다 (10/16 QA 🟡-1)
+  const KOSIS_OPTS = { timeoutMs: 30_000, retries: 2 };
+  const kosisData = await fetchReturnFarmStatsStrict(undefined, undefined, KOSIS_OPTS);
   if (kosisData.length === 0) {
     throw new Error(
       "KOSIS returned empty data. Check KOSIS_API_KEY or wait for next year's release (보통 6월).",
     );
   }
   const dataYear = kosisData[0].year;
+  // 지금 파일의 최신 연도보다 이전 해가 나오면 멈춘다 — 공표된 해가 사라질 리 없으니 조회 문제다
+  const committedYear = Math.max(...RETURN_FARM_RATE_SIGUNGU.map((r) => r.year));
+  if (dataYear < committedYear) {
+    throw new Error(`KOSIS 응답 연도 ${dataYear} < 지금 파일 ${committedYear} — 조회 문제로 보고 쓰지 않아요`);
+  }
   console.log(
     `[collect-return-farm] received ${kosisData.length} regions, year=${dataYear}`,
   );
@@ -80,7 +88,7 @@ async function main() {
   );
   // 최신 연도에 비공개('X')로 빠진 곳(2025 울릉 등)은 전년도 값 — 없으면 순위 계산이 그곳을 도시 자치구로 본다
   const prevMap = new Map(
-    (await fetchReturnFarmStatsOfYear(dataYear - 1)).map((d) => [d.regionCode, d]),
+    (await fetchReturnFarmStatsOfYear(dataYear - 1, undefined, KOSIS_OPTS)).map((d) => [d.regionCode, d]),
   );
   const prevYearUsed: string[] = [];
 

@@ -81,7 +81,7 @@ jobs:
           RESP=$(curl -s --max-time 20 \
             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
-            "$SUPABASE_URL/rest/v1/community_notes?status=eq.pending&is_e2e=eq.false&select=id,target_type,target_id,body,nickname,created_at&order=created_at.asc&limit=50" || echo "")
+            "$SUPABASE_URL/rest/v1/community_notes?status=eq.pending&is_e2e=eq.false&select=id,target_type,target_id,created_at&order=created_at.asc&limit=50" || echo "")
           if ! echo "$RESP" | jq -e 'type == "array"' >/dev/null 2>&1; then
             echo "::error::Supabase 응답 비정상: $(echo "$RESP" | head -c 200)"; exit 1
           fi
@@ -104,13 +104,15 @@ jobs:
           set -u
           COUNT="${{ steps.q.outputs.count }}"
           IDS="${{ steps.q.outputs.ids }}"
-          # 목록 렌더 — 본문은 80자로 잘라 미리보기만 (전문은 admin에서)
-          # 대상은 한글 이름으로(labels.json), 없으면 원본 id. 종류도 한글 배지.
+          # 목록 렌더 — 글 본문·닉네임은 싣지 않는다(2026-10-16 보안 QA 🟡3).
+          # 이 리포는 공개라 승인 전 글이 여기 오르면 사전 승인제가 무력화되고 `@아이디` 멘션도 날아간다.
+          # 대상(공개 지역·작물 이름)·id·시각만 — 내용은 /admin/community 에서.
+          # id 앞에 `#` 를 붙이지 않는다 — GitHub 가 같은 번호의 이슈 링크로 바꾼다.
           TYPE_MAP='{"region":"지역","crop":"작물","program":"지원사업"}'
           render_list() {
             jq -r --slurpfile L labels.json --argjson T "$TYPE_MAP" \
               '($L[0] // {}) as $l | .[] | ($T[.target_type] // .target_type) as $t | ($l["\(.target_type)/\(.target_id)"] // .target_id) as $n |
-               "- **#\(.id)** [\($t) · \($n)] \(if .nickname then "`\(.nickname)`" else "익명" end) · \(.created_at[0:16] | sub("T"; " "))Z\n  > \(.body | .[0:80] | gsub("\n"; " "))\(if (.body | length) > 80 then "…" else "" end)"' pending.json
+               "- 의견 id \(.id) [\($t) · \($n)] · \(.created_at[0:16] | sub("T"; " "))Z"' pending.json
           }
 
           OPEN_NUM=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
@@ -155,7 +157,7 @@ jobs:
           if [ -n "$NEW_IDS" ]; then
             NEW_LIST=$(jq -r --arg ids " $NEW_IDS " --slurpfile L labels.json --argjson T "$TYPE_MAP" \
               '($L[0] // {}) as $l | .[] | .id as $id | select($ids | contains(" \($id) ")) | ($T[.target_type] // .target_type) as $t | ($l["\(.target_type)/\(.target_id)"] // .target_id) as $n |
-               "- **#\($id)** [\($t) · \($n)] \(if .nickname then "`\(.nickname)`" else "익명" end)\n  > \(.body | .[0:80] | gsub("\n"; " "))"' pending.json)
+               "- 의견 id \($id) [\($t) · \($n)]"' pending.json)
             gh issue comment "$OPEN_NUM" --body "$(printf '%s\n' "🆕 새 승인 대기 의견이 들어왔어요 → [$ADMIN_URL]($ADMIN_URL)" "" "$NEW_LIST")"
             echo "commented new: $NEW_IDS"
           else

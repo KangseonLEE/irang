@@ -634,6 +634,106 @@ async function buildFarmExpected(key: string, issues: string[]): Promise<Map<str
   return out;
 }
 
+// ── 귀농·귀촌 기준값 — KOSIS 귀농어·귀촌인 통계 원표를 직접 받는다 (10/16 QA 🟡-1) ──
+// 화면 카드는 lib/api/kosis.ts fetchReturnFarmStats 가 런타임에 같은 표를 읽는다. 여기서는 그 함수를 거치지 않고
+// 원표 3개(귀농인 DT_1A02002 T02·귀농가구 DT_1A02008 T01·귀촌인 DT_1A02015 T01, 전부 '계')를 다시 받아
+// SIGUNGUS.admCode 와 **응답 지역명**으로 맞춘다. 연도 = 귀농인 표에 자료가 있는 가장 최근 해(올해−1 → −3),
+// 그 해 값이 비공개('X')면 전년도 값(2025 울릉 등 — 화면도 전년도). 자료가 없는 곳(자치구·신설 구)은 카드가 없어야 한다.
+// 구 화면은 부모 시 값을 '○○시 귀농'으로 보여 준다(returnFarmScope). 같은 해 공표값이라 0 허용 — 차이는 화면 쪽 문제
+// (런타임 조회가 시간 초과로 카드를 숨겼거나 다른 해를 보임)다. 1차 QA(10/16)가 손으로 한 139/139 대조를 자동화.
+type ReturnFarmExpect = { scope: string | null; person: number; household: number; rural: number; year: number } | null;
+const RF_TABLES = [
+  { tbl: "DT_1A02002", objL2: "0", itm: "T02", key: "person" },
+  { tbl: "DT_1A02008", objL2: "00", itm: "T01", key: "household" },
+  { tbl: "DT_1A02015", objL2: "0", itm: "T01", key: "rural" },
+] as const;
+type RfRow = { name: string; person?: number; household?: number; rural?: number; hidden: boolean };
+
+async function kosisReturnFarmYear(key: string, year: number): Promise<Map<string, RfRow> | null> {
+  const out = new Map<string, RfRow>();
+  for (const t of RF_TABLES) {
+    const url = new URL("https://kosis.kr/openapi/Param/statisticsParameterData.do");
+    const params: Record<string, string> = {
+      method: "getList", apiKey: key, itmId: "ALL", objL1: "ALL", objL2: t.objL2, format: "json", jsonVD: "Y",
+      prdSe: "Y", startPrdDe: String(year), endPrdDe: String(year), orgId: "101", tblId: t.tbl,
+    };
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    let json: unknown = null;
+    for (let attempt = 0; attempt < 3 && !Array.isArray(json); attempt++) {
+      if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+        json = await res.json();
+      } catch (e) {
+        json = { err: errText(e) };
+      }
+      // '데이터가 존재하지 않습니다' — 그 해는 공표 전. 다시 묻지 않는다
+      if (String((json as { err?: unknown })?.err) === "30") break;
+    }
+    if (!Array.isArray(json)) {
+      if (String((json as { err?: unknown })?.err) === "30") {
+        if (t.key === "person") return null;
+        throw new Error(`KOSIS 귀농 ${year} ${t.tbl} — 귀농인은 있는데 이 표는 자료 없음`);
+      }
+      throw new Error(`KOSIS 귀농 ${year} ${t.tbl} 응답 오류 — ${JSON.stringify(json)?.slice(0, 160)}`);
+    }
+    for (const r of json as { C1: string; C1_NM: string; ITM_ID: string; DT: string }[]) {
+      if (r.ITM_ID !== t.itm) continue;
+      const cur = out.get(r.C1) ?? { name: r.C1_NM, hidden: false };
+      const v = Number(r.DT);
+      if (Number.isFinite(v) && /^\d+$/.test(r.DT.trim())) cur[t.key] = v;
+      else if (t.key === "person") cur.hidden = true; // 비공개 'X' 등
+      out.set(r.C1, cur);
+    }
+  }
+  return out;
+}
+
+async function buildReturnFarmExpected(key: string, issues: string[]): Promise<{ year: number; exp: Map<string, ReturnFarmExpect> }> {
+  const now = new Date().getFullYear();
+  let latest: { year: number; rows: Map<string, RfRow> } | null = null;
+  for (const y of [now - 1, now - 2, now - 3]) {
+    const rows = await kosisReturnFarmYear(key, y);
+    if (rows) {
+      latest = { year: y, rows };
+      break;
+    }
+  }
+  if (!latest) throw new Error("KOSIS 귀농 — 최근 3년 자료 없음");
+  let prev: Map<string, RfRow> | null | undefined;
+  // 우리 코드(isSameRegionName)를 거치지 않는 이름 비교 — 공백·'특별자치시'만 정규화
+  const norm = (x: string) => x.replace(/\s+/g, "").replace(/특별자치시$/, "시");
+  const forCity = async (admCode: string, name: string, label: string): Promise<Omit<NonNullable<ReturnFarmExpect>, "scope"> | null> => {
+    let r = latest!.rows.get(admCode);
+    let year = latest!.year;
+    if (r?.hidden) {
+      if (prev === undefined) prev = await kosisReturnFarmYear(key, latest!.year - 1);
+      r = prev?.get(admCode);
+      year = latest!.year - 1;
+    }
+    if (!r) return null;
+    if (norm(r.name) !== norm(name)) return null; // 코드가 이웃 지역을 가리키면 화면도 숫자를 내지 않는다
+    if (r.person === undefined || r.household === undefined || r.rural === undefined) {
+      issues.push(`${label} — 원천 ${year}년 값 일부 없음(귀농인 ${r.person ?? "-"} · 가구 ${r.household ?? "-"} · 귀촌 ${r.rural ?? "-"})`);
+      return null;
+    }
+    return { person: r.person, household: r.household, rural: r.rural, year };
+  };
+
+  const exp = new Map<string, ReturnFarmExpect>();
+  for (const sg of SIGUNGUS.filter((x) => !ONLY || ONLY.has(x.sidoId))) {
+    const v = await forCity(sg.admCode, sg.name, `${sg.sidoId}/${sg.id}`);
+    exp.set(`${sg.sidoId}/${sg.id}`, v ? { scope: null, ...v } : null);
+  }
+  for (const g of GUS.filter((x) => !ONLY || ONLY.has(x.sidoId))) {
+    const city = SIGUNGUS.find((s) => s.id === g.parentSigunguId);
+    if (!city) continue;
+    const v = await forCity(city.admCode, city.name, `${g.sidoId}/${g.parentSigunguId}/${g.id}`);
+    exp.set(`${g.sidoId}/${g.parentSigunguId}/${g.id}`, v ? { scope: city.name, ...v } : null);
+  }
+  return { year: latest.year, exp };
+}
+
 /** 페이지 실패 사유(마지막 시도) — 요약에서 '막혔나(403·503)·느렸나(시간 초과)'를 가른다 */
 const pageFailures = new Map<string, string>();
 async function fetchPage(path: string): Promise<string | null> {
@@ -800,6 +900,21 @@ async function main() {
     }
   }
 
+  // ── 귀농·귀촌 — 시·군·구·구 화면 카드 ↔ KOSIS 귀농어·귀촌인 통계 원표 (10/16) ──
+  const returnFarmIssues: string[] = [];
+  let returnFarmNote: { year?: number; skipped?: string } = {};
+  let returnFarmExp: Map<string, ReturnFarmExpect> | null = null;
+  if (!env.KOSIS_API_KEY) returnFarmNote = { skipped: "KOSIS_API_KEY 없음" };
+  else {
+    try {
+      const r = await buildReturnFarmExpected(env.KOSIS_API_KEY, returnFarmIssues);
+      returnFarmExp = r.exp;
+      returnFarmNote = { year: r.year };
+    } catch (e) {
+      returnFarmNote = { skipped: mask(e instanceof Error ? e.message : String(e)) };
+    }
+  }
+
   const unavailable = new Set(
     Object.entries(REGION_REORGANIZATIONS)
       .filter(([, r]) => r.countsUnavailable)
@@ -892,6 +1007,28 @@ async function main() {
         }
       }
     }
+    // 귀농·귀촌 — 시·도 화면엔 카드가 없다. 같은 해 공표값이라 0 허용(전년도로 내려간 화면·숨은 카드도 불일치)
+    if (j.kind !== "sido" && returnFarmExp?.has(j.key)) {
+      const re = returnFarmExp.get(j.key)!;
+      const cards = Object.entries(c).filter(([k]) => /귀[농촌]$/.test(k));
+      if (re === null) {
+        if (cards.length) msgs.push(`귀농·귀촌 카드가 없어야 하는데 '${cards[0][0]} ${cards[0][1].value}'`);
+      } else {
+        const farmLabel = re.scope ? `${re.scope} 귀농` : "귀농";
+        const ruralLabel = re.scope ? `${re.scope} 귀촌` : "귀촌";
+        const farm = c[farmLabel];
+        const rural = c[ruralLabel];
+        if (!farm || !rural) {
+          msgs.push(`귀농·귀촌 카드 없음 — '${farmLabel}' 기대(원천 ${re.year}년 ${re.person}명)${cards.length ? `, 화면 '${cards.map(([k]) => k).join("·")}'` : ""}`);
+        } else {
+          if (toNum(farm.value) !== re.person) msgs.push(`귀농 화면 ${farm.value} ≠ 원천 ${re.year}년 ${re.person}명`);
+          if (!farm.sub.includes(`${re.household.toLocaleString("ko-KR")}가구`)) msgs.push(`귀농 가구 화면 '${farm.sub}' ≠ 원천 ${re.household}가구`);
+          if (!farm.sub.includes(`${re.year}년 기준`)) msgs.push(`귀농 연도 화면 '${farm.sub}' ≠ 원천 ${re.year}년`);
+          if (toNum(rural.value) !== re.rural) msgs.push(`귀촌 화면 ${rural.value} ≠ 원천 ${re.year}년 ${re.rural}명`);
+          if (!rural.sub.includes(`${re.year}년 기준`)) msgs.push(`귀촌 연도 화면 '${rural.sub}' ≠ 원천 ${re.year}년`);
+        }
+      }
+    }
     return { ...j, status: msgs.length ? "MISMATCH" : near.length ? "NEAR" : "OK", msgs, near, vals };
   };
 
@@ -946,9 +1083,11 @@ async function main() {
   for (const n of exp.cityNameless) console.log(`  · ${n}`);
   console.log(farmNote.skipped ? `농가 대조 건너뜀 — ${farmNote.skipped}` : `농가(농림어업총조사 ${farmNote.year}) 원천 짝 맞추기 문제 ${farmIssues.length}건`);
   for (const n of farmIssues) console.log(`  ✗ ${n}`);
+  console.log(returnFarmNote.skipped ? `귀농·귀촌 대조 건너뜀 — ${returnFarmNote.skipped}` : `귀농·귀촌(KOSIS ${returnFarmNote.year}) 원천 문제 ${returnFarmIssues.length}건`);
+  for (const n of returnFarmIssues) console.log(`  ✗ ${n}`);
   console.log(areaNote.skipped ? `면적 대조 건너뜀 — ${areaNote.skipped}` : `면적(지적통계 ${areaNote.year}년) ≠ 정적 자료 ${areaIssues.length}건${areaIssues.length ? " — npx tsx scripts/collect-areas.ts 로 갱신" : ""}`);
   for (const n of areaIssues.slice(0, 40)) console.log(`  ✗ ${n}`);
-  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length || areaIssues.length || farmIssues.length) process.exitCode = 1;
+  if (count("MISMATCH") || count("ERR") || exp.popIssues.length || guSumIssues.length || exp.partition.length || areaIssues.length || farmIssues.length || returnFarmIssues.length || returnFarmNote.skipped) process.exitCode = 1;
 
   // ── 요약 (--json) — 판정은 위 결과를 그대로 옮긴다 ──
   if (pageFailures.size) {
@@ -978,6 +1117,8 @@ async function main() {
     area: areaNote,
     farmIssues,
     farm: farmNote,
+    returnFarmIssues,
+    returnFarm: returnFarmNote,
   });
 }
 

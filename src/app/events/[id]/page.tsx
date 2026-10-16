@@ -8,7 +8,7 @@ import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { DeadlineBadge } from "@/components/ui/deadline-badge";
-import { ExternalLinkBlock } from "@/components/ui/external-link-block";
+import { ExternalLinkBlock, safeHttpUrl } from "@/components/ui/external-link-block";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -88,6 +88,15 @@ export function generateStaticParams() {
   return EVENTS.map((e) => ({ id: e.id }));
 }
 
+/**
+ * 1시간마다 다시 만든다 (10/16 QA 🔴-1). 상태 배지(접수중·마감)는 렌더 순간의 날짜로 계산하는데(deriveEventStatus),
+ * revalidate 가 없으면 처음 열린 수집 행(crawl-*) 상세가 **다음 배포까지** 그대로 남아 마감된 행사가 '접수중'으로 보였다
+ * (crawl-greendaero-live-aeb79f1a, 접수 10/12~10/15 · 10/16 HIT age 137,517초).
+ * 이 라우트는 searchParams 를 읽지 않는 [id] 정적 생성 라우트라 'dynamic SSR + revalidate 충돌'(5/11 Lessons) 대상이 아니다.
+ * 정적 evt-* 는 빌드 때, 수집 행은 첫 요청 때 만들어지고 둘 다 1시간 뒤 다음 요청에서 다시 만든다.
+ */
+export const revalidate = 3600;
+
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -109,7 +118,7 @@ function buildOffer(event: FarmEvent): Event["offers"] {
         : "https://schema.org/InStock";
   return {
     "@type": "Offer",
-    url: event.url,
+    ...(safeHttpUrl(event.url) ? { url: safeHttpUrl(event.url) as string } : {}),
     availability,
     priceCurrency: "KRW",
     ...offerPrice(event.cost),
@@ -173,7 +182,12 @@ export default async function EventDetailPage({
           },
           // 포스터·마을 사진(외부 원본 절대 주소)이 있으면 그것, 없으면 사이트 기본 이미지 — 시·도 일러스트는 행사 이미지가 아니다
           image: [image.kind === "illustration" ? "https://irangfarm.com/opengraph-image" : image.src],
-          organizer: { "@type": "Organization", name: event.organization, url: event.url },
+          // 신청 주소는 수집기가 넣은 값이다 — http(s) 가 아니면 싣지 않는다(링크 블록과 같은 판정, 10/16 QA)
+          organizer: {
+            "@type": "Organization",
+            name: event.organization,
+            ...(safeHttpUrl(event.url) ? { url: safeHttpUrl(event.url) as string } : {}),
+          },
           performer: { "@type": "Organization", name: event.organization },
           offers: buildOffer(event),
           inLanguage: "ko",

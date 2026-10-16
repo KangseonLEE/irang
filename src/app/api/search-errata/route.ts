@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getClientIp } from "@/lib/client-ip";
 
 const NAVER_ENDPOINT = "https://openapi.naver.com/v1/search/errata.json";
 const FETCH_TIMEOUT_MS = 10_000;
@@ -86,8 +87,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Rate Limit
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  const ip = getClientIp(request); // lib/client-ip 단일 출처 (보안 2차 QA A6)
   if (isRateLimited(ip)) {
     return NextResponse.json({ errata: "" }, { status: 429 });
   }

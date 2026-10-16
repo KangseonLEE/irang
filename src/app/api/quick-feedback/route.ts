@@ -22,6 +22,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { internalSkipReason } from "@/lib/internal-traffic";
+import { getClientIp } from "@/lib/client-ip";
+import { isJsonContentType, unsupportedMediaType } from "@/lib/request-guards";
 
 // ── 입력 검증 상수 ──
 const MAX_MESSAGE_LENGTH = 300;
@@ -75,11 +77,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, skipped: skip });
   }
 
-  // IP 추출
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown";
+  // JSON 만 받는다 (2026-10-16 보안 QA ⚪15) — text/plain 단순 요청으로 다른 사이트가 방문자 브라우저를 빌려 쓰지 못하게
+  if (!isJsonContentType(request)) return unsupportedMediaType();
+
+  // IP 추출 — lib/client-ip 단일 출처 (보안 QA 🟡7)
+  const ip = getClientIp(request);
 
   if (isRateLimited(ip)) {
     return NextResponse.json(
