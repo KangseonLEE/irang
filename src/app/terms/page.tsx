@@ -45,6 +45,13 @@ export default function TermsPage() {
             제공하는 정보 큐레이션 서비스예요. 정부·지자체의 공식 서비스가
             아니며, 별도의 회원가입 없이 이용할 수 있어요.
           </p>
+          <p>
+            이용하면서 처리되는 정보와 보관 기간은{" "}
+            <Link href="/privacy" className={`${s.backLink} ${s.inlineLink}`}>
+              개인정보 처리방침
+            </Link>
+            에서 확인할 수 있어요.
+          </p>
         </div>
       </section>
 
@@ -173,9 +180,12 @@ export default function TermsPage() {
           </ul>
           <p>
             자동 필터를 거친 뒤 사람이 최종 확인해요. 잘못 걸러진 글은 검토
-            과정에서 복구돼요. 작성자 식별을 위해 IP 주소는 원문이 아닌 암호화된
-            해시값으로만 보관하며, 같은 IP의 공감·신고 중복 방지와 과다 제출 제한에만
-            써요. 닉네임은 선택 사항이고 입력한 그대로 공개돼요.
+            과정에서 복구돼요. 닉네임은 선택 사항이고 입력한 그대로 공개돼요. 작성할 때
+            남는 정보는{" "}
+            <Link href="/privacy#collect" className={`${s.backLink} ${s.inlineLink}`}>
+              개인정보 처리방침
+            </Link>
+            에서 안내해요.
           </p>
         </div>
       </section>
@@ -191,7 +201,7 @@ export default function TermsPage() {
             통해 공지해요.
           </p>
           <p className={s.sourceNote}>
-            최종 수정일: 2026년 9월 2일
+            최종 수정일: 2026년 10월 17일
           </p>
         </div>
       </section>

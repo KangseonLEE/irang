@@ -297,6 +297,7 @@ describe("공유 카드를 페이지마다 정한다 (진단·소개·약관·�
     "about/updates/page.tsx",
     "about/updates/[date]/page.tsx",
     "terms/page.tsx",
+    "privacy/page.tsx",
     "interviews/page.tsx",
     "interviews/[id]/page.tsx",
     "guide/page.tsx",

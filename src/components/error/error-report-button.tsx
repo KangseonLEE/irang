@@ -177,7 +177,7 @@ export function ErrorReportButton({ error, eventId, tag }: ErrorReportButtonProp
           messageLabel: "무엇을 하다가 이 화면을 만났나요?",
           messagePlaceholder: "예: 검색창에 ‘가평’을 넣고 엔터를 눌렀어요",
           emailLabel: "이메일 (선택)",
-          emailPlaceholder: "답변을 받고 싶으면 적어 주세요",
+          emailPlaceholder: "답변을 받고 싶으면 적어 주세요 (답변에만 써요)",
           submitButtonLabel: "보내기",
           cancelButtonLabel: "닫기",
           confirmButtonLabel: "확인",

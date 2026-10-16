@@ -153,8 +153,6 @@ export default function RootLayout({
 
         {/* 폰트 CDN preconnect — 연결 시간 단축 */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
         {/* Pretendard Variable — 한글 + 라틴 가변 폰트 */}
         <link
@@ -163,15 +161,28 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
-        {/* 나눔명조 ExtraBold — 로고 워드마크 전용 (이랑 2글자만 서브셋) */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        {/* 나눔명조 ExtraBold — 로고 워드마크 전용 (이랑 2글자만 서브셋, 2KB).
+            Google Fonts 의 같은 서브셋 파일(text=이랑)을 그대로 public/fonts 에 두고 직접 선언한다(2026-10-16).
+            fonts.googleapis.com 스타일시트는 렌더 차단이라, 모바일 Lighthouse 실측에서 첫 화면이 2.3초까지
+            그려지지 않았다(그 주소만 막으면 0.16초). 글꼴 파일이 같아 모양은 바뀌지 않는다. OFL 라이선스. */}
         <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&display=swap&text=%EC%9D%B4%EB%9E%91"
+          rel="preload"
+          href="/fonts/nanum-myeongjo-800-irang.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              @font-face {
+                font-family: "Nanum Myeongjo";
+                font-style: normal;
+                font-weight: 800;
+                font-display: swap;
+                src: url(/fonts/nanum-myeongjo-800-irang.woff2) format("woff2");
+                unicode-range: U+1105, U+110b, U+1161, U+1175, U+11bc, U+b77c, U+b791, U+b9ac, U+b9c1, U+c544, U+c559, U+c774, U+c789;
+              }
               :root {
                 --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
                 --font-logo: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif;

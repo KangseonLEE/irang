@@ -106,6 +106,9 @@ export function Footer() {
               <Link href="/terms" className={s.legalLink}>
                 이용약관
               </Link>
+              <Link href="/privacy" className={s.legalLink}>
+                개인정보 처리방침
+              </Link>
             </div>
           </div>
         </div>
