@@ -80,7 +80,7 @@ describe("처리방침에 적은 사실이 코드에 있다", () => {
     ["app/api/search-log/route.ts", "insert({ query: trimmed, result_count: count })"],
     ["components/error/error-report-button.tsx", "showName: false"],
     ["components/error/error-report-button.tsx", "isEmailRequired: false"],
-    ["instrumentation-client.ts", "maskAllInputs: true"],
+    ["lib/sentry-replay.ts", "maskAllInputs: true"],
     // Sentry 성능 추적 — 오류와 무관하게 이동의 10% (처리방침 6항)
     ["instrumentation-client.ts", "tracesSampleRate: REPORTABLE ? 0.1 : 0"],
     ["instrumentation-client.ts", "replaysOnErrorSampleRate: REPORTABLE ? 0.1 : 0"],

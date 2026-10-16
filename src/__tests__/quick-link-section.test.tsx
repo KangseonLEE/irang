@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { routePageFile } from "./fixtures/route-page";
 import { QUICK_LINK_ITEMS, QuickLinkSection } from "@/components/landing/quick-link-section";
-
-const APP_DIR = join(process.cwd(), "src", "app");
 
 describe("QuickLinkSection — 자주 찾는 서비스 아이콘 8종 (9/7)", () => {
   it("8개 항목, id·href 중복 없음", () => {
@@ -17,7 +14,7 @@ describe("QuickLinkSection — 자주 찾는 서비스 아이콘 8종 (9/7)", ()
     for (const item of QUICK_LINK_ITEMS) {
       // 유형 진단은 진단 직행(/match?mode=assess, 10/3) — 경로 실존은 쿼리를 뗀 경로로 본다
       const path = item.href.split("?")[0];
-      expect(existsSync(join(APP_DIR, path.slice(1), "page.tsx")), item.href).toBe(true);
+      expect(routePageFile(path), item.href).not.toBeNull();
     }
   });
 

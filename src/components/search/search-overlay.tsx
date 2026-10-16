@@ -4,8 +4,28 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SearchOverlayContext } from "@/lib/hooks/use-search-overlay";
 import { analytics } from "@/lib/analytics";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
-import SearchBar from "./search-bar";
+import { runWhenIdleAfterLoad } from "@/lib/idle-after-load";
 import s from "./search-overlay.module.css";
+
+/**
+ * 검색창 본체(SearchBar)는 첫 화면이 다 그려진 뒤에 받는다 (2026-10-17, 모바일 LCP 2단계).
+ *
+ * SearchBar 는 검색 색인(작물·지역·지원사업·용어 정적 데이터 전부)과 Supabase 클라이언트를 import 해,
+ * 레이아웃에 정적으로 두면 **모든 페이지 첫 로드**에 수백 KB 의 JS 가 실렸다. 오버레이는 열 때만 그리므로
+ * 첫 화면엔 필요 없다 — 로드가 끝나고 한가해지면(`runWhenIdleAfterLoad`) 미리 받아 두고,
+ * 사용자가 그보다 먼저 열면 그때 받는다. 미리 받아 두면 여는 순간 동기 렌더라 `autoFocus` 가 탭 제스처 안에서
+ * 일어나 iOS 키보드도 그대로 뜬다.
+ */
+type SearchBarComponent = typeof import("./search-bar").default;
+let searchBarModule: SearchBarComponent | null = null;
+let searchBarPromise: Promise<SearchBarComponent> | null = null;
+function loadSearchBar(): Promise<SearchBarComponent> {
+  searchBarPromise ??= import("./search-bar").then((m) => {
+    searchBarModule = m.default;
+    return m.default;
+  });
+  return searchBarPromise;
+}
 
 /**
  * 전역 검색 오버레이 Provider + 렌더러.
@@ -40,6 +60,37 @@ export function SearchOverlayProvider({
 
   const ctx = useMemo(() => ({ open, isOpen }), [open, isOpen]);
 
+  const [SearchBar, setSearchBar] = useState<SearchBarComponent | null>(() => searchBarModule);
+  // 한가할 때 미리 받기 — 이미 받았으면 아무것도 안 한다
+  useEffect(() => {
+    if (SearchBar) return;
+    let cancelled = false;
+    const cancelIdle = runWhenIdleAfterLoad(() => {
+      loadSearchBar().then((C) => {
+        if (!cancelled) setSearchBar(() => C);
+      }, () => {
+        searchBarPromise = null; // 네트워크 실패 — 다음 열기에서 다시 시도
+      });
+    });
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
+  }, [SearchBar]);
+  // 미리 받기 전에 열었으면 지금 받는다
+  useEffect(() => {
+    if (!isOpen || SearchBar) return;
+    let cancelled = false;
+    loadSearchBar().then((C) => {
+      if (!cancelled) setSearchBar(() => C);
+    }, () => {
+      searchBarPromise = null;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, SearchBar]);
+
   // 오버레이 오픈 시 body 스크롤 잠금 — iOS Safari 호환(position: fixed 패턴).
   useBodyScrollLock(isOpen);
 
@@ -68,7 +119,7 @@ export function SearchOverlayProvider({
           }}
         >
           <div className={s.overlayInner}>
-            <SearchBar
+            {SearchBar && <SearchBar
               size="large"
               placeholder="궁금한 농촌 정착 정보를 검색해보세요"
               mobilePlaceholder="지역, 작물, 교육, 비용 검색"
@@ -77,7 +128,7 @@ export function SearchOverlayProvider({
               autoFocus
               onClose={close}
               syncQueryFromUrl={fromResultBar}
-            />
+            />}
           </div>
         </div>
       )}

@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { routePageFile } from "./fixtures/route-page";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { ExperienceSection, OpportunitySection } from "@/components/landing/discover-section";
 import type { FarmEvent } from "@/lib/data/events";
@@ -172,7 +171,7 @@ describe("OpportunitySection·ExperienceSection — 랜딩 지원사업·교육 
     expect(html).toContain('data-track="discover:programs:view_all"');
     expect(html).toContain('href="/programs"');
     for (const route of [["programs"], ["education"], ["events"], ["events", "[id]"], ["education", "[id]"], ["programs", "[id]"]]) {
-      expect(existsSync(join(process.cwd(), "src", "app", ...route, "page.tsx"))).toBe(true);
+      expect(routePageFile(route.join("/")), route.join("/")).not.toBeNull();
     }
   });
 

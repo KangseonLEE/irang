@@ -4,10 +4,10 @@ import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react
 import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import { getPageName } from "@/lib/page-names";
 import { useFocusDodge } from "@/lib/hooks/use-focus-dodge";
 import s from "./feedback-widget.module.css";
 import { internalRequestHeaders } from "@/lib/internal-traffic";
+import { runWhenIdleAfterLoad } from "@/lib/idle-after-load";
 
 type Rating = "good" | "neutral" | "bad";
 
@@ -24,6 +24,26 @@ const RATING_OPTIONS: RatingOption[] = [
 ];
 
 const MAX_MESSAGE_LENGTH = 300;
+
+/**
+ * 페이지 이름 변환표(`lib/page-names` — 시·도·시·군·구·작물·인터뷰 전체 목록을 담는다)는 첫 화면이 다 그려진 뒤에
+ * 받는다 (2026-10-17, 모바일 LCP 2단계). 위젯은 모든 페이지 레이아웃에 있어서 정적 import 면 페이지마다
+ * 수백 KB 가 첫 로드에 실렸다. 이름은 의견 창 안(‘현재 페이지’)과 전송 때만 쓴다 — 한가할 때 미리 받고,
+ * 창을 먼저 열면 그때 받는다. 전송은 이름표를 받은 뒤에 보내 저장값(page)이 바뀌지 않는다.
+ */
+type GetPageName = (path: string) => string;
+let getPageNameFn: GetPageName | null = null;
+let pageNamesPromise: Promise<GetPageName> | null = null;
+function loadPageNames(): Promise<GetPageName> {
+  pageNamesPromise ??= import("@/lib/page-names").then(
+    (m) => (getPageNameFn = m.getPageName),
+    (err) => {
+      pageNamesPromise = null; // 네트워크 실패 — 다음에 다시 시도
+      throw err;
+    },
+  );
+  return pageNamesPromise;
+}
 
 /**
  * /api/quick-feedback 으로 피드백 저장 (fire-and-forget).
@@ -120,6 +140,29 @@ export function FeedbackWidget() {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR hydration 우회 표준 패턴
   useEffect(() => { setMounted(true); }, []);
 
+  const [pageNameFn, setPageNameFn] = useState<GetPageName | null>(() => getPageNameFn);
+  useEffect(() => {
+    if (pageNameFn) return;
+    let cancelled = false;
+    const run = () => {
+      loadPageNames().then((fn) => {
+        if (!cancelled) setPageNameFn(() => fn);
+      }, () => {});
+    };
+    if (open) {
+      run();
+      return () => {
+        cancelled = true;
+      };
+    }
+    const cancelIdle = runWhenIdleAfterLoad(run, { delayMs: 2500 });
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
+  }, [pageNameFn, open]);
+  const pageName = (pageNameFn ?? ((p: string) => p))(pathname ?? "/");
+
   const resetForm = useCallback(() => {
     setRating(null);
     setMessage("");
@@ -140,10 +183,12 @@ export function FeedbackWidget() {
     if (!rating || submitting) return;
     setSubmitting(true);
 
+    // 이름표를 아직 못 받았으면 받고 보낸다 — 받기 실패면 경로 그대로(종전 getPageName 의 마지막 반환과 같음)
+    const toName = await loadPageNames().catch(() => (p: string) => p);
     await saveFeedback({
       rating,
       message: message.trim(),
-      page: getPageName(pathname ?? "/"),
+      page: toName(pathname ?? "/"),
     });
 
     setSubmitting(false);
@@ -223,7 +268,7 @@ export function FeedbackWidget() {
               onChange={(e) => setMessage(e.target.value)}
             />
             <span className={s.pagePath}>
-              현재 페이지: {getPageName(pathname ?? "/")}
+              현재 페이지: {pageName}
             </span>
 
             {/* 제출 */}
