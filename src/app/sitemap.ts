@@ -107,6 +107,7 @@ function getCorePages(): MetadataRoute.Sitemap {
       page(`/about/updates/${r.date}`, "monthly", 0.2, new Date(`${r.date}T00:00:00+09:00`)),
     ),
     page("/terms", "yearly", 0.2),
+    page("/privacy", "yearly", 0.2),
   ];
 }
 

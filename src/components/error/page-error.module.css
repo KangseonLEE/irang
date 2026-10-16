@@ -91,3 +91,31 @@
     background: color-mix(in srgb, var(--primary, #1b6b5a) 5%, transparent);
   }
 }
+
+/* 보고 버튼 아래 안내 한 줄 — 무엇이 전달되는지 + 처리방침 링크 */
+.privacyNote {
+  margin-top: 1rem;
+  max-width: 28rem;
+  text-align: center;
+  font-size: var(--fs-caption, 13px);
+  line-height: 1.5;
+  color: var(--muted-foreground, #6b7280);
+}
+
+.privacyLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .privacyLink:hover {
+    color: var(--foreground, #1f2937);
+  }
+}
+
+.privacyLink:focus-visible {
+  outline: 2px solid var(--primary, #1b6b5a);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

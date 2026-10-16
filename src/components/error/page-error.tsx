@@ -59,6 +59,14 @@ export function PageError({
         )}
         <ErrorReportButton error={error} eventId={eventId} tag={tag} />
       </div>
+      {/* 보내기 전에 무엇이 전달되는지 알린다 (10/17 개인정보 처리방침 5항) */}
+      <p className={s.privacyNote}>
+        &lsquo;관리자에게 알리기&rsquo;로 보내면 적은 내용과 화면 주소·브라우저 정보가 오류 확인용으로
+        전달돼요.{" "}
+        <Link href="/privacy#error-report" className={s.privacyLink}>
+          개인정보 처리방침
+        </Link>
+      </p>
     </div>
   );
 }
