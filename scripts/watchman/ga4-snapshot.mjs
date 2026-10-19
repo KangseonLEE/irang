@@ -119,7 +119,7 @@ const interviewPagesReq = {
   limit: 50,
 };
 
-const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss, sectionViews, sectionClicks, interviewPages] = await Promise.all([
+const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss, sectionViews, sectionClicks, interviewPages, clickSlots] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -143,6 +143,7 @@ const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel
   report(byLabelReq("landing_section_view")),
   report(landingClickReq),
   report(interviewPagesReq),
+  report({ ...byLabelReq("landing_click_slot"), limit: 200 }),
 ]);
 
 // 홍보 팝업 — id 별로 노출(명) → 원문 클릭(명) 전환율. 같은 사람이 여러 번 봐도 명 수로 센다.
@@ -182,6 +183,20 @@ const sectionRows = sectionIds.map((id) => {
   const c = sectionClick[id] ?? { events: 0, users: 0 };
   return `| ${id} | ${v.users}명 (${pct(v.users, landingUsers)}) | ${c.events}건 / ${c.users}명 | ${pct(c.users, v.users)} |`;
 });
+// 랜딩 클릭 자리 (10/19, apple.com 위치 계측 차용) — label "<data-track>#<섹션 안 자리>".
+// 섹션별로 "대상#자리 건수" 를 그대로 늘어놓는다 — 자리만 합치면 같은 #2 라도 다른 링크가 섞인다
+// (region_map: 지역을 고르면 이동 링크가 앞에 생겨 compare 가 #1→#2, 10/19 QA).
+const slotBySection = {};
+for (const r of clickSlots) {
+  const label = String(r.d[0]);
+  const cut = label.lastIndexOf("#"); // 라벨 안에 '#' 이 있어도 마지막만 자리 구분자
+  if (cut < 1) continue;
+  const [section, ...rest] = label.slice(0, cut).split(":");
+  (slotBySection[section] ??= []).push({ key: `${rest.join(":")}${label.slice(cut)}`, count: Number(r.m[0]) });
+}
+const slotRows = Object.entries(slotBySection).map(
+  ([section, items]) => `${section}: ${items.sort((a, b) => b.count - a.count).map((i) => `${i.key} ${i.count}`).join(" · ")}`,
+);
 const interviewList = interviewPages.find((r) => r.d[0] === "/interviews");
 const interviewDetail = interviewPages.filter((r) => r.d[0] !== "/interviews");
 const interviewDetailViews = interviewDetail.reduce((a, r) => a + Number(r.m[0]), 0);
@@ -231,6 +246,8 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 | 섹션 | 도달 | 섹션 안 클릭 | 클릭/도달 |
 |---|---|---|---|
 ${sectionRows.join("\n") || "| (계측 없음) | | | |"}
+
+랜딩 클릭 자리 (landing_click_slot, 섹션별 대상#자리 → 건, 10/19 계측 시작): ${slotRows.join(" | ") || "0건"}
 
 인터뷰 페이지 조회: 목록 \`/interviews\` ${interviewList?.m[0] ?? 0}회·${interviewList?.m[1] ?? 0}명 · 상세 ${interviewDetail.length}쪽 합계 ${interviewDetailViews}회·${interviewDetailUsers}명(쪽별 명 합)
 
