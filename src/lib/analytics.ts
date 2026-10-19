@@ -169,6 +169,15 @@ export const analytics = {
   landingCtaClick: (track: string) =>
     trackEvent({ action: "landing_cta_click", category: "landing", label: track }),
   /**
+   * 랜딩 클릭 자리 (2026-10-19) — label `<data-track>#<섹션 안 자리>`, value 자리(1-based).
+   *
+   * 같은 문구라도 몇 번째 자리에서 눌렸는지를 남겨 섹션 안 배치를 판단한다(apple.com 홈의 위치 계측 차용).
+   * `landing_cta_click` 라벨은 GA 추이 연속성 때문에 그대로 두고, 자리는 이 이벤트로만 싣는다.
+   * 맞춤 측정기준 `event_label` 이 이미 있어 GA 콘솔 설정 없이 조회된다. 섹션 안 링크가 하나면 보내지 않는다.
+   */
+  landingClickSlot: (track: string, slot: number) =>
+    trackEvent({ action: "landing_click_slot", category: "landing", label: `${track}#${slot}`, value: slot }),
+  /**
    * 랜딩 "지금 열린 기회" 탭 전환 (programs | education | experience | festival) — 2026-09-30.
    *
    * 지원사업·교육·체험·행사를 한 섹션으로 묶으면서 `programs_tab_switch`(진행·예정 ↔ 상시·연중)를
