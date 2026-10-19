@@ -391,6 +391,12 @@ export default async function ProgramDetailPage({
                 )}
               </tbody>
             </table>
+            {/* 진단 진입 위쪽 배치 — 모바일만 (10/19 회장, 10/14 작물 상세 crop_detail_top 확장). 모바일(<1024)은 사이드
+                위젯이 본문 뒤라 하단 program_detail 이 문서 85~87%(4.7~5.7화면)였다. 데스크탑은 오른쪽 열 1.2화면이라 두 개가
+                한 화면에 겹쳐 보이지 않게 숨긴다. 하단 program_detail 은 그대로 두고 라벨로 가른다 */}
+            <div className={s.basicInfoCta}>
+              <PersonaCta from="program_detail_top" copy="내가 받을 수 있는 지원은 뭘까요?" />
+            </div>
           </section>
 
           {/* Eligibility — 수집 행의 "상세 공고 참조" 채움값이면 섹션째 뺀다(원문 확인 카드가 그 역할) */}

@@ -101,6 +101,18 @@
   padding-bottom: 0;
 }
 
+/* 기본 정보 아래 진단 배너 — 모바일 전용(데스크탑은 사이드 program_detail 이 1.2화면 안에 있다) */
+.basicInfoCta {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .basicInfoCta {
+    display: block;
+    margin-top: 16px;
+  }
+}
+
 .sectionTitle {
   display: flex;
   align-items: center;
