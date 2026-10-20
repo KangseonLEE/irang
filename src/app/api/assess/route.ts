@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
+import { isValidEntryFrom, isValidEntryPath } from "@/lib/assess-entry";
 import { isE2eRequest } from "@/lib/internal-traffic";
 import type { FarmTypeId } from "@/lib/data/match-questions";
 import { getClientIp } from "@/lib/client-ip";
@@ -239,8 +240,26 @@ export async function POST(req: NextRequest) {
     source,
     persona: personaValue,
   };
+  // 진입 기록 (2026-10-20) — 잘못된 값은 버리고 저장은 진행한다
+  const entryColumns = {
+    entry_from: isValidEntryFrom(body.entry_from) ? body.entry_from : null,
+    entry_path: isValidEntryPath(body.entry_path) ? body.entry_path : null,
+  };
 
-  const { error } = await sb.from("assessment_results").insert(fullPayload);
+  let { error } = await sb.from("assessment_results").insert({ ...fullPayload, ...entryColumns });
+
+  // entry_* 컬럼 마이그레이션(20261020_assessment_entry.sql) 적용 전 — 진입 기록만 빼고 다시 저장
+  if (error && (error.message ?? "").includes("entry_")) {
+    await recordApiFallback({
+      endpoint: "/api/assess",
+      statusCode: 200,
+      fallbackReason: "migration-pending",
+      userAgent: req.headers.get("user-agent"),
+      page: referrer,
+      requestMeta: { source, missing_column_hint: error.message ?? null },
+    });
+    ({ error } = await sb.from("assessment_results").insert(fullPayload));
+  }
 
   if (error) {
     // 중복 ID (이미 저장된 결과)

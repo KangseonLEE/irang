@@ -366,7 +366,7 @@ export function AssessmentWizard({ onBack, review, onRestart }: AssessmentWizard
     const matchUrl = `/match?experience=${tier.matchParams.experience}&lifestyle=${tier.matchParams.lifestyle}${demoParams}${genderParam}&${dimParams}`;
 
     return (
-      <div className={s.resultPage}>
+      <div className={s.resultPage} data-assess-result="assess">
         {/* 이전 결과 다시 보기 — 목록으로 돌아가는 길 (결과 화면엔 원래 뒤로 버튼이 없다) */}
         {isReview && (
           <button onClick={handleBack} className={s.navBtnBack} type="button">

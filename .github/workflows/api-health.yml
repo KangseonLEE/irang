@@ -110,7 +110,7 @@ jobs:
 
           # ── 2. SGIS (통계청 공간정보) — 토큰 발급 엔드포인트 가용성 확인
           check_api "SGIS" \
-            "https://sgisapi.kostat.go.kr/OpenAPI3/auth/authentication.json?consumer_key=test&consumer_secret=test"
+            "https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json?consumer_key=test&consumer_secret=test"
 
           # ── 3. KOSIS (통계청) ───────────────────────────────────────
           KOSIS_URL="https://kosis.kr/openapi/Param/statisticsParameterData.do?method=getList&apiKey=${KOSIS_API_KEY:-MISSING}&itmId=ALL&objL1=ALL&objL2=&format=json&jsonVD=Y&prdSe=Y&startPrdDe=2023&endPrdDe=2023&orgId=101&tblId=DT_1EA1501"

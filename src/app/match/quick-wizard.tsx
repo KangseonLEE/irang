@@ -184,7 +184,7 @@ export function QuickWizard({ onBack, review, onRestart }: QuickWizardProps) {
     const generic = persona === "balanced";
 
     return (
-      <div className={s.page}>
+      <div className={s.page} data-assess-result="quick">
         <div className={s.progressWrap}>
           <button
             type="button"
