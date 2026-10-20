@@ -76,6 +76,12 @@ export interface AssessmentStats {
   byTier: Record<string, number>;
   tierTotal: number;
   questions: QuestionDistribution[];
+  /** 진입 기록이 남은 행(entry_from 또는 entry_path) — 10/20 계측 이후 저장분 */
+  entryRecorded: number;
+  /** 진입 버튼 라벨별 */
+  byEntryFrom: Record<string, number>;
+  /** 직전 경로를 화면 단위로 묶은 것(entryPathGroup) */
+  byEntryPath: Record<string, number>;
 }
 
 const KST_OFFSET = 9 * 3_600_000;
@@ -83,6 +89,14 @@ const DAY = 86_400_000;
 
 function emptyRecord<K extends string>(keys: readonly K[]): Record<K, number> {
   return Object.fromEntries(keys.map((k) => [k, 0])) as Record<K, number>;
+}
+
+/** 직전 경로 → 화면 단위. "/crops/apple" → "/crops/*", "/crops" 는 그대로 */
+export function entryPathGroup(path: string): string {
+  const segs = path.split("/").filter(Boolean);
+  if (segs.length === 0) return "/";
+  if (segs.length === 1) return `/${segs[0]}`;
+  return `/${segs[0]}/*`;
 }
 
 /**
@@ -101,6 +115,9 @@ export function buildAssessmentStats(
   const byType: Record<string, number> = {};
   const ageByType: Record<string, Record<string, number>> = {};
   const byTier = emptyRecord(TIER_IDS) as Record<string, number>;
+  const byEntryFrom: Record<string, number> = {};
+  const byEntryPath: Record<string, number> = {};
+  let entryRecorded = 0;
   let withRecommendations = 0;
   let ageByTypeTotal = 0;
   let tierTotal = 0;
@@ -116,6 +133,12 @@ export function buildAssessmentStats(
     byMode[mode]++;
     byDevice[deviceOf(row.user_agent)]++;
     byReferrer[referrerGroupOf(row.referrer)]++;
+    if (row.entry_from || row.entry_path) entryRecorded++;
+    if (row.entry_from) byEntryFrom[row.entry_from] = (byEntryFrom[row.entry_from] ?? 0) + 1;
+    if (row.entry_path) {
+      const group = entryPathGroup(row.entry_path);
+      byEntryPath[group] = (byEntryPath[group] ?? 0) + 1;
+    }
     if ((row.top_regions?.length ?? 0) > 0 || (row.top_crops?.length ?? 0) > 0) withRecommendations++;
 
     const type = row.farm_type_id ? migrateFarmTypeId(row.farm_type_id) : null;
@@ -155,6 +178,9 @@ export function buildAssessmentStats(
     byTier,
     tierTotal,
     questions,
+    entryRecorded,
+    byEntryFrom,
+    byEntryPath,
   };
 }
 

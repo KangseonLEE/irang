@@ -104,6 +104,10 @@ export interface AssessmentRow {
   age_group: string | null;
   source: "full" | "quick";
   persona: string | null;
+  /** 진단 진입 버튼 라벨 — 마이그레이션 20261020 적용 전·이전 행은 없다 */
+  entry_from?: string | null;
+  /** 진단 화면 직전 사이트 경로 */
+  entry_path?: string | null;
   created_at: string;
 }
 

@@ -96,7 +96,12 @@ export function GatewayHistory({ onOpen }: GatewayHistoryProps) {
           const row = describe(item);
           return (
             <li key={item.resultId}>
-              <button type="button" onClick={() => onOpen(item)} className={s.historyItem}>
+              <button
+                type="button"
+                onClick={() => onOpen(item)}
+                className={s.historyItem}
+                data-assess-reopen={item.kind ?? "match"}
+              >
                 <span className={s.historyEmoji} aria-hidden="true">
                   {row.emoji}
                 </span>

@@ -156,7 +156,7 @@ export default async function AssessResultPage({ params }: PageProps) {
     .sort((a, b) => (STATUS_PRIORITY[a.status] ?? 9) - (STATUS_PRIORITY[b.status] ?? 9));
 
   return (
-    <div className={s.page}>
+    <div className={s.page} data-assess-result="shared">
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>

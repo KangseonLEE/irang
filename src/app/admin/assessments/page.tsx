@@ -72,6 +72,22 @@ const REFERRER_LABEL: Record<ReferrerGroup, string> = {
 
 const DEVICE_LABEL: Record<DeviceKind, string> = { mobile: "모바일", desktop: "데스크탑" };
 
+// data-assess-entry 라벨(PersonaCta from) — 모르는 라벨은 그대로 보인다
+const ENTRY_FROM_LABEL: Record<string, string> = {
+  crop_detail_top: "작물 상세 위쪽",
+  crop_detail: "작물 상세 아래",
+  crops_list: "작물 목록",
+  program_detail_top: "지원사업 상세 위쪽",
+  program_detail: "지원사업 상세 아래",
+  programs_list: "지원사업 목록",
+  region_detail: "시·도 상세",
+  sigungu_detail: "시·군·구 상세",
+  regions_list: "지역 목록",
+  guide_beginner_crops: "초보 작물 가이드",
+  start_hub: "시작 허브",
+  start_compare: "시작 · 비교",
+};
+
 // RESULT_TIERS 순서(starter → ready)와 같은 짧은 이름
 const TIER_LABEL: Record<string, string> = {
   starter: "씨앗",
@@ -231,8 +247,8 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
         </div>
         <div className={`${s.kpi} ${s.kpiPending}`}>
           <span className={s.kpiLabel}>결과 다시 열기</span>
-          <strong className={s.kpiValue}>—</strong>
-          <span className={s.kpiSub}>계측 보강 뒤 채워져요</span>
+          <strong className={s.kpiValue}>GA</strong>
+          <span className={s.kpiSub}>assess_result_reopen · GA 스냅샷에서</span>
         </div>
       </div>
 
@@ -259,8 +275,39 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
             어디서 왔나 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
           </h2>
           <p className={s.sectionDesc}>
-            바깥 유입 주소(referrer)와 기기예요. 사이트 안 어느 화면에서 들어왔는지는 아직 저장하지 않아요.
+            빠른 점검·매칭은 10/20 전까지 유입 주소를 저장하지 않아 ‘직접’으로 몰려 있어요.
           </p>
+          <h3 className={s.groupTitle}>사이트 안 진입 ({stats.entryRecorded}건 기록)</h3>
+          {stats.entryRecorded === 0 ? (
+            <p className={s.subNote}>10/20 계측 이후 저장분부터 쌓여요.</p>
+          ) : (
+            <>
+              {Object.entries(stats.byEntryFrom)
+                .sort((a, b) => b[1] - a[1])
+                .map(([from, n]) => (
+                  <div key={from} className={`${s.hrow} ${lowClass(stats.entryRecorded)}`}>
+                    <span>{ENTRY_FROM_LABEL[from] ?? from}</span>
+                    <span className={s.hbar}>
+                      <i style={{ width: `${pct(n, stats.entryRecorded)}%` }} />
+                    </span>
+                    <span className={s.hnum}>{n}건</span>
+                  </div>
+                ))}
+              <p className={s.subNote}>진단 직전 화면</p>
+              {Object.entries(stats.byEntryPath)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8)
+                .map(([path, n]) => (
+                  <div key={path} className={`${s.hrow} ${lowClass(stats.entryRecorded)}`}>
+                    <span className={s.mono}>{path}</span>
+                    <span className={s.hbar}>
+                      <i style={{ width: `${pct(n, stats.entryRecorded)}%` }} />
+                    </span>
+                    <span className={s.hnum}>{n}건</span>
+                  </div>
+                ))}
+            </>
+          )}
           <h3 className={s.groupTitle}>바깥 유입</h3>
           {REFERRER_GROUPS.filter((g) => stats.byReferrer[g] > 0).map((g) => (
             <div key={g} className={`${s.hrow} ${lowClass(stats.total)}`}>
@@ -473,15 +520,14 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
         {/* ── 결과 뒤 동선 ── */}
         <section className={s.section}>
           <h2 className={s.sectionTitle}>
-            결과 뒤 동선 <span className={`${s.tag} ${s.tagPending}`}>계측 전</span>
+            결과 뒤 동선 <span className={`${s.tag} ${s.tagGa}`}>GA</span>
           </h2>
           <p className={s.sectionDesc}>결과를 본 사람이 다음에 어디로 가는지</p>
           <div className={s.placeholder}>
-            <p>지금은 결과 화면 클릭 계측이 없어요. 계측을 보강하면 이 자리에 채워져요.</p>
+            <p>10/20부터 GA 로 모아요. 숫자는 GA 스냅샷 이슈의 아래 두 줄에서 봐요.</p>
             <ul>
-              <li>추천 지역·작물·지원사업 클릭률</li>
-              <li>결과 다시 열기 · 재방문까지 걸린 날</li>
-              <li>사이트 안 진입 화면별 완료</li>
+              <li>assess_result_click — 진단 종류:이동한 곳(지역·작물·지원사업·비용·다음 진단·외부)</li>
+              <li>assess_result_reopen — 이전 진단 목록에서 결과 다시 열기</li>
             </ul>
           </div>
         </section>

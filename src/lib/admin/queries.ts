@@ -367,11 +367,13 @@ export async function fetchAssessmentRows(): Promise<{ rows: AssessmentRow[]; li
   const sb = getSupabaseAdmin();
   if (!sb) return { rows: [], limited: false };
 
-  const { data } = await sb
-    .from("assessment_results")
-    .select("id, farm_type_id, answers, top_regions, top_crops, referrer, user_agent, age_group, source, persona, created_at")
-    .order("created_at", { ascending: false })
-    .limit(ASSESSMENT_ROW_LIMIT);
+  const base = "id, farm_type_id, answers, top_regions, top_crops, referrer, user_agent, age_group, source, persona, created_at";
+  const select = (columns: string) =>
+    sb.from("assessment_results").select(columns).order("created_at", { ascending: false }).limit(ASSESSMENT_ROW_LIMIT);
+
+  // entry_* 는 마이그레이션 20261020_assessment_entry.sql 적용 뒤에만 있다 — 없으면 빼고 다시 읽는다
+  const withEntry = await select(`${base}, entry_from, entry_path`);
+  const data = withEntry.error ? (await select(base)).data : withEntry.data;
 
   const rows = (data as AssessmentRow[] | null) ?? [];
   return { rows, limited: rows.length >= ASSESSMENT_ROW_LIMIT };

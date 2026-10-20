@@ -194,6 +194,15 @@ export const analytics = {
   assessEntryClick: (from: string) =>
     trackEvent({ action: "assess_entry_click", category: "conversion", label: from }),
 
+  // -- 진단 결과 뒤 동선 (2026-10-20) --
+  // 결과 화면(data-assess-result="<종류>") 안 링크 클릭. label "<종류>:<이동한 곳>" — region·crop·program·costs·next_assess·external.
+  // 결과를 본 사람이 어디로 가는지 몰라 결과 화면 구성을 판단할 근거가 없었다.
+  assessResultClick: (scope: string, target: string) =>
+    trackEvent({ action: "assess_result_click", category: "assessment", label: `${scope}:${target}` }),
+  // 이전 진단 목록에서 결과 다시 열기. label = 진단 종류
+  assessResultReopen: (mode: string) =>
+    trackEvent({ action: "assess_result_reopen", category: "assessment", label: mode }),
+
   // -- 커뮤니티 의견 (2026-09-17) --
   // 작성 UI 는 이미 항상 떠 있는데 45일간 1건뿐이었다. 실측해 보니 의견란이
   // 모바일에서 화면 7~9개 아래(문서 69~85% 지점)라 도달 자체가 거의 없다.

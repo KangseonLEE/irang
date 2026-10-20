@@ -79,7 +79,7 @@ export function HistoryResult({
     );
 
   return (
-    <div className={s.page}>
+    <div className={s.page} data-assess-result="match">
       {/* 유형 카드 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>

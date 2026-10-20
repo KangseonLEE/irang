@@ -9,6 +9,7 @@
 import { nanoid } from "nanoid";
 import type { Answers, FarmTypeId } from "@/lib/data/match-questions";
 import { internalRequestHeaders } from "@/lib/internal-traffic";
+import { readAssessEntry } from "@/lib/assess-entry";
 
 // ── 결과 ID 생성 ──
 
@@ -41,6 +42,15 @@ export interface AssessmentResultPayload {
   persona?: string | null;
 }
 
+/**
+ * 저장 직전 보강 (2026-10-20): 진입 기록(entry_from·entry_path)을 붙이고, referrer 가 비면 document.referrer.
+ * 빠른 점검은 referrer 를 보내지 않았고 매칭은 utm_source 만 보내 바깥 유입이 '직접'으로 몰렸다.
+ */
+function withEntryContext(payload: AssessmentResultPayload) {
+  const docReferrer = typeof document !== "undefined" && document.referrer ? document.referrer : null;
+  return { ...payload, referrer: payload.referrer ?? docReferrer, ...readAssessEntry() };
+}
+
 // ── 결과 저장 (클라이언트 → API Route 경유) ──
 
 export async function saveAssessmentResult(
@@ -50,7 +60,7 @@ export async function saveAssessmentResult(
     const res = await fetch("/api/assess", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...internalRequestHeaders() },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(withEntryContext(payload)),
     });
 
     if (res.status === 429) {

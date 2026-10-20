@@ -49,7 +49,7 @@ export function MatchResult({
   onReset,
 }: MatchResultProps) {
   return (
-    <div className={s.page}>
+    <div className={s.page} data-assess-result="match">
       {/* 유형 카드 — 최상단 */}
       <div className={s.farmTypeCard}>
         <span className={s.farmTypeEmoji}>{farmType.emoji}</span>

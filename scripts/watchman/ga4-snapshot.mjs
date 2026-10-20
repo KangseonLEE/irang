@@ -119,7 +119,7 @@ const interviewPagesReq = {
   limit: 50,
 };
 
-const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss, sectionViews, sectionClicks, interviewPages, clickSlots] = await Promise.all([
+const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel, compareByLabel, promoView, promoClick, promoDismiss, sectionViews, sectionClicks, interviewPages, clickSlots, resultClicks, resultReopens] = await Promise.all([
   report({ metrics: [{ name: "activeUsers" }, { name: "sessions" }, { name: "newUsers" }] }),
   report({ dimensions: [{ name: "newVsReturning" }], metrics: [{ name: "activeUsers" }] }),
   report({
@@ -144,6 +144,9 @@ const [totals, nvr, events, pages, searchDaily, landings, channels, entryByLabel
   report(landingClickReq),
   report(interviewPagesReq),
   report({ ...byLabelReq("landing_click_slot"), limit: 200 }),
+  // 10/20 진단 결과 뒤 동선 — label "<진단 종류>:<이동한 곳>" / 다시 열기 label = 진단 종류
+  report(byLabelReq("assess_result_click")),
+  report(byLabelReq("assess_result_reopen")),
 ]);
 
 // 홍보 팝업 — id 별로 노출(명) → 원문 클릭(명) 전환율. 같은 사람이 여러 번 봐도 명 수로 센다.
@@ -236,6 +239,10 @@ const md = `## GA4 스냅샷 — 최근 ${DAYS}일 (어제까지)
 검색 일별(최근 14일, 건·명): ${searchDaily.slice(-14).map((r) => `${r.d[0].slice(4, 6)}/${r.d[0].slice(6, 8)} ${r.m[0]}·${r.m[1]}`).join(" | ") || "없음"}
 
 진단 진입 클릭 지면별 (assess_entry_click, 건·명 — 9/30 되돌림 판정 근거): ${entryByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
+
+진단 결과 뒤 클릭 (assess_result_click, 건·명 — 종류:이동한 곳): ${resultClicks.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
+
+결과 다시 열기 (assess_result_reopen, 건·명): ${resultReopens.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
 
 지역 비교 탭별 (compare_view, 건·명): ${compareByLabel.map((r) => `${r.d[0]} ${r.m[0]}·${r.m[1]}`).join(" | ") || "0건"}
 
