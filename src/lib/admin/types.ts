@@ -90,16 +90,21 @@ export interface DailySearchCount {
 // ── 진단 결과 ──
 
 export interface AssessmentRow {
-  id: number;
-  /** 실제 컬럼명. assessment_results.farm_type_id (예: "guinong"·"guichon"·"guisanchon"·"smartfarm"·"cheongnyeon") */
-  farm_type_id: string;
-  answers: Record<string, string>;
+  /** nanoid 12자 (결과 공유 링크 id) */
+  id: string;
+  /** 매칭·준비도 진단 결과 유형 (예: "guinong"). 빠른 점검은 null 일 수 있다 */
+  farm_type_id: string | null;
+  /** 문항 id → score. `__assess_tier`·`__assess_total_score`·`__track_answers` 같은 메타 키가 섞여 있다 */
+  answers: Record<string, unknown>;
+  top_regions: string[] | null;
+  top_crops: string[] | null;
+  /** document.referrer — 사이트 바깥 유입 주소만 담긴다 */
+  referrer: string | null;
+  user_agent: string | null;
+  age_group: string | null;
+  source: "full" | "quick";
+  persona: string | null;
   created_at: string;
-}
-
-export interface TypeDistribution {
-  type: string;
-  count: number;
 }
 
 // ── 대시보드 KPI ──

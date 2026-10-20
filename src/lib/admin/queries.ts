@@ -7,7 +7,6 @@
 
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { searchAll } from "@/lib/data/search-index";
-import { migrateFarmTypeId } from "@/lib/data/match-questions";
 import type {
   QuickFeedbackRow,
   RequestRow,
@@ -16,7 +15,6 @@ import type {
   TopKeyword,
   DailySearchCount,
   AssessmentRow,
-  TypeDistribution,
   AdminKpi,
   ThumbsStats,
   ThumbsByPersona,
@@ -362,55 +360,21 @@ export async function fetchDailySearchCounts(
 
 // ── 진단 결과 ──
 
-export async function fetchTypeDistribution(
-  days = 30,
-): Promise<TypeDistribution[]> {
+/** 진단 결과 행 — 테이블이 작아(2026-10 기준 75건) 집계는 메모리에서 한다. 상한에 닿으면 limited=true. */
+const ASSESSMENT_ROW_LIMIT = 5000;
+
+export async function fetchAssessmentRows(): Promise<{ rows: AssessmentRow[]; limited: boolean }> {
   const sb = getSupabaseAdmin();
-  if (!sb) return [];
+  if (!sb) return { rows: [], limited: false };
 
   const { data } = await sb
     .from("assessment_results")
-    .select("farm_type_id")
-    .gte("created_at", daysAgo(days));
-
-  if (!data) return [];
-
-  // 구 ID(weekend/rural-life/young-entrepreneur)와 신 ID가 DB에 섞여 있어
-  // migrateFarmTypeId로 신 ID 5종(guinong/guichon/...) 기준 합산.
-  const counts = new Map<string, number>();
-  for (const row of data) {
-    const raw = (row as { farm_type_id: string }).farm_type_id;
-    if (!raw) continue;
-    const normalized = migrateFarmTypeId(raw);
-    counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
-  }
-
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([type, count]) => ({ type, count }));
-}
-
-export async function fetchAssessmentList(
-  page = 1,
-  perPage = 20,
-  days?: number,
-): Promise<{ data: AssessmentRow[]; total: number }> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return { data: [], total: 0 };
-
-  let q = sb
-    .from("assessment_results")
-    .select("*", { count: "exact" });
-
-  if (days && days > 0) {
-    q = q.gte("created_at", daysAgo(days));
-  }
-
-  const { data, count } = await q
+    .select("id, farm_type_id, answers, top_regions, top_crops, referrer, user_agent, age_group, source, persona, created_at")
     .order("created_at", { ascending: false })
-    .range((page - 1) * perPage, page * perPage - 1);
+    .limit(ASSESSMENT_ROW_LIMIT);
 
-  return { data: (data as AssessmentRow[]) ?? [], total: count ?? 0 };
+  const rows = (data as AssessmentRow[] | null) ?? [];
+  return { rows, limited: rows.length >= ASSESSMENT_ROW_LIMIT };
 }
 
 // ── 요청 관리 ──
