@@ -108,7 +108,14 @@ export async function fetchFeedbackList(
   const sb = getSupabaseAdmin();
   if (!sb) return { data: [], total: 0 };
 
-  let query = sb.from("quick_feedback").select("*", { count: "exact" });
+  // 의견 위젯 행만 — 추천 평가(thumbs)·요청(request_kind 또는 "[… 요청]" 메시지, /admin/requests 와 같은 판정)은 뺀다.
+  // 10/20: 추천 평가 1건이 '미분류 · (메시지 없음)'으로 이 목록에 섞여 보였다.
+  let query = sb
+    .from("quick_feedback")
+    .select("*", { count: "exact" })
+    .is("thumbs", null)
+    .is("request_kind", null)
+    .or("message.is.null,message.not.like.*요청*");
 
   if (ratingFilter && ratingFilter !== "all") {
     query = query.eq("rating", ratingFilter);
