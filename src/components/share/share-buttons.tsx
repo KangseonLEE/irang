@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link2, Check, Download } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { tagShareUrl } from "@/lib/share-tag";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./share-buttons.module.css";
 
@@ -78,7 +79,7 @@ export function ShareButtons({ resultId, farmTypeLabel }: ShareButtonsProps) {
     : "";
 
   const handleCopyLink = useCallback(() => {
-    void copy(shareUrl);
+    void copy(tagShareUrl(shareUrl, "copy_link", "assess_result"));
   }, [shareUrl, copy]);
 
   const handleKakaoShare = useCallback(() => {
@@ -90,7 +91,10 @@ export function ShareButtons({ resultId, farmTypeLabel }: ShareButtonsProps) {
         title: `🌾 나의 정착 유형: ${farmTypeLabel}`,
         description: "이랑에서 농촌 정착 적합도 진단을 받아보세요!",
         imageUrl: DEFAULT_OG_IMAGE,
-        link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+        link: {
+          mobileWebUrl: tagShareUrl(shareUrl, "kakao", "assess_result"),
+          webUrl: tagShareUrl(shareUrl, "kakao", "assess_result"),
+        },
       },
     });
 

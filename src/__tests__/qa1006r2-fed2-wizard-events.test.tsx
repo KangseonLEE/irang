@@ -166,6 +166,6 @@ describe("정착 유형 진단 — 다시 시작·답 변경이 새 결과로 �
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /링크 복사/ }));
     });
-    expect(copied.at(-1)).toMatch(/\/r\/id0000000003$/);
+    expect(copied.at(-1)).toMatch(/\/r\/id0000000003\?utm_source=copy_link&utm_medium=share/);
   });
 });

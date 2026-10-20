@@ -108,6 +108,9 @@ export interface AssessmentRow {
   entry_from?: string | null;
   /** 진단 화면 직전 사이트 경로 */
   entry_path?: string | null;
+  /** 세션 첫 방문 utm — 마이그레이션 20261020_assessment_utm 적용 전·이전 행은 없다 */
+  utm_source?: string | null;
+  utm_medium?: string | null;
   created_at: string;
 }
 

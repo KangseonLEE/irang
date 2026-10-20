@@ -79,14 +79,14 @@ describe("클라이언트 진입 기록", () => {
     noteVisitedPath("/crops/apple");
     noteVisitedPath("/match");
     noteVisitedPath("/assess/result/abc");
-    expect(readAssessEntry(t0 + 59 * 60_000)).toEqual({ entry_from: "crop_detail_top", entry_path: "/crops/apple" });
+    expect(readAssessEntry(t0 + 59 * 60_000)).toMatchObject({ entry_from: "crop_detail_top", entry_path: "/crops/apple" });
     expect(readAssessEntry(t0 + 61 * 60_000).entry_from).toBeNull();
   });
 
   it("형식에 안 맞는 라벨·경로는 남기지 않는다", () => {
     rememberAssessEntry("Crop Detail<script>");
     noteVisitedPath("/search?q=사과");
-    expect(readAssessEntry()).toEqual({ entry_from: null, entry_path: null });
+    expect(readAssessEntry()).toMatchObject({ entry_from: null, entry_path: null });
     expect(isValidEntryPath("/crops/apple")).toBe(true);
     expect(isValidEntryPath("https://evil.example/")).toBe(false);
   });
@@ -159,5 +159,44 @@ describe("어드민 진입 집계", () => {
     expect(stats.entryRecorded).toBe(2);
     expect(stats.byEntryFrom).toEqual({ crop_detail_top: 1 });
     expect(stats.byEntryPath).toEqual({ "/crops/*": 2 });
+  });
+});
+
+describe("첫 방문 꼬리표 (utm)", () => {
+  it("세션 첫 꼬리표만 남기고 결과 저장 때 같이 읽힌다", async () => {
+    const { captureLandingTags } = await import("@/lib/assess-entry");
+    captureLandingTags("?utm_source=kakao&utm_medium=share&utm_campaign=assess_result");
+    captureLandingTags("?utm_source=google"); // 두 번째는 무시
+    expect(readAssessEntry()).toMatchObject({ utm_source: "kakao", utm_medium: "share" });
+  });
+
+  it("꼬리표가 없거나 형식이 틀리면 남기지 않는다", async () => {
+    const { captureLandingTags } = await import("@/lib/assess-entry");
+    captureLandingTags("?q=사과");
+    captureLandingTags("?utm_source=<b>");
+    expect(readAssessEntry().utm_source).toBeNull();
+  });
+
+  it("API 는 utm 을 저장하고, 컬럼이 없으면 빼고 다시 저장한다", async () => {
+    await assessPost(post(quickBody({ id: "abcDEF123_-u", utm_source: "kakao", utm_medium: "share" })));
+    expect(inserts[0]).toMatchObject({ utm_source: "kakao", utm_medium: "share" });
+
+    inserts.length = 0;
+    failFirstWith = "Could not find the 'utm_source' column of 'assessment_results' in the schema cache";
+    const res = await assessPost(post(quickBody({ id: "abcDEF123_-v", utm_source: "kakao" })));
+    expect(res.status).toBe(200);
+    expect(inserts[1]).not.toHaveProperty("utm_source");
+  });
+});
+
+describe("공유 링크 꼬리표", () => {
+  it("채널·내용을 붙이고 기존 쿼리는 지킨다", async () => {
+    const { tagShareUrl } = await import("@/lib/share-tag");
+    const tagged = new URL(tagShareUrl("https://irangfarm.com/regions/jeonnam?tab=climate", "kakao", "region"));
+    expect(tagged.searchParams.get("tab")).toBe("climate");
+    expect(tagged.searchParams.get("utm_source")).toBe("kakao");
+    expect(tagged.searchParams.get("utm_medium")).toBe("share");
+    expect(tagged.searchParams.get("utm_campaign")).toBe("region");
+    expect(tagShareUrl("not a url", "kakao", "x")).toBe("not a url");
   });
 });

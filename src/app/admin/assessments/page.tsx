@@ -11,18 +11,18 @@ import {
   AGE_GROUPS,
   ASSESS_MODES,
   FARM_TYPES,
-  REFERRER_GROUPS,
+  CHANNEL_GROUPS,
   TIER_IDS,
   buildAssessmentStats,
   buildWeeklyTrend,
   deviceOf,
   filterAssessmentRows,
   modeOf,
-  referrerGroupOf,
+  channelOf,
   type AssessMode,
   type AssessmentListFilter,
   type DeviceKind,
-  type ReferrerGroup,
+  type ChannelGroup,
 } from "@/lib/admin/assessment-stats";
 import { QUESTIONS } from "@/lib/data/assessment";
 import { QUICK_QUESTIONS } from "@/lib/data/quick-check";
@@ -62,12 +62,14 @@ const MODE_COLOR: Record<AssessMode, string> = {
   quick: "color-mix(in srgb, var(--primary) 35%, white)",
 };
 
-const REFERRER_LABEL: Record<ReferrerGroup, string> = {
-  direct: "직접·알 수 없음",
-  naver: "네이버",
-  google: "구글",
+const CHANNEL_GROUP_LABEL: Record<ChannelGroup, string> = {
+  search: "검색",
+  social: "SNS·메신저·앱",
+  share: "공유 링크",
+  mail: "메일",
   internal: "사이트 안",
-  other: "기타",
+  direct: "직접·알 수 없음",
+  unrecorded: "기록 없음",
 };
 
 const DEVICE_LABEL: Record<DeviceKind, string> = { mobile: "모바일", desktop: "데스크탑" };
@@ -149,7 +151,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
   const filter: AssessmentListFilter = {
     mode: pickOne(params.mode, ASSESS_MODES),
     device: pickOne(params.device, ["mobile", "desktop"] as const),
-    referrer: pickOne(params.ref, REFERRER_GROUPS),
+    channel: pickOne(params.ref, CHANNEL_GROUPS),
   };
 
   const { rows, limited } = await fetchAssessmentRows();
@@ -187,7 +189,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
     if (nextDays !== DEFAULT_PERIOD) sp.set("days", nextDays);
     const mode = overrides.mode === undefined ? filter.mode : overrides.mode;
     const device = overrides.device === undefined ? filter.device : overrides.device;
-    const ref = overrides.ref === undefined ? filter.referrer : overrides.ref;
+    const ref = overrides.ref === undefined ? filter.channel : overrides.ref;
     if (mode) sp.set("mode", mode);
     if (device) sp.set("device", device);
     if (ref) sp.set("ref", ref);
@@ -275,7 +277,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
             어디서 왔나 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
           </h2>
           <p className={s.sectionDesc}>
-            빠른 점검·매칭은 10/20 전까지 유입 주소를 저장하지 않아 ‘직접’으로 몰려 있어요.
+            공유 링크 꼬리표 → 바깥 주소 → 앱 안 브라우저 순으로 가려요. 메일 앱·외부 브라우저로 연 링크는 출처가 안 남아요. ‘기록 없음’은 10/20 전 빠른 점검·매칭(유입 주소를 저장하지 않던 때)이에요.
           </p>
           <h3 className={s.groupTitle}>사이트 안 진입 ({stats.entryRecorded}건 기록)</h3>
           {stats.entryRecorded === 0 ? (
@@ -308,18 +310,28 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                 ))}
             </>
           )}
-          <h3 className={s.groupTitle}>바깥 유입</h3>
-          {REFERRER_GROUPS.filter((g) => stats.byReferrer[g] > 0).map((g) => (
-            <div key={g} className={`${s.hrow} ${lowClass(stats.total)}`}>
-              <span>{REFERRER_LABEL[g]}</span>
-              <span className={s.hbar}>
-                <i style={{ width: `${pct(stats.byReferrer[g], stats.total)}%` }} />
+          <h3 className={s.groupTitle}>유입 경로</h3>
+          <div className={s.groupChips}>
+            {CHANNEL_GROUPS.filter((g) => stats.byChannelGroup[g] > 0).map((g) => (
+              <span key={g}>
+                {CHANNEL_GROUP_LABEL[g]} <b>{stats.byChannelGroup[g]}</b>
               </span>
-              <span className={s.hnum}>
-                {stats.byReferrer[g]}건 {pct(stats.byReferrer[g], stats.total)}%
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+          {Object.entries(stats.byChannel)
+            .sort((x, y) => y[1].count - x[1].count)
+            .slice(0, 12)
+            .map(([id, c]) => (
+              <div key={id} className={`${s.hrow} ${lowClass(stats.total)}`}>
+                <span>{c.label}</span>
+                <span className={s.hbar}>
+                  <i style={{ width: `${pct(c.count, stats.total)}%` }} />
+                </span>
+                <span className={s.hnum}>
+                  {c.count}건 {pct(c.count, stats.total)}%
+                </span>
+              </div>
+            ))}
           <h3 className={s.groupTitle}>기기</h3>
           {(["desktop", "mobile"] as const).map((d) => (
             <div key={d} className={`${s.hrow} ${lowClass(stats.total)}`}>
@@ -563,13 +575,13 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
             </Link>
           ))}
           <span className={s.chipDivider} aria-hidden="true" />
-          {(["naver", "google", "direct"] as const).map((g) => (
+          {(["search", "social", "share", "mail", "direct"] as const).map((g) => (
             <Link
               key={g}
-              href={urlWithParams({ ref: filter.referrer === g ? null : g, page: 1 })}
-              className={`${s.chip} ${filter.referrer === g ? s.chipActive : ""}`}
+              href={urlWithParams({ ref: filter.channel === g ? null : g, page: 1 })}
+              className={`${s.chip} ${filter.channel === g ? s.chipActive : ""}`}
             >
-              {REFERRER_LABEL[g]}
+              {CHANNEL_GROUP_LABEL[g]}
             </Link>
           ))}
         </div>
@@ -623,7 +635,7 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                     </span>
                     <span>{a.age_group ? AGE_LABEL[a.age_group] ?? a.age_group : "—"}</span>
                     <span>
-                      {REFERRER_LABEL[referrerGroupOf(a.referrer)]} · {DEVICE_LABEL[deviceOf(a.user_agent)]}
+                      {channelOf(a).label} · {DEVICE_LABEL[deviceOf(a.user_agent)]}
                     </span>
                   </summary>
                   <dl className={s.detail}>

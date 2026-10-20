@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin, recordApiFallback } from "@/lib/supabase";
 import { isValidResultId } from "@/lib/assess-result";
-import { isValidEntryFrom, isValidEntryPath } from "@/lib/assess-entry";
+import { isValidEntryFrom, isValidEntryPath, isValidUtmValue } from "@/lib/assess-entry";
 import { isE2eRequest } from "@/lib/internal-traffic";
 import type { FarmTypeId } from "@/lib/data/match-questions";
 import { getClientIp } from "@/lib/client-ip";
@@ -244,12 +244,14 @@ export async function POST(req: NextRequest) {
   const entryColumns = {
     entry_from: isValidEntryFrom(body.entry_from) ? body.entry_from : null,
     entry_path: isValidEntryPath(body.entry_path) ? body.entry_path : null,
+    utm_source: isValidUtmValue(body.utm_source) ? body.utm_source : null,
+    utm_medium: isValidUtmValue(body.utm_medium) ? body.utm_medium : null,
   };
 
   let { error } = await sb.from("assessment_results").insert({ ...fullPayload, ...entryColumns });
 
-  // entry_* 컬럼 마이그레이션(20261020_assessment_entry.sql) 적용 전 — 진입 기록만 빼고 다시 저장
-  if (error && (error.message ?? "").includes("entry_")) {
+  // 진입 기록 컬럼 마이그레이션(20261020_assessment_entry·20261020_assessment_utm) 적용 전 — 진입 기록만 빼고 다시 저장
+  if (error && /entry_|utm_/.test(error.message ?? "")) {
     await recordApiFallback({
       endpoint: "/api/assess",
       statusCode: 200,

@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { Share2, Check } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { tagShareUrl } from "@/lib/share-tag";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./share-button.module.css";
 
@@ -40,7 +41,7 @@ export function ShareButton({
     // 1) Web Share API (모바일 네이티브)
     if (typeof navigator.share === "function") {
       try {
-        await navigator.share({ title, text, url: shareUrl });
+        await navigator.share({ title, text, url: tagShareUrl(shareUrl, "share_sheet", contentType) });
         analytics.share(contentType, "native");
         return;
       } catch (err) {
@@ -49,7 +50,7 @@ export function ShareButton({
     }
 
     // 2) 클립보드 폴백 (데스크톱)
-    const ok = await copy(shareUrl);
+    const ok = await copy(tagShareUrl(shareUrl, "copy_link", contentType));
     if (ok) analytics.share(contentType, "clipboard");
   }, [title, text, url, contentType, copy]);
 
