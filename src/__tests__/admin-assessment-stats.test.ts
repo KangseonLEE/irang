@@ -6,7 +6,7 @@ import {
   filterAssessmentRows,
   kstWeekStart,
   modeOf,
-  referrerGroupOf,
+  channelOf,
 } from "@/lib/admin/assessment-stats";
 import type { AssessmentRow } from "@/lib/admin/types";
 
@@ -38,18 +38,43 @@ describe("modeOf", () => {
   });
 });
 
-describe("referrerGroupOf", () => {
-  it("검색엔진 하위 도메인·국가 도메인을 묶는다", () => {
-    expect(referrerGroupOf("https://m.search.naver.com/")).toBe("naver");
-    expect(referrerGroupOf("https://www.google.co.kr/")).toBe("google");
-    expect(referrerGroupOf("https://irangfarm.com/crops")).toBe("internal");
-    expect(referrerGroupOf(null)).toBe("direct");
+describe("channelOf — 어디서 왔나", () => {
+  const at = "2026-10-21T00:00:00Z";
+  const ch = (over: Partial<AssessmentRow>) => channelOf(row({ created_at: at, ...over }));
+
+  it("검색엔진·블로그·카페·웹메일을 주소로 가른다", () => {
+    expect(ch({ referrer: "https://m.search.naver.com/search.naver?q=x" }).id).toBe("naver_search");
+    expect(ch({ referrer: "https://m.blog.naver.com/abc/1" }).id).toBe("naver_blog");
+    expect(ch({ referrer: "https://cafe.naver.com/x" }).id).toBe("naver_cafe");
+    expect(ch({ referrer: "https://mail.naver.com/" }).group).toBe("mail");
+    expect(ch({ referrer: "https://mail.google.com/mail/u/0/" }).group).toBe("mail");
+    expect(ch({ referrer: "https://www.google.co.kr/" }).id).toBe("google");
+    expect(ch({ referrer: "https://irangfarm.com/crops" }).group).toBe("internal");
   });
 
-  it("이름에 검색엔진이 들어간 다른 도메인은 기타로 둔다", () => {
-    expect(referrerGroupOf("https://notgoogle.com/")).toBe("other");
-    expect(referrerGroupOf("https://naver.com.evil.example/")).toBe("other");
-    expect(referrerGroupOf("not a url")).toBe("other");
+  it("이름만 비슷한 다른 도메인은 검색으로 세지 않는다", () => {
+    expect(ch({ referrer: "https://notgoogle.com/" }).id).toBe("other_site");
+    expect(ch({ referrer: "https://naver.com.evil.example/" }).id).toBe("other_site");
+  });
+
+  it("꼬리표가 주소보다 먼저다 — 공유 버튼 링크", () => {
+    expect(channelOf({ ...row({ created_at: at, referrer: "https://www.google.com/" }), utm_source: "kakao", utm_medium: "share" })).toMatchObject({ id: "utm_kakao", group: "share" });
+    expect(channelOf({ ...row({ created_at: at }), utm_source: "newsletter", utm_medium: "email" }).group).toBe("mail");
+  });
+
+  it("주소가 비면 앱 안 브라우저로 — 카카오톡", () => {
+    const kakao = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148 KAKAOTALK 10.8.0";
+    expect(ch({ user_agent: kakao })).toMatchObject({ id: "inapp_kakaotalk", group: "social" });
+    // 주소가 있으면 주소가 이긴다(네이버 앱 검색 → 네이버 검색)
+    expect(ch({ user_agent: "Mozilla/5.0 NAVER(inapp; search; 1000; 12.0)", referrer: "https://m.search.naver.com/" }).id).toBe("naver_search");
+  });
+
+  it("10/20 전 빠른 점검·매칭의 빈 주소는 '기록 없음', 준비도 진단은 '직접'", () => {
+    const before = "2026-10-19T00:00:00Z";
+    expect(channelOf(row({ created_at: before, source: "quick", farm_type_id: null })).id).toBe("unrecorded");
+    expect(channelOf(row({ created_at: before })).id).toBe("unrecorded"); // 매칭
+    expect(channelOf(row({ created_at: before, answers: { __assess_tier: "sprout" } })).id).toBe("direct");
+    expect(ch({ source: "quick", farm_type_id: null }).id).toBe("direct");
   });
 });
 
@@ -74,8 +99,9 @@ describe("buildAssessmentStats", () => {
     expect(stats.total).toBe(4);
     expect(stats.byMode).toEqual({ assess: 2, match: 1, quick: 1 });
     expect(stats.byDevice).toEqual({ mobile: 1, desktop: 3 });
-    expect(stats.byReferrer.google).toBe(1);
-    expect(stats.byReferrer.direct).toBe(3);
+    expect(stats.byChannel.google.count).toBe(1);
+    expect(stats.byChannelGroup.search).toBe(1);
+    expect(stats.byChannelGroup.search + stats.byChannelGroup.direct + stats.byChannelGroup.unrecorded).toBe(4);
     expect(stats.withRecommendations).toBe(1);
   });
 
@@ -124,7 +150,7 @@ describe("filterAssessmentRows", () => {
       row({ source: "quick", farm_type_id: null, user_agent: WINDOWS, referrer: "https://search.naver.com/" }),
       row({ user_agent: IPHONE, referrer: "https://search.naver.com/" }),
     ];
-    expect(filterAssessmentRows(rows, { mode: "quick", device: "mobile", referrer: "naver" })).toHaveLength(1);
+    expect(filterAssessmentRows(rows, { mode: "quick", device: "mobile", channel: "search" })).toHaveLength(1);
     expect(filterAssessmentRows(rows, {})).toHaveLength(3);
   });
 });

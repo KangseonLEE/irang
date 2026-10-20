@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, X, Copy, Check } from "lucide-react";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
+import { detectInApp, type InAppId } from "@/lib/inapp-browser";
 import s from "./inapp-banner.module.css";
 
 interface InAppInfo {
@@ -10,14 +11,13 @@ interface InAppInfo {
   appName: string | null;
 }
 
+/** 배너는 원래 다섯 앱에서만 띄운다 — 판별 자체는 lib/inapp-browser 공용 */
+const BANNER_APPS: ReadonlySet<InAppId> = new Set(["kakaotalk", "instagram", "facebook", "naver", "line"]);
+
 function detectInAppBrowser(): InAppInfo {
   if (typeof window === "undefined") return { isInApp: false, appName: null };
-  const ua = navigator.userAgent;
-  if (/KAKAOTALK/i.test(ua)) return { isInApp: true, appName: "카카오톡" };
-  if (/Instagram/i.test(ua)) return { isInApp: true, appName: "인스타그램" };
-  if (/FBAV|FBAN/i.test(ua)) return { isInApp: true, appName: "페이스북" };
-  if (/NAVER/i.test(ua)) return { isInApp: true, appName: "네이버" };
-  if (/Line\//i.test(ua)) return { isInApp: true, appName: "라인" };
+  const app = detectInApp(navigator.userAgent);
+  if (app && BANNER_APPS.has(app.id)) return { isInApp: true, appName: app.name };
   return { isInApp: false, appName: null };
 }
 

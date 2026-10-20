@@ -61,6 +61,23 @@ interface NormalizeOptions {
   numericRanges?: Record<string, { min: number; max: number }>;
 }
 
+/**
+ * 유입 꼬리표 — 모든 목록 페이지에서 통과시킨다 (2026-10-20).
+ * 예전엔 목록 8곳이 utm_* 를 308 로 지워, 꼬리표를 단 공유·블로그 링크가 GA 에 출처 없이 잡혔다
+ * (`/crops?utm_source=kakao` → `/crops`). 값은 짧은 영숫자만 — 봇이 아무 값으로 캐시를 흔들지 못하게.
+ */
+const TRACKING_PARAM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "gclid",
+  "fbclid",
+] as const;
+const TRACKING_PARAM_KEY_SET: ReadonlySet<string> = new Set(TRACKING_PARAM_KEYS);
+const TRACKING_PARAM_VALUE = /^[A-Za-z0-9_.-]{1,100}$/;
+
 interface NormalizeResult {
   cleaned: URLSearchParams;
   changed: boolean;
@@ -88,6 +105,17 @@ export function normalizeSearchParams(
     // 빈 문자열 제거
     if (value === "") {
       changed = true;
+      continue;
+    }
+
+    // 유입 꼬리표 — 형식만 맞으면 그대로 (페이지 화이트리스트와 무관)
+    if (TRACKING_PARAM_KEY_SET.has(key)) {
+      if (seen.has(key) || !TRACKING_PARAM_VALUE.test(value)) {
+        changed = true;
+        continue;
+      }
+      cleaned.set(key, value);
+      seen.add(key);
       continue;
     }
 

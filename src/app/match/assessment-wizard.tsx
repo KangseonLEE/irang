@@ -34,6 +34,7 @@ import { classifyFarmType } from "@/lib/match-scoring";
 import { analytics } from "@/lib/analytics";
 import { saveAssessmentResult, generateResultId } from "@/lib/assess-result";
 import { ResultSaveCta } from "@/components/result/result-save-cta";
+import { tagShareUrl } from "@/lib/share-tag";
 import { PersonaRecommendationSection } from "@/components/match/persona-recommendation-section";
 import { assessSharePath, encodeAssessScore } from "@/lib/diagnosis/assess-share-code";
 import { useDiagnosisHistory } from "@/lib/diagnosis/use-diagnosis-history";
@@ -396,7 +397,7 @@ export function AssessmentWizard({ onBack, review, onRestart }: AssessmentWizard
           printTitle={`이랑 - 농촌 정착 적합도 진단 결과 (${tier.title})`}
           shareText={
             shareCode
-              ? `나의 정착 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? window.location.origin : ""}${assessSharePath(shareCode)}`
+              ? `나의 정착 준비 단계는 "${tier.title}" ${tier.emoji}\n${typeof window !== "undefined" ? tagShareUrl(`${window.location.origin}${assessSharePath(shareCode)}`, "copy_link", "assess_score") : ""}`
               : undefined
           }
         />

@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { Printer, Share2, Check } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import { tagShareUrl } from "@/lib/share-tag";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import s from "./result-save-cta.module.css";
 
@@ -29,7 +30,7 @@ export function ResultSaveCta({ printTitle, shareText }: ResultSaveCtaProps) {
   }, [printTitle]);
 
   const handleShare = useCallback(() => {
-    void copy(shareText || window.location.href);
+    void copy(shareText || tagShareUrl(window.location.href, "copy_link", "assessment"));
   }, [shareText, copy]);
 
   return (

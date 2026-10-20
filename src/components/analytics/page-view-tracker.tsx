@@ -17,7 +17,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { noteVisitedPath } from "@/lib/assess-entry";
+import { captureLandingTags, noteVisitedPath } from "@/lib/assess-entry";
 
 export function PageViewTracker() {
   const pathname = usePathname();
@@ -26,6 +26,7 @@ export function PageViewTracker() {
   useEffect(() => {
     noteVisitedPath(pathname); // 진단 진입 직전 경로 — 결과 저장 때 entry_path (10/20)
     if (lastSent.current === null) {
+      captureLandingTags(window.location.search); // 첫 방문 utm — 결과 저장 때 함께 (10/20)
       lastSent.current = pathname; // 최초 로드 — gtag('config')가 page_view를 보냈다
       return;
     }

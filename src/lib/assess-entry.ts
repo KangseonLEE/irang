@@ -8,6 +8,7 @@
 
 const ENTRY_KEY = "irang-assess-entry";
 const LAST_PATH_KEY = "irang-last-path";
+const LANDING_TAGS_KEY = "irang-landing-tags";
 /** 진입 버튼을 누른 뒤 이 시간 안에 끝낸 진단만 그 버튼 덕으로 센다 */
 const ENTRY_TTL_MS = 60 * 60 * 1000;
 
@@ -24,6 +25,31 @@ export function isValidEntryFrom(v: unknown): v is string {
 /** 경로만(쿼리·해시 없이), 200자 안 */
 export function isValidEntryPath(v: unknown): v is string {
   return typeof v === "string" && v.length <= 200 && /^\/[A-Za-z0-9/_\-.%]*$/.test(v);
+}
+
+/** utm 값 — normalize.ts TRACKING_PARAM_VALUE 보다 좁게(저장용) */
+export function isValidUtmValue(v: unknown): v is string {
+  return typeof v === "string" && /^[A-Za-z0-9_.-]{1,40}$/.test(v);
+}
+
+/**
+ * 첫 방문 꼬리표 — 세션에서 처음 본 utm_source·utm_medium 만 남긴다(첫 접점).
+ * 같은 세션에서 꼬리표 없는 화면으로 옮겨도 지워지지 않는다. PageViewTracker 가 첫 렌더에 부른다.
+ */
+export function captureLandingTags(search: string): void {
+  try {
+    if (sessionStorage.getItem(LANDING_TAGS_KEY)) return;
+    const params = new URLSearchParams(search);
+    const source = params.get("utm_source");
+    if (!isValidUtmValue(source)) return;
+    const medium = params.get("utm_medium");
+    sessionStorage.setItem(
+      LANDING_TAGS_KEY,
+      JSON.stringify({ source, medium: isValidUtmValue(medium) ? medium : null }),
+    );
+  } catch {
+    // 저장소 막힘
+  }
 }
 
 /** 진입 버튼 클릭 — AssessEntryTracker 가 부른다 */
@@ -49,11 +75,15 @@ export function noteVisitedPath(pathname: string): void {
 export interface AssessEntry {
   entry_from: string | null;
   entry_path: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
 }
 
 export function readAssessEntry(now = Date.now()): AssessEntry {
   let entry_from: string | null = null;
   let entry_path: string | null = null;
+  let utm_source: string | null = null;
+  let utm_medium: string | null = null;
   try {
     const raw = sessionStorage.getItem(ENTRY_KEY);
     if (raw) {
@@ -64,10 +94,16 @@ export function readAssessEntry(now = Date.now()): AssessEntry {
     }
     const last = sessionStorage.getItem(LAST_PATH_KEY);
     if (isValidEntryPath(last)) entry_path = last;
+    const tags = sessionStorage.getItem(LANDING_TAGS_KEY);
+    if (tags) {
+      const parsed = JSON.parse(tags) as { source?: unknown; medium?: unknown };
+      if (isValidUtmValue(parsed.source)) utm_source = parsed.source;
+      if (isValidUtmValue(parsed.medium)) utm_medium = parsed.medium;
+    }
   } catch {
     // 저장소 막힘·깨진 값
   }
-  return { entry_from, entry_path };
+  return { entry_from, entry_path, utm_source, utm_medium };
 }
 
 /** 결과 화면 링크 → 이동한 곳 분류 (assess_result_click 라벨) */

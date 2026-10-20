@@ -5,6 +5,7 @@ import { MoreHorizontal, Share2, Check } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import { analytics } from "@/lib/analytics";
+import { tagShareUrl } from "@/lib/share-tag";
 import s from "./region-share-menu.module.css";
 
 interface RegionShareMenuProps {
@@ -143,7 +144,7 @@ export function RegionShareMenu({
         title: shareTitle,
         description: shareDescription,
         imageUrl: shareImageUrl || DEFAULT_OG_IMAGE,
-        link: { mobileWebUrl: url, webUrl: url },
+        link: { mobileWebUrl: tagShareUrl(url, "kakao", contentType), webUrl: tagShareUrl(url, "kakao", contentType) },
       },
     });
     analytics.share(contentType, "kakao");
@@ -158,7 +159,7 @@ export function RegionShareMenu({
         await navigator.share({
           title: shareTitle,
           text: shareDescription,
-          url,
+          url: tagShareUrl(url, "share_sheet", contentType),
         });
         analytics.share(contentType, "native");
         close();
@@ -169,7 +170,7 @@ export function RegionShareMenu({
     }
 
     // 폴백 — 클립보드 복사 (시트는 짧게 유지해 사용자에게 결과 인지 시간 부여)
-    const ok = await copy(url);
+    const ok = await copy(tagShareUrl(url, "copy_link", contentType));
     if (!ok) close();
   }, [shareTitle, shareDescription, pageUrl, contentType, copy, close]);
 

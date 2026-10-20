@@ -311,3 +311,30 @@ describe("LIST_PAGE_NORMALIZE_OPTIONS coverage", () => {
     }
   });
 });
+
+describe("normalizeSearchParams — 유입 꼬리표 (2026-10-20)", () => {
+  it("모든 목록 페이지에서 utm_* 를 지우지 않는다 — 308 없음", () => {
+    for (const [path, opts] of Object.entries(LIST_PAGE_NORMALIZE_OPTIONS)) {
+      const raw = new URLSearchParams("utm_source=kakao&utm_medium=share&utm_campaign=assess_result");
+      const { cleaned, changed } = normalizeSearchParams(raw, opts);
+      expect(changed, path).toBe(false);
+      expect(cleaned.get("utm_source"), path).toBe("kakao");
+    }
+  });
+
+  it("필터와 같이 와도 둘 다 남는다", () => {
+    const raw = new URLSearchParams("utm_source=naver_blog&q=사과");
+    const { cleaned } = normalizeSearchParams(raw, LIST_PAGE_NORMALIZE_OPTIONS["/crops"]);
+    expect(cleaned.get("utm_source")).toBe("naver_blog");
+    expect(cleaned.get("q")).toBe("사과");
+  });
+
+  it("형식이 이상한 값·중복은 지운다", () => {
+    const opts = LIST_PAGE_NORMALIZE_OPTIONS["/crops"];
+    expect(normalizeSearchParams(new URLSearchParams("utm_source=<script>"), opts).cleaned.has("utm_source")).toBe(false);
+    expect(normalizeSearchParams(new URLSearchParams(`utm_source=${"a".repeat(101)}`), opts).changed).toBe(true);
+    const dup = normalizeSearchParams(new URLSearchParams("utm_source=a&utm_source=b"), opts);
+    expect(dup.cleaned.getAll("utm_source")).toEqual(["a"]);
+    expect(dup.changed).toBe(true);
+  });
+});

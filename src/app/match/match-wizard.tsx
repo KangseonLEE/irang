@@ -219,7 +219,8 @@ export function MatchWizard({ onBack }: MatchWizardProps) {
       top_regions: provinces.slice(0, 3).map((p) => p.province.id),
       top_crops: crops.slice(0, 4).map((c) => c.crop.id),
       recommended_programs: ft.programIds.slice(0, 5),
-      referrer: searchParams.get("utm_source"),
+      // 바깥 유입 주소는 저장 때 document.referrer 로, utm 은 첫 방문 꼬리표(utm_source 컬럼)로 따로 남는다 (10/20)
+      referrer: null,
       age_group: ageGroup ?? null,
     })
       .then((res) => {
