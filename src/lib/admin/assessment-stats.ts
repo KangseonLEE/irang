@@ -127,6 +127,8 @@ export interface AssessmentStats {
   previousTotal: number;
   byMode: Record<AssessMode, number>;
   byDevice: Record<DeviceKind, number>;
+  /** 진단 종류 × 기기 */
+  deviceByMode: Record<AssessMode, Record<DeviceKind, number>>;
   /** 세부 경로별 */
   byChannel: Record<string, { label: string; group: ChannelGroup; count: number }>;
   byChannelGroup: Record<ChannelGroup, number>;
@@ -176,6 +178,9 @@ export function buildAssessmentStats(
 ): AssessmentStats {
   const byMode = emptyRecord(ASSESS_MODES);
   const byDevice = emptyRecord<DeviceKind>(["mobile", "desktop"]);
+  const deviceByMode = Object.fromEntries(
+    ASSESS_MODES.map((m) => [m, emptyRecord<DeviceKind>(["mobile", "desktop"])]),
+  ) as Record<AssessMode, Record<DeviceKind, number>>;
   const byChannel: AssessmentStats["byChannel"] = {};
   const byChannelGroup = emptyRecord(CHANNEL_GROUPS);
   const byType: Record<string, number> = {};
@@ -197,7 +202,9 @@ export function buildAssessmentStats(
   for (const row of current) {
     const mode = modeOf(row);
     byMode[mode]++;
-    byDevice[deviceOf(row.user_agent)]++;
+    const device = deviceOf(row.user_agent);
+    byDevice[device]++;
+    deviceByMode[mode][device]++;
     const channel = channelOf(row);
     byChannel[channel.id] ??= { label: channel.label, group: channel.group, count: 0 };
     byChannel[channel.id].count++;
@@ -238,6 +245,7 @@ export function buildAssessmentStats(
     previousTotal,
     byMode,
     byDevice,
+    deviceByMode,
     byChannel,
     byChannelGroup,
     withRecommendations,

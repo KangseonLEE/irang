@@ -271,15 +271,83 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
           </p>
         </section>
 
-        {/* ── 유입·기기 ── */}
+        {/* ── 기기 ── */}
         <section className={s.section}>
           <h2 className={s.sectionTitle}>
-            어디서 왔나 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
+            기기 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
+          </h2>
+          <p className={s.sectionDesc}>진단을 끝낸 기기예요. 유입은 상세 화면(모바일 검색)이 대부분이에요.</p>
+          {(["mobile", "desktop"] as const).map((d) => (
+            <div key={d} className={`${s.hrow} ${lowClass(stats.total)}`}>
+              <span>{DEVICE_LABEL[d]}</span>
+              <span className={s.hbar}>
+                <i style={{ width: `${pct(stats.byDevice[d], stats.total)}%` }} />
+              </span>
+              <span className={s.hnum}>
+                {stats.byDevice[d]}건 {pct(stats.byDevice[d], stats.total)}%
+              </span>
+            </div>
+          ))}
+          <h3 className={s.groupTitle}>진단 종류별 모바일 비율</h3>
+          {ASSESS_MODES.filter((m) => stats.byMode[m] > 0).map((m) => {
+            const mobile = stats.deviceByMode[m].mobile;
+            return (
+              <div key={m} className={`${s.hrow} ${lowClass(stats.byMode[m])}`}>
+                <span>{MODE_LABEL[m]}</span>
+                <span className={s.hbar}>
+                  <i style={{ width: `${pct(mobile, stats.byMode[m])}%`, background: MODE_COLOR[m] }} />
+                </span>
+                <span className={s.hnum}>
+                  {mobile}/{stats.byMode[m]}건 {pct(mobile, stats.byMode[m])}%
+                </span>
+              </div>
+            );
+          })}
+          {stats.total === 0 && <p className={s.empty}>진단 데이터가 없어요</p>}
+        </section>
+      </div>
+
+      <div className={s.grid2}>
+        {/* ── 유입 경로 ── */}
+        <section className={s.section}>
+          <h2 className={s.sectionTitle}>
+            유입 경로 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
           </h2>
           <p className={s.sectionDesc}>
             공유 링크 꼬리표 → 바깥 주소 → 앱 안 브라우저 순으로 가려요. 메일 앱·외부 브라우저로 연 링크는 출처가 안 남아요. ‘기록 없음’은 10/20 전 빠른 점검·매칭(유입 주소를 저장하지 않던 때)이에요.
           </p>
-          <h3 className={s.groupTitle}>사이트 안 진입 ({stats.entryRecorded}건 기록)</h3>
+          <div className={s.groupChips}>
+            {CHANNEL_GROUPS.filter((g) => stats.byChannelGroup[g] > 0).map((g) => (
+              <span key={g}>
+                {CHANNEL_GROUP_LABEL[g]} <b>{stats.byChannelGroup[g]}</b>
+              </span>
+            ))}
+          </div>
+          {Object.entries(stats.byChannel)
+            .sort((x, y) => y[1].count - x[1].count)
+            .slice(0, 12)
+            .map(([id, c]) => (
+              <div key={id} className={`${s.hrow} ${lowClass(stats.total)}`}>
+                <span>{c.label}</span>
+                <span className={s.hbar}>
+                  <i style={{ width: `${pct(c.count, stats.total)}%` }} />
+                </span>
+                <span className={s.hnum}>
+                  {c.count}건 {pct(c.count, stats.total)}%
+                </span>
+              </div>
+            ))}
+          {stats.total === 0 && <p className={s.empty}>진단 데이터가 없어요</p>}
+        </section>
+
+        {/* ── 사이트 안 진입 ── */}
+        <section className={s.section}>
+          <h2 className={s.sectionTitle}>
+            사이트 안 진입 <span className={`${s.tag} ${s.tagDb}`}>DB</span>
+          </h2>
+          <p className={s.sectionDesc}>
+            진단 진입 버튼(1시간 안에 끝낸 진단)과 진단 직전에 본 화면이에요 · {stats.entryRecorded}건 기록
+          </p>
           {stats.entryRecorded === 0 ? (
             <p className={s.subNote}>10/20 계측 이후 저장분부터 쌓여요.</p>
           ) : (
@@ -310,41 +378,6 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                 ))}
             </>
           )}
-          <h3 className={s.groupTitle}>유입 경로</h3>
-          <div className={s.groupChips}>
-            {CHANNEL_GROUPS.filter((g) => stats.byChannelGroup[g] > 0).map((g) => (
-              <span key={g}>
-                {CHANNEL_GROUP_LABEL[g]} <b>{stats.byChannelGroup[g]}</b>
-              </span>
-            ))}
-          </div>
-          {Object.entries(stats.byChannel)
-            .sort((x, y) => y[1].count - x[1].count)
-            .slice(0, 12)
-            .map(([id, c]) => (
-              <div key={id} className={`${s.hrow} ${lowClass(stats.total)}`}>
-                <span>{c.label}</span>
-                <span className={s.hbar}>
-                  <i style={{ width: `${pct(c.count, stats.total)}%` }} />
-                </span>
-                <span className={s.hnum}>
-                  {c.count}건 {pct(c.count, stats.total)}%
-                </span>
-              </div>
-            ))}
-          <h3 className={s.groupTitle}>기기</h3>
-          {(["desktop", "mobile"] as const).map((d) => (
-            <div key={d} className={`${s.hrow} ${lowClass(stats.total)}`}>
-              <span>{DEVICE_LABEL[d]}</span>
-              <span className={s.hbar}>
-                <i style={{ width: `${pct(stats.byDevice[d], stats.total)}%` }} />
-              </span>
-              <span className={s.hnum}>
-                {stats.byDevice[d]}건 {pct(stats.byDevice[d], stats.total)}%
-              </span>
-            </div>
-          ))}
-          {stats.total === 0 && <p className={s.empty}>진단 데이터가 없어요</p>}
         </section>
       </div>
 
@@ -595,7 +628,8 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
               <span>종류</span>
               <span>결과</span>
               <span>연령</span>
-              <span>유입 · 기기</span>
+              <span>유입 경로</span>
+              <span>기기</span>
             </div>
             {list.map((a) => {
               const mode = modeOf(a);
@@ -634,9 +668,8 @@ export default async function AdminAssessmentsPage({ searchParams }: Props) {
                       )}
                     </span>
                     <span>{a.age_group ? AGE_LABEL[a.age_group] ?? a.age_group : "—"}</span>
-                    <span>
-                      {channelOf(a).label} · {DEVICE_LABEL[deviceOf(a.user_agent)]}
-                    </span>
+                    <span>{channelOf(a).label}</span>
+                    <span>{DEVICE_LABEL[deviceOf(a.user_agent)]}</span>
                   </summary>
                   <dl className={s.detail}>
                     {answered.map(({ q, option }) => (
