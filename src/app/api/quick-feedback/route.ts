@@ -179,6 +179,20 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // 추천 평가는 무엇을·어떤 기준으로 평가했는지가 있어야 쓸 수 있다 (10/20) —
+  // 대상 id("crop:apple"·"program:SP-001")와 5종 페르소나가 없으면 저장하지 않는다.
+  if (safeThumbs) {
+    const validTarget =
+      typeof safeRecommendationId === "string" &&
+      /^(crop|program|region):[A-Za-z0-9_-]{1,60}$/.test(safeRecommendationId);
+    if (!validTarget || !safePersona || !VALID_PERSONAS.has(safePersona)) {
+      return NextResponse.json(
+        { error: "thumbs requires recommendation_id (crop|program|region:id) and a valid persona" },
+        { status: 400 },
+      );
+    }
+  }
+
   // thumbs 사용 시 rating은 NULL 저장 (CHECK 제약 없음) — 별 응답 row와 구분
   const safeRating =
     typeof rating === "string" && VALID_RATINGS.has(rating) ? rating : null;
