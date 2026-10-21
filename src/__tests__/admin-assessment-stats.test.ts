@@ -154,3 +154,21 @@ describe("filterAssessmentRows", () => {
     expect(filterAssessmentRows(rows, {})).toHaveLength(3);
   });
 });
+
+describe("진단 종류 × 기기", () => {
+  it("종류별로 모바일·데스크탑을 따로 센다", () => {
+    const iphone = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148";
+    const stats = buildAssessmentStats(
+      [
+        row({ source: "quick", farm_type_id: null, user_agent: iphone }),
+        row({ source: "quick", farm_type_id: null }),
+        row({ answers: { __assess_tier: "sprout" }, user_agent: iphone }),
+      ],
+      0,
+      [],
+    );
+    expect(stats.deviceByMode.quick).toEqual({ mobile: 1, desktop: 1 });
+    expect(stats.deviceByMode.assess).toEqual({ mobile: 1, desktop: 0 });
+    expect(stats.deviceByMode.match).toEqual({ mobile: 0, desktop: 0 });
+  });
+});
