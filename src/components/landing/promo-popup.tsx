@@ -155,9 +155,6 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
     });
   };
 
-  const [noteHead, ...noteRestLines] = item.note.split("\n");
-  const noteRest = noteRestLines.join("\n");
-
   return (
     <>
     <Modal
@@ -175,18 +172,45 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
       }
     >
       <div className={s.layout} data-promo-popup={item.id}>
-        <div className={s.poster}>
+        {/* 포스터를 누르면 원문 — 모바일 카드는 포스터 + 하단 바만 보이는 이미지형(10/22 회장 "이미지를 크게") */}
+        <a
+          href={item.href}
+          target="_blank"
+          rel="noopener" referrerPolicy="origin"
+          className={s.poster}
+          onClick={() => onLink("detail")}
+          data-track={`promo:${item.id}:poster`}
+          aria-label={`${item.title} 포스터 — 프로그램 상세 보기(새 창)`}
+          tabIndex={-1}
+        >
           <Image
             src={item.image}
             alt={item.alt}
             width={item.imageWidth}
             height={item.imageHeight}
-            sizes="(min-width: 640px) 360px, 92vw"
+            sizes="(min-width: 640px) 360px, 96vw"
             className={s.posterImage}
             priority={false}
             unoptimized={isRemoteSrc(item.image)}
           />
-        </div>
+          {item.recruitClosed && (
+            <span className={s.posterBadge} aria-hidden="true">
+              모집 마감
+            </span>
+          )}
+        </a>
+        {/* 모바일 — 포스터를 가리지 않게 포스터 아래 한 줄로 */}
+        <a
+          href={item.href}
+          target="_blank"
+          rel="noopener" referrerPolicy="origin"
+          className={s.posterCta}
+          onClick={() => onLink("detail")}
+          data-track={`promo:${item.id}:detail_strip`}
+        >
+          프로그램 상세 보기
+          <ExternalLink size={14} aria-hidden="true" />
+        </a>
         <div className={s.body}>
           <div className={s.badges}>
             <span className={s.badgeOrg}>{item.org}</span>
@@ -222,11 +246,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
           {item.recruitClosed && (
             <p className={s.alert} role="note">
               <AlertTriangle size={16} aria-hidden="true" />
-              {/* 모바일 카드는 첫 줄(끝났다는 사실)만 — 나머지 안내는 데스크탑에서 */}
-              <span>
-                {noteHead}
-                {noteRest && <span className={s.noteRest}>{`\n${noteRest}`}</span>}
-              </span>
+              <span>{item.note}</span>
             </p>
           )}
           <dl className={s.facts}>
