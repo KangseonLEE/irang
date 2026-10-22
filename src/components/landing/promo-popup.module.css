@@ -1,31 +1,76 @@
-/* PromoPopup — 공용 Modal 본문 안 레이아웃. 기본(모바일) → @media 오버라이드 (체크리스트 G) */
+/* PromoPopup — 공용 Modal 본문 안 레이아웃. 기본(모바일) → @media 오버라이드 (체크리스트 G)
+ *
+ * 10/22 회장 "모달 안에서 스크롤되지 않게" + "모바일은 다른 곳 참고해 다르게":
+ * 모바일은 앱 이벤트 팝업 관례 — 가운데 카드(Modal mobileVariant="card"), 포스터를 폭에 맞춰 크게,
+ * 아래에 제목 한 줄 + 상세 보기 + (마감 시) 한 줄 경고, 맨 아래 [오늘 하루 보지 않기 | 닫기].
+ * 모집 정보 표·한 줄 소개·홍보 요청 줄은 모바일에서 숨긴다(포스터에 같은 내용이 있다).
+ * 포스터 높이는 화면의 58% 상한 — 뒤 화면이 위아래로 보이고 320×568 에서도 안 넘친다.
+ * 데스크탑은 포스터 + 정보 2단, 화면 높이에 맞춰 포스터를 줄인다. */
 
 .layout {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .poster {
   display: flex;
   justify-content: center;
-  padding: 4px 0 0;
+  background: var(--muted);
 }
 
 .posterImage {
+  display: block;
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 52vh;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  max-height: 58vh;
+  max-height: 58dvh;
 }
 
 .body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
+  padding: 12px 16px;
+}
+
+/* 모바일은 기관 배지를 빼고, 소식이 여러 개일 때 넘김 버튼만 남긴다 */
+.badges:not(:has(.pager)) {
+  display: none;
+}
+
+.tagline,
+.facts,
+.requestRow,
+.noteRest {
+  display: none;
+}
+
+/* 모바일 카드 하단 바 */
+.mobileBar {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+
+.mobileBarDivider {
+  height: 16px;
+  background: var(--border);
+}
+
+.mobileBarBtn {
+  min-height: 48px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.mobileBarClose {
+  color: var(--foreground);
 }
 
 .badges {
@@ -36,7 +81,7 @@
 }
 
 .badgeOrg {
-  display: inline-flex;
+  display: none;
   align-items: center;
   height: 24px;
   padding: 0 10px;
@@ -54,8 +99,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .detailBtn {
@@ -80,13 +124,13 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 2px 0 0;
-  padding: 10px 12px;
+  margin: 0;
+  padding: 6px 10px;
   border: 1px solid color-mix(in srgb, #d97706 45%, transparent);
   border-radius: 8px;
   background: color-mix(in srgb, #d97706 12%, #fff);
   color: #92400e;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   line-height: 1.45;
 }
 
@@ -101,8 +145,12 @@
 }
 
 .title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
-  font-size: 1.375rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--foreground);
@@ -110,16 +158,16 @@
 
 .tagline {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
   color: var(--muted-foreground);
 }
 
+/* 모바일은 숨김(위) — display 는 데스크탑 @media 에서 */
 .facts {
-  display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 4px 0 0;
-  padding: 12px 14px;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 12px;
   border-radius: 4px;
   background: var(--muted);
 }
@@ -128,7 +176,7 @@
   display: grid;
   grid-template-columns: 4.5em 1fr;
   gap: 8px;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   line-height: 1.45;
 }
 
@@ -171,12 +219,10 @@
 
 /* 하단 홍보 요청 — 당분간 무료 채널 안내 + 작은 버튼 */
 .requestRow {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 6px;
   padding-top: 10px;
   border-top: 1px dashed var(--border);
 }
@@ -222,6 +268,7 @@
 
 .detailBtn:focus-visible,
 .todayBtn:focus-visible,
+.mobileBarBtn:focus-visible,
 .factLink:focus-visible,
 .requestBtn:focus-visible,
 .pagerBtn:focus-visible {
@@ -250,6 +297,7 @@
 
 @media (min-width: 640px) {
   .layout {
+    display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 20px;
@@ -257,16 +305,91 @@
 
   .poster {
     flex: 0 0 320px;
-    padding: 0;
+    background: none;
   }
 
+  /* 패널 높이(modal.module.css .panelMedium) − 머리·여백 140px 안에 들게 — 낮은 화면에서 폭이 같이 준다 */
   .posterImage {
-    max-height: none;
-    width: 320px;
+    max-width: 320px;
+    max-height: calc(min(92dvh, 100dvh - 40px) - 140px);
+    border-radius: 8px;
+    border: 1px solid var(--border);
   }
 
   .body {
+    gap: 10px;
     flex: 1 1 auto;
+    padding: 0;
   }
 
+  .badges:not(:has(.pager)) {
+    display: flex;
+  }
+
+  .badgeOrg {
+    display: inline-flex;
+  }
+
+  .titleRow {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .title {
+    overflow: visible;
+    white-space: normal;
+    font-size: 1.375rem;
+  }
+
+  .tagline {
+    display: block;
+    font-size: 0.9375rem;
+  }
+
+  .noteRest {
+    display: inline;
+  }
+
+  .mobileBar {
+    display: none;
+  }
+
+  .alert {
+    margin-top: 2px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+  }
+
+  .facts {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 12px 14px;
+  }
+
+  .fact {
+    font-size: 0.875rem;
+  }
+
+  .requestRow {
+    display: flex;
+    margin-top: 6px;
+  }
+}
+
+/* 낮은 데스크탑 화면(노트북 1280×600 등) — 글 칸도 촘촘히 */
+@media (min-width: 640px) and (max-height: 700px) {
+  .alert {
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+  }
+
+  .facts {
+    gap: 4px;
+    padding: 10px 12px;
+  }
+
+  .fact {
+    font-size: 0.8125rem;
+  }
 }

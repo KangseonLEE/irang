@@ -50,12 +50,18 @@ interface ModalProps {
    * 다시 열 방법이 없는 화면용 (2026-09-29 회장).
    */
   closeOnOverlayClick?: boolean;
+  /**
+   * 모바일(< 640px) 모양. 기본 "sheet" = 바텀시트(드래그 핸들·머리줄).
+   * "card" = 화면 가운데 카드, 머리줄·핸들 없이 본문만(여백 0) — 앱 이벤트 팝업 관례(포스터 + 하단 [오늘 하루 보지 않기|닫기]).
+   * 닫기 버튼은 본문이 직접 둔다(머리줄 X 가 숨는다). 홍보 팝업 (2026-10-22 회장).
+   */
+  mobileVariant?: "sheet" | "card";
 }
 
 const ANIMATION_DURATION = 150; // ms — overlayOut / panelOut duration
 const DRAG_DISMISS_THRESHOLD = 100; // px — 이 이상 아래로 드래그하면 닫기
 
-export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon, closeOnOverlayClick = true }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyVariant = "default", mobileHeight = "default", size = "default", align = "center", headerAction, titleIcon, closeOnOverlayClick = true, mobileVariant = "sheet" }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -139,8 +145,11 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       const isMobile = window.matchMedia("(max-width: 639px)").matches;
       // 모바일: default 0.9 / tall 0.95 (BottomSheetFilter 앵커 패턴 — 더 큰 영역)
       const mobileRatio = mobileHeight === "tall" ? 0.95 : 0.9;
-      const ratio = isMobile ? mobileRatio : 0.8;
-      panel.style.maxHeight = `${Math.floor(height * ratio)}px`;
+      // 데스크탑 medium(홍보 팝업 포스터 2단)은 CSS .panelMedium 과 같은 min(92%, 높이 − 40px) — 10/22 내부 스크롤 제거
+      const desktopMax = size === "medium" ? Math.min(height * 0.92, height - 40) : height * 0.8;
+      // 모바일 카드는 오버레이 여백(위아래 20px) 안
+      const mobileMax = mobileVariant === "card" ? height - 40 : height * mobileRatio;
+      panel.style.maxHeight = `${Math.floor(isMobile ? mobileMax : desktopMax)}px`;
     };
 
     updateMaxHeight();
@@ -161,7 +170,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
         panel.style.maxHeight = "";
       }
     };
-  }, [open, mobileHeight]);
+  }, [open, mobileHeight, size, mobileVariant]);
 
   // 포커스 관리: 열릴 때 패널로, 닫힐 때 이전 요소로 복원
   useEffect(() => {
@@ -199,10 +208,12 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       const focusable = panelRef.current.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
       );
-      if (focusable.length === 0) return;
+      // 화면 크기에 따라 숨는 버튼(모바일 카드의 머리줄 X 등)은 건너뛴다 — 안 보이는 칸으로 포커스가 빠지지 않게
+      const visible = [...focusable].filter((el) => el.getClientRects().length > 0);
+      if (visible.length === 0) return;
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+      const first = visible[0];
+      const last = visible[visible.length - 1];
 
       if (e.shiftKey) {
         if (document.activeElement === first) {
@@ -276,6 +287,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       ref={overlayRef}
       className={s.overlay}
       data-align={align}
+      data-mobile-variant={mobileVariant}
       data-closing={closing || undefined}
       onClick={(e) => {
         // 오버레이(자기 자신) 클릭 시에만 닫기 — closeOnOverlayClick=false 면 아예 닫지 않는다
@@ -287,6 +299,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
         ref={panelRef}
         className={`${s.panel} ${size === "wide" ? s.panelWide : ""} ${size === "search" ? s.panelSearch : ""} ${size === "medium" ? s.panelMedium : ""}`}
         data-mobile-height={mobileHeight}
+        data-mobile-variant={mobileVariant}
         role="dialog"
         aria-modal="true"
         aria-label={title}

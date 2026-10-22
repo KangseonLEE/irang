@@ -224,6 +224,33 @@
     cursor: grab;
     touch-action: none;
   }
+
+  /* mobileVariant="card" — 가운데 카드, 머리줄·핸들 없이 본문만 (홍보 팝업, 2026-10-22) */
+  .overlay[data-mobile-variant="card"] {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .panel[data-mobile-variant="card"] {
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+    border-radius: 14px;
+    padding-bottom: 0;
+    animation: panelIn 0.2s ease-out;
+  }
+
+  .overlay[data-closing="true"] .panel[data-mobile-variant="card"] {
+    animation: none;
+  }
+
+  .panel[data-mobile-variant="card"] .dragHandle,
+  .panel[data-mobile-variant="card"] .header {
+    display: none;
+  }
+
+  .panel[data-mobile-variant="card"] .body {
+    padding: 0;
+  }
 }
 
 @keyframes slideUp {
@@ -257,6 +284,8 @@
 @media (min-width: 640px) {
   .panelMedium {
     max-width: min(860px, 92vw);
+    /* 포스터 2단이 기본 80dvh 에 걸려 낮은 화면에서 본문이 스크롤됐다(10/22) — 오버레이 여백 안에서 최대로 */
+    max-height: min(92dvh, calc(100dvh - 40px));
   }
 }
 

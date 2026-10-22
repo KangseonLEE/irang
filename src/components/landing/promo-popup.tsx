@@ -155,6 +155,9 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
     });
   };
 
+  const [noteHead, ...noteRestLines] = item.note.split("\n");
+  const noteRest = noteRestLines.join("\n");
+
   return (
     <>
     <Modal
@@ -163,6 +166,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
       title="이랑 소식"
       titleIcon={<Megaphone size={20} />}
       size="medium"
+      mobileVariant="card"
       closeOnOverlayClick={false}
       headerAction={
         <button type="button" className={s.todayBtn} onClick={() => close("today")}>
@@ -177,7 +181,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
             alt={item.alt}
             width={item.imageWidth}
             height={item.imageHeight}
-            sizes="(min-width: 640px) 360px, 86vw"
+            sizes="(min-width: 640px) 360px, 92vw"
             className={s.posterImage}
             priority={false}
             unoptimized={isRemoteSrc(item.image)}
@@ -218,7 +222,11 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
           {item.recruitClosed && (
             <p className={s.alert} role="note">
               <AlertTriangle size={16} aria-hidden="true" />
-              <span>{item.note}</span>
+              {/* 모바일 카드는 첫 줄(끝났다는 사실)만 — 나머지 안내는 데스크탑에서 */}
+              <span>
+                {noteHead}
+                {noteRest && <span className={s.noteRest}>{`\n${noteRest}`}</span>}
+              </span>
             </p>
           )}
           <dl className={s.facts}>
@@ -244,6 +252,16 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
               홍보 요청하기
             </button>
           </div>
+        </div>
+        {/* 모바일 카드 하단 바 — 머리줄(오늘 하루 보지 않기·X)이 숨는 대신. 데스크탑에선 숨김 */}
+        <div className={s.mobileBar}>
+          <button type="button" className={s.mobileBarBtn} onClick={() => close("today")}>
+            오늘 하루 보지 않기
+          </button>
+          <span className={s.mobileBarDivider} aria-hidden="true" />
+          <button type="button" className={`${s.mobileBarBtn} ${s.mobileBarClose}`} onClick={() => close("close")}>
+            닫기
+          </button>
         </div>
       </div>
     </Modal>
