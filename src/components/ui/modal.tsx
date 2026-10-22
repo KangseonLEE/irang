@@ -139,8 +139,9 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
       const isMobile = window.matchMedia("(max-width: 639px)").matches;
       // 모바일: default 0.9 / tall 0.95 (BottomSheetFilter 앵커 패턴 — 더 큰 영역)
       const mobileRatio = mobileHeight === "tall" ? 0.95 : 0.9;
-      const ratio = isMobile ? mobileRatio : 0.8;
-      panel.style.maxHeight = `${Math.floor(height * ratio)}px`;
+      // 데스크탑 medium(홍보 팝업 포스터 2단)은 CSS .panelMedium 과 같은 min(92%, 높이 − 40px) — 10/22 내부 스크롤 제거
+      const desktopMax = size === "medium" ? Math.min(height * 0.92, height - 40) : height * 0.8;
+      panel.style.maxHeight = `${Math.floor(isMobile ? height * mobileRatio : desktopMax)}px`;
     };
 
     updateMaxHeight();
@@ -161,7 +162,7 @@ export function Modal({ open, onClose, title, children, bodyVariant = "default",
         panel.style.maxHeight = "";
       }
     };
-  }, [open, mobileHeight]);
+  }, [open, mobileHeight, size]);
 
   // 포커스 관리: 열릴 때 패널로, 닫힐 때 이전 요소로 복원
   useEffect(() => {

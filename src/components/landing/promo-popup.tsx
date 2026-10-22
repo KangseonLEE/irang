@@ -163,6 +163,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
       title="이랑 소식"
       titleIcon={<Megaphone size={20} />}
       size="medium"
+      mobileHeight="tall"
       closeOnOverlayClick={false}
       headerAction={
         <button type="button" className={s.todayBtn} onClick={() => close("today")}>
@@ -177,7 +178,7 @@ export function PromoPopup({ items, preview = false, onClose }: PromoPopupProps)
             alt={item.alt}
             width={item.imageWidth}
             height={item.imageHeight}
-            sizes="(min-width: 640px) 360px, 86vw"
+            sizes="(min-width: 640px) 360px, 84px"
             className={s.posterImage}
             priority={false}
             unoptimized={isRemoteSrc(item.image)}

@@ -257,6 +257,8 @@
 @media (min-width: 640px) {
   .panelMedium {
     max-width: min(860px, 92vw);
+    /* 포스터 2단이 기본 80dvh 에 걸려 낮은 화면에서 본문이 스크롤됐다(10/22) — 오버레이 여백 안에서 최대로 */
+    max-height: min(92dvh, calc(100dvh - 40px));
   }
 }
 
