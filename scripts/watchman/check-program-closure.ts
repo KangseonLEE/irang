@@ -23,6 +23,7 @@
  *  등급:
  *    🔴 원천은 끝났는데(모집 끝남 표시·마감일 지남·모집완료) 화면은 접수 중
  *    🟡 원천 마감일이 우리 값과 다름 / 원천 목록에서 사라짐 / 원문을 읽지 못함(미국 러너만의 실패일 수 있음, W4)
+ *    🟡 마감일 없는 행(9999)이 시작한 해를 넘김 — '2026년 사업·예산 소진 시까지'가 이듬해에도 '모집중'으로 남는다
  *    ⚪ 게시글 주소가 아니라 확인 불가
  *
  *  출력 계약: WATCHMAN_FINDINGS 파일에 `등급|항목|근거` 1행씩 append. exit 0.
@@ -51,6 +52,8 @@ interface Target {
   title: string;
   kind: Kind;
   url: string;
+  /** 접수 시작일 (없으면 null) */
+  start: string | null;
   /** 우리 화면의 접수 마감일 (없으면 null = 마감일 없음) */
   end: string | null;
   origin: "DB" | "정적";
@@ -97,6 +100,7 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; error?
         title: r.title ?? "",
         kind: s.kind,
         url: r[s.urlCol] ?? "",
+        start: realEnd(r.application_start),
         end: realEnd(end),
         origin: "DB",
       });
@@ -108,13 +112,13 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; error?
 function staticTargets(today: string, dbIds: Set<string>): Target[] {
   const rows: Target[] = [
     ...PROGRAMS.filter((p) => isOpen(p.applicationStart, p.applicationEnd, today)).map((p) => ({
-      id: p.id, title: p.title, kind: "지원사업" as Kind, url: p.sourceUrl, end: realEnd(p.applicationEnd), origin: "정적" as const,
+      id: p.id, title: p.title, kind: "지원사업" as Kind, url: p.sourceUrl, start: realEnd(p.applicationStart), end: realEnd(p.applicationEnd), origin: "정적" as const,
     })),
     ...EDUCATION_COURSES.filter((c) => isOpen(c.applicationStart, c.applicationEnd, today)).map((c) => ({
-      id: c.id, title: c.title, kind: "교육" as Kind, url: c.url, end: realEnd(c.applicationEnd), origin: "정적" as const,
+      id: c.id, title: c.title, kind: "교육" as Kind, url: c.url, start: realEnd(c.applicationStart), end: realEnd(c.applicationEnd), origin: "정적" as const,
     })),
     ...EVENTS.filter((e) => isOpen(e.applicationStart, e.applicationEnd ?? e.dateEnd, today)).map((e) => ({
-      id: e.id, title: e.title, kind: "행사" as Kind, url: e.url, end: realEnd(e.applicationEnd ?? e.dateEnd), origin: "정적" as const,
+      id: e.id, title: e.title, kind: "행사" as Kind, url: e.url, start: realEnd(e.applicationStart ?? null), end: realEnd(e.applicationEnd ?? e.dateEnd), origin: "정적" as const,
     })),
   ];
   return rows.filter((r) => !dbIds.has(r.id));
@@ -287,6 +291,13 @@ async function main() {
     const f = await checkHtml(t, today);
     if (!f || f.grade !== "🟡" || f.item !== "원문을 읽지 못함") checked++;
     if (f) findings.push(f);
+  }
+
+  // 마감일 없이(9999) 열린 행이 시작한 해를 넘겼다 — '2026년 사업·예산 소진 시까지'가 해가 바뀌어도 '모집중'으로 남는다
+  for (const t of targets) {
+    if (!t.end && t.start && t.start.slice(0, 4) < today.slice(0, 4)) {
+      findings.push({ grade: "🟡", item: "마감일 없는 공고가 해를 넘김", detail: `${t.id} ${t.title} — ${t.start} 시작 · 올해도 접수 중인지 원문 확인 후 마감일 지정` });
+    }
   }
 
   for (const t of notPosts) {
