@@ -19,7 +19,7 @@
 #   §17 GA4 계측 오염·급증               → check-ga4-anomaly.mjs
 #   §18 지자체 주관 활성 공고 공급량      → check-local-program-supply.ts
 #   §19 지원사업 원문 대조일 90일 경과    → check-program-verified.ts
-#   §20 접수 중 지원사업 원문 모집 끝남   → check-program-closure.ts
+#   §20 접수 중 지원사업·교육·행사 원문 모집 끝남 → check-program-closure.ts
 #
 # 설계 원칙:
 #   - 각 검사는 이슈를 직접 만들지 않는다. `등급|항목|근거` 1행을 findings 파일에
@@ -135,9 +135,13 @@ jobs:
         continue-on-error: true
         run: npx tsx scripts/watchman/check-program-verified.ts --ci
 
-      - name: "§20 접수 중 지원사업 원문 모집 끝남"
+      - name: "§20 접수 중 지원사업·교육·행사 원문 모집 끝남"
         continue-on-error: true
         run: npx tsx scripts/watchman/check-program-closure.ts --ci
+        env:
+          # DB 행(수집·큐레이션) 조회용 — 읽기만 한다
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: "§6·§9·§10 의존성 + 정정 이력 + 모집 사이클"
         continue-on-error: true
