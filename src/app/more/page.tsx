@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 
 export const metadata: Metadata = {
   title: "이랑 전체 메뉴 — 농촌 정착 정보 모아보기",

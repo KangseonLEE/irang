@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   CheckCircle2,
   FileText,

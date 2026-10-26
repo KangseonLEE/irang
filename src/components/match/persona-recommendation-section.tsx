@@ -12,7 +12,7 @@
  * 미노출 조건: persona.id === "balanced" (전 차원 균등 → 추천 의미 약함)
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ChevronRight, Users, Sparkles } from "lucide-react";
 import { CROPS } from "@/lib/data/crops";
 import { PROGRAMS } from "@/lib/data/programs";

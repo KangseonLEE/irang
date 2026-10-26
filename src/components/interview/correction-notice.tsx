@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Mail, ShieldCheck } from "lucide-react";
 import s from "./correction-notice.module.css";
 

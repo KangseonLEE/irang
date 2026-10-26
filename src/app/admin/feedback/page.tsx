@@ -5,7 +5,7 @@
  * 하단: 의견 남기기 위젯(rating good/neutral/bad) 목록. 추천 평가·요청(/admin/requests)은 섞지 않는다.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   fetchFeedbackList,
   fetchThumbsStats,

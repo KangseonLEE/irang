@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import type React from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, ArrowUpRight, Compass, Cpu, House, Sprout, Tractor, Trees, type LucideIcon } from "lucide-react";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { RECOMMENDED_KEYWORDS } from "@/lib/data/popular-keywords";

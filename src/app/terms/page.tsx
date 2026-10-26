@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowLeft, Scale, Info, Database, Shield, Quote, MessageSquareText } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import s from "../about/disclaimer/page.module.css";

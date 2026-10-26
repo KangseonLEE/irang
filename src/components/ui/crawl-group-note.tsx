@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { MapPin } from "lucide-react";
 import type { CrawlGroupInfo } from "@/lib/crawl-grouping";
 import s from "./crawl-group-note.module.css";

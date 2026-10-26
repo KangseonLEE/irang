@@ -12,7 +12,7 @@
  * 모바일 우선 — 탭은 가로 스크롤(scroll-snap), 카드는 1열(모바일) → 2열(640px+).
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import {
   ACTIVE_CATEGORIES,

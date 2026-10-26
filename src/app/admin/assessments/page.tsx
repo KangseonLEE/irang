@@ -5,7 +5,7 @@
  * DB 에는 진단을 끝낸 사람만 있다 — 도달·이탈은 GA, 결과 뒤 동선은 계측 보강 뒤 채운다.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { fetchAssessmentRows } from "@/lib/admin/queries";
 import {
   AGE_GROUPS,

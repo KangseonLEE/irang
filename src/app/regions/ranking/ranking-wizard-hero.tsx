@@ -18,7 +18,7 @@
 // PERSONAS·DIMENSION 상수는 모두 use client 없는 .ts 모듈에서 import (RSC marshalling 안전).
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { useState, useRef, useEffect } from "react";
 import {
   Users,

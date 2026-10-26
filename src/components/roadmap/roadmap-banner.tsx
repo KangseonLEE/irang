@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowLeft, Footprints } from "lucide-react";
 import s from "./roadmap-banner.module.css";
 

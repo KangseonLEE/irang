@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Search } from "lucide-react";
 import s from "./hero-search-form.module.css";
 

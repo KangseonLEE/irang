@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight } from "lucide-react";
 import { getCropImageSrc } from "@/lib/crop-image";
 import s from "./crop-link-card.module.css";

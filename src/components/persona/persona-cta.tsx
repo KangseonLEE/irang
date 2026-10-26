@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Compass, ArrowRight } from "lucide-react";
 import { PERSONA_INDEX, type PersonaId } from "@/lib/data/personas";
 import s from "./persona-cta.module.css";

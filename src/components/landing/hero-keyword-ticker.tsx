@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { HERO_INTRO_MS } from "./hero-intro";
 import { useHeroMotionPaused } from "./hero-motion";

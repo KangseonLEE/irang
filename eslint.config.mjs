@@ -121,6 +121,24 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // 링크는 AppLink 로 (2026-10-26 Vercel CPU 한도) — next/link 를 직접 쓰면 화면에 보이는 링크마다
+  // 미리 받기가 돌아 동적 화면 함수가 실행된다. AppLink 는 미리 받기 기본값만 끈 같은 컴포넌트다.
+  // ═══════════════════════════════════════════════════════════════
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/__tests__/**", "src/components/ui/app-link.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ImportDeclaration[source.value='next/link']",
+          message: "next/link 직접 import 금지 — @/components/ui/app-link 를 쓰세요(미리 받기 기본 끔, Vercel CPU).",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

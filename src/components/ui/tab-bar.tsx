@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import type { LucideIcon } from "lucide-react";
 import s from "./tab-bar.module.css";
 
@@ -63,7 +63,6 @@ export function TabBar<T extends string = string>({
             key={t.id}
             href={href}
             scroll={false}
-            prefetch
             role="tab"
             aria-selected={isActive}
             className={isActive ? s.tabActive : s.tab}

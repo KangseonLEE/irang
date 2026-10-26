@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import dt from "@/components/ui/data-table.module.css";
 import s from "./crop-list.module.css";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";

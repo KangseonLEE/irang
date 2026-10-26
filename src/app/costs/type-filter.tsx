@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { COST_TYPES, type CostTypeId } from "@/lib/data/landing";
 import { centeredScrollLeft } from "@/lib/scroll-geometry";
 import s from "./type-filter.module.css";

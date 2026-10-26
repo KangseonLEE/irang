@@ -7,7 +7,7 @@
 import { fetchAdminKpi, fetchPendingRequestCount } from "@/lib/admin/queries";
 import { fetchFeedbackList, fetchTopKeywords } from "@/lib/admin/queries";
 import { MessageSquareText, MessageSquarePlus, Search, ClipboardCheck, AlertCircle } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import s from "./page.module.css";
 import { requireAdminPage } from "@/lib/admin/session";
 

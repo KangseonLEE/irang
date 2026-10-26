@@ -11,7 +11,7 @@
 //   4) chip 5종 통합 (rawLabel·mainCrops·밀도·활성·D-7) — 카드에서 제거된 항목 전부
 //   5) CTA 2개 — "상세 페이지 보기" (시군구 detail) + "닫기"
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { RegionPersonaExplain } from "@/components/persona/region-persona-explain";

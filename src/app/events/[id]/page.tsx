@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { optimizedShareImage, shareMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import Image from "next/image";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";

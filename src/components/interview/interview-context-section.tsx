@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, ExternalLink, Users } from "lucide-react";
 import { FarmerAvatar } from "@/components/avatar/farmer-avatar";
 import {

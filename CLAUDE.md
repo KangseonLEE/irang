@@ -154,6 +154,7 @@
 - F13 외부 링크는 `noopener` + `referrerPolicy="origin"`(noreferrer 금지), href 는 http(s) 가드.
 - F14 CSP 위반은 CSP 를 넓혀 풀지 않는다 — https 승격(upgrade-insecure-requests)·주입 스크립트 제거로. 외부 이미지 remotePatterns 는 파일 단위·쿼리 금지.
 - F15 서버 코드에서 fs 로 public/ 을 읽지 않는다(함수 번들에 추적, 20MB) — 자산 실존은 CI 검사(H-1·H-2)로.
+- F16 링크는 `@/components/ui/app-link`(미리 받기 기본 끔) — `next/link` 직접 import 는 린트가 막는다. 열람 1회에 미리 받기 17~34건이 동적 화면 함수를 돌려 CPU 의 2/3 였다(10/26). 꼭 미리 받을 링크만 `prefetch` 명시.
 
 **계측·SEO·판단**
 - M1 리다이렉트 전용 페이지를 퍼널 분모로 쓰지 않는다 — 0 이면 그 URL 에 사람이 머무는지부터.

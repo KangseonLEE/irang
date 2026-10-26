@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Scale, Lightbulb, TrendingUp, Info } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { CropImage } from "@/components/ui/crop-image";

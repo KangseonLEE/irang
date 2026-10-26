@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, Leaf } from "lucide-react";
 import { SectionPager } from "@/components/ui/section-pager";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";

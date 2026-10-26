@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import Image from "next/image";
 import { ExternalLink, CalendarDays, Phone } from "lucide-react";
 import { Fragment, type ReactNode } from "react";

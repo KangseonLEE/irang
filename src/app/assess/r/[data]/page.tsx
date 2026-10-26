@@ -11,7 +11,7 @@
 
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, BarChart3, RotateCcw } from "lucide-react";
 import { decodeAssessScore } from "@/lib/assess-share";
 import { shareMetadata } from "@/lib/seo/share-metadata";
