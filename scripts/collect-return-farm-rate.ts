@@ -180,7 +180,6 @@ async function main() {
   const cardList: ReturnFarmCardRow[] = [];
   const cardIncomplete: string[] = [];
   for (const sg of SIGUNGUS) {
-    const latestRow = kosisMap.get(sg.admCode);
     const kosisRow = pickRow(sg.admCode);
     if (!kosisRow || !isSameRegionName(kosisRow.regionName, sg.name)) continue;
     // mergeReturnFarmData 는 가구·귀촌 행이 없으면 0 을 남긴다 — 귀농인이 있는데 0 이면 빠진 값이다
