@@ -37,7 +37,7 @@ import {
   fetchSchoolCounts,
 } from "@/lib/api/education";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
-import { fetchReturnFarmStats } from "@/lib/api/kosis";
+import { getReturnFarmStat } from "@/lib/data/return-farm-stats";
 import { getRegionReorganization } from "@/lib/data/region-reorganizations";
 import { SigunguStats } from "./sigungu-stats";
 import s from "./page.module.css";
@@ -71,7 +71,8 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
       : Promise.resolve(null),
     countsUnavailable ? Promise.resolve(null) : fetchSigunguSchoolCounts(eduCode, sigungu.name),
     fetchMultipleClimateData(province.stationIds),
-    fetchReturnFarmStats(sigungu.admCode, sigungu.name),
+    // 정적 — 연 1회 공표 숫자를 수집 때 고정(빌드 때 KOSIS 시간 초과로 카드가 숨은 채 굳던 것, 10/26 #184)
+    Promise.resolve(getReturnFarmStat(sigungu.admCode, sigungu.name)),
     fetchFarmHousehold(sigungu.sgisCode),
   ]);
 
@@ -141,10 +142,9 @@ export async function SigunguData({ province, sigungu }: SigunguDataProps) {
     climateData[0] ??
     null;
 
-  // 귀농·귀촌 데이터 (KOSIS)
-  const returnFarmAll =
-    returnFarmResult.status === "fulfilled" ? returnFarmResult.value : [];
-  const returnFarm = returnFarmAll.length > 0 ? returnFarmAll[0] : null;
+  // 귀농·귀촌 데이터 (KOSIS 공표값 정적 — return-farm-stats.ts)
+  const returnFarm =
+    returnFarmResult.status === "fulfilled" ? returnFarmResult.value : null;
 
   const hasFallback = isPopulationFallback || isMedicalFallback || isSchoolFallback;
 

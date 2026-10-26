@@ -5,7 +5,7 @@
  *   2025 KOSIS 귀농인(의성 138·상주 125·괴산 87·고흥 153·영암 103명)과 단위·순위가 모두 달랐다.
  *
  * 원천: 국가데이터처 KOSIS orgId 101 — DT_1A02002 귀농인(itmId T02, 성별 계), DT_1A02015 귀촌인(T01, 계).
- *   lib/api/kosis.ts fetchReturnFarmStats() 를 그대로 쓴다(화면 귀농·귀촌 카드와 같은 경로·같은 연도 규칙).
+ *   lib/api/kosis.ts fetchReturnFarmStatsStrict() 를 쓴다(화면 귀농·귀촌 카드 정적 파일을 만드는 수집기와 같은 경로·같은 연도 규칙).
  * 짝: SIGUNGUS.admCode ↔ KOSIS C1, 응답 지역명이 우리 이름과 같을 때만(isSameRegionName — 10/7 admCode 15건 밀림).
  *   이름이 다르거나 행이 없으면 순위에 넣지 않는다. 결과 상위 5 중 하나라도 짝 검사를 못 거치면 멈춘다(구조상 불가).
  *

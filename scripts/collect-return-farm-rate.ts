@@ -2,7 +2,7 @@
  * KOSIS 시군구 귀농 인구 비율 일괄 수집 스크립트 (Phase 4)
  *
  * - KOSIS 귀농 통계는 1회 호출(regionCode 미지정)로 전국 시군구가 함께 반환됨
- *   → fetchReturnFarmStats() 1회만 실행하여 ALL 데이터 확보 (3개 테이블 병렬)
+ *   → fetchReturnFarmStatsStrict() 1회만 실행하여 ALL 데이터 확보 (3개 테이블 병렬)
  *   → 별도 throttle 불필요 (~5초 내 완료 예상)
  * - 결과: 각 시군구 sgisCode 기준으로 정렬, 비율 계산
  *
@@ -16,7 +16,7 @@
  *   - sigungus.ts: admCode + sgisCode 둘 다 보유
  *   - 결과 직렬화는 sgisCode 5자리로 통일 (다른 폴백 데이터와 일관)
  *
- * 결과 파일: src/lib/data/return-farm-rate.ts 자동 생성
+ * 결과 파일: src/lib/data/return-farm-rate.ts(순위용 비율)·return-farm-stats.ts(시·군·구 화면 카드) 자동 생성
  *
  * 실행:
  *   npx tsx scripts/collect-return-farm-rate.ts
@@ -40,6 +40,7 @@ config({ path: resolve(__dirname, "../.env.local") });
 import { SIGUNGUS } from "../src/lib/data/sigungus";
 import { fetchReturnFarmStatsStrict, fetchReturnFarmStatsOfYear, isSameRegionName } from "../src/lib/api/kosis";
 import { RETURN_FARM_RATE_SIGUNGU } from "../src/lib/data/return-farm-rate";
+import { RETURN_FARM_SIGUNGU } from "../src/lib/data/return-farm-stats";
 import { POPULATION_TREND_SIGUNGU, POPULATION_TREND_YEARS } from "../src/lib/data/population-trend";
 
 interface ReturnFarmRate {
@@ -52,6 +53,15 @@ interface ReturnFarmRate {
   /** 귀농 인구 비율 (%) — (귀농인 / 전체 인구) × 100 */
   returnFarmRate: number;
   /** 통계 연도 */
+  year: number;
+}
+
+interface ReturnFarmCardRow {
+  admCode: string;
+  name: string;
+  returnFarmPerson: number;
+  returnFarmHousehold: number;
+  returnRuralPerson: number;
   year: number;
 }
 
@@ -136,6 +146,36 @@ async function main() {
     });
   }
 
+  // 5) 시·군·구·구 화면 귀농·귀촌 카드 — 인구와 무관하게 이름이 맞는 모든 시·군·구 (10/26)
+  // 화면이 빌드·재생성 때 KOSIS 를 부르면 시간 초과로 카드가 숨은 채 하루 굳는다(#184, 12쪽).
+  // 연 1회 공표 숫자라 수집 때 고정한다(T16). 세 값 중 하나라도 없으면 넣지 않는다(T17 — 0 으로 채우지 않음).
+  const cardList: ReturnFarmCardRow[] = [];
+  const cardIncomplete: string[] = [];
+  for (const sg of SIGUNGUS) {
+    const latestRow = kosisMap.get(sg.admCode);
+    const kosisRow = latestRow ?? prevMap.get(sg.admCode);
+    if (!kosisRow || !isSameRegionName(kosisRow.regionName, sg.name)) continue;
+    // mergeReturnFarmData 는 가구·귀촌 행이 없으면 0 을 남긴다 — 귀농인이 있는데 0 이면 빠진 값이다
+    if (kosisRow.returnFarmPerson > 0 && (kosisRow.returnFarmHousehold <= 0 || kosisRow.returnRuralPerson <= 0)) {
+      cardIncomplete.push(`${sg.name}(${kosisRow.year})`);
+      continue;
+    }
+    cardList.push({
+      admCode: sg.admCode,
+      name: sg.name,
+      returnFarmPerson: kosisRow.returnFarmPerson,
+      returnFarmHousehold: kosisRow.returnFarmHousehold,
+      returnRuralPerson: kosisRow.returnRuralPerson,
+      year: kosisRow.year,
+    });
+  }
+  if (cardIncomplete.length) console.log(`[card] 값 일부 없음 — 카드 제외 ${cardIncomplete.length}곳: ${cardIncomplete.join(", ")}`);
+  // 지금 파일보다 크게 줄면 조회 문제로 보고 아무것도 쓰지 않는다
+  if (RETURN_FARM_SIGUNGU.length && cardList.length < RETURN_FARM_SIGUNGU.length * 0.9) {
+    throw new Error(`카드 행 ${cardList.length} < 지금 파일 ${RETURN_FARM_SIGUNGU.length}의 90% — 조회 문제로 보고 쓰지 않아요`);
+  }
+  console.log(`[card] ${cardList.length}곳`);
+
   console.log(`\n[done] success=${successList.length}/${SIGUNGUS.length}`);
   if (failList.length > 0) {
     console.log(
@@ -195,8 +235,54 @@ export const RETURN_FARM_RATE_SIGUNGU: ReturnFarmRateStat[] = ${JSON.stringify(
   )};
 `;
 
+  const cardPath = resolve(__dirname, "../src/lib/data/return-farm-stats.ts");
+  const cardBody = `/**
+ * 시·군·구 귀농·귀촌 카드 정적 데이터 (자동 생성)
+ *
+ * 생성 스크립트: scripts/collect-return-farm-rate.ts (return-farm-rate.ts 와 같은 KOSIS 조회 1회)
+ * 데이터 소스: KOSIS 국가데이터처 귀농어·귀촌인 통계 — DT_1A02002 귀농인(T02)·DT_1A02008 귀농가구(T01)·DT_1A02015 귀촌인(T01), 전부 '계'
+ * 통계 연도: ${dataYear}${prevYearUsed.length ? ` (비공개로 빠진 곳은 전년도 값: ${prevYearUsed.join(", ")})` : ""}
+ * 마지막 수집: ${new Date().toISOString().slice(0, 10)}
+ *
+ * ⚠ 절대 수동 편집 금지. 갱신은 \`npx tsx scripts/collect-return-farm-rate.ts\` (data-sources.yml 주간 재수집)
+ *
+ * 왜 정적인가(2026-10-26 #184): 화면이 빌드·재생성 때 KOSIS 를 부르면 시간 초과로 카드가 숨은 채 하루 굳었다.
+ * 연 1회(6월) 공표 숫자라 수집 때 고정한다. 짝은 admCode + 응답 지역명(10/7 코드 15건 밀림), 세 값이 다 있을 때만.
+ * 주간 대조(check-region-stats-integrity.ts)가 이 파일을 거치지 않고 원표와 화면을 맞춘다.
+ *
+ * 수록: ${cardList.length}/${SIGUNGUS.length} 시·군·구 (없는 곳 = 표에 없는 자치구·신설 구 → 카드 없음)
+ */
+
+export interface ReturnFarmCardStat {
+  /** KOSIS 지역코드 = sigungus.ts admCode */
+  admCode: string;
+  /** 시·군·구 이름 */
+  name: string;
+  /** 귀농인 (명) */
+  returnFarmPerson: number;
+  /** 귀농 가구 (가구) */
+  returnFarmHousehold: number;
+  /** 귀촌인 (명) */
+  returnRuralPerson: number;
+  /** 통계 연도 */
+  year: number;
+}
+
+export const RETURN_FARM_SIGUNGU: ReturnFarmCardStat[] = ${JSON.stringify(cardList, null, 2)};
+
+const BY_ADM = new Map(RETURN_FARM_SIGUNGU.map((r) => [r.admCode, r]));
+
+/** 시·군·구 귀농·귀촌 카드 값 — 코드와 이름이 둘 다 맞을 때만, 없으면 null(카드 숨김) */
+export function getReturnFarmStat(admCode: string, name: string): ReturnFarmCardStat | null {
+  const r = BY_ADM.get(admCode);
+  return r && r.name === name ? r : null;
+}
+`;
+
   writeFileSync(filePath, body, "utf-8");
+  writeFileSync(cardPath, cardBody, "utf-8");
   console.log(`\n[wrote] ${filePath}`);
+  console.log(`[wrote] ${cardPath}`);
 
   const totalSec = ((Date.now() - startTime) / 1000).toFixed(0);
   console.log(`[total elapsed] ${totalSec}s`);
