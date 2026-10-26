@@ -4,14 +4,13 @@
  * 사고: 5초 시간 초과도 빈 배열이라 '2025 자료 없음'으로 읽혀 조용히 2024 로 내려갔다
  *       (수집기가 ACTIVE_RETURN_YEAR 2025 → 2024 로 다시 씀, 화면은 7일 캐시로 1년 묵은 값 가능).
  * 규칙: err 30(데이터가 존재하지 않습니다)일 때만 전년도. 시간 초과·HTTP 오류·다른 err·세 표 중 하나라도 실패면
- *       화면용은 빈 배열(카드 숨김), 스크립트용(Strict)은 재시도 후 throw.
+ *       재시도 후 throw. (화면 카드는 10/26 부터 수집기가 만든 정적 return-farm-stats.ts 를 읽는다 — #184)
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   KosisFetchError,
   fetchCropIncome,
   fetchRiceIncome,
-  fetchReturnFarmStats,
   fetchReturnFarmStatsOfYear,
   fetchReturnFarmStatsStrict,
   fetchReturnFarmTrend,
@@ -64,7 +63,7 @@ afterEach(() => {
 describe("자료 없음(err 30)일 때만 전년도", () => {
   it("올해−1 이 공표 전이면 올해−2 값", async () => {
     mockKosis((_, y) => (y === YEAR - 1 ? "nodata" : "ok"));
-    const rows = await fetchReturnFarmStats("47730", "의성군");
+    const rows = await fetchReturnFarmStatsStrict("47730", "의성군");
     expect(rows).toEqual([
       { regionCode: "47730", regionName: "의성군", returnFarmPerson: 138, returnFarmHousehold: 132, returnRuralPerson: 1162, year: YEAR - 2 },
     ]);
@@ -84,7 +83,7 @@ describe("자료 없음(err 30)일 때만 전년도", () => {
         return Response.json([row(tbl, year, tbl === "DT_1A02002" ? "T02" : "T01", dt, "47940", "울릉군")]);
       }),
     );
-    const rows = await fetchReturnFarmStats("47940", "울릉군");
+    const rows = await fetchReturnFarmStatsStrict("47940", "울릉군");
     expect(rows[0]?.year).toBe(YEAR - 2);
     expect(n).toBe(6);
   });
@@ -92,21 +91,23 @@ describe("자료 없음(err 30)일 때만 전년도", () => {
 
 describe("실패는 전년도로 내려가지 않는다", () => {
   for (const b of ["timeout", "http500", "err21"] as const) {
-    it(`화면용 — 올해−1 귀농인 표 ${b} → 빈 배열(카드 숨김), 올해−2 를 묻지 않는다`, async () => {
+    it(`지역 조회 — 올해−1 귀농인 표 ${b} → ${b === "err21" ? "행 없음(빈 배열)" : "실패"}, 올해−2 를 묻지 않는다`, async () => {
       const calls = mockKosis((tbl, y) => (y === YEAR - 1 && tbl === "DT_1A02002" ? b : "ok"));
-      expect(await fetchReturnFarmStats("47730", "의성군")).toEqual([]);
+      const p = fetchReturnFarmStatsStrict("47730", "의성군");
+      if (b === "err21") expect(await p).toEqual([]);
+      else await expect(p).rejects.toBeInstanceOf(KosisFetchError);
       expect(calls.some((c) => c.endsWith(`:${YEAR - 2}`))).toBe(false);
     });
   }
 
-  it("화면용 — 가구·귀촌 표만 실패해도 0 으로 채우지 않고 빈 배열", async () => {
+  it("가구·귀촌 표만 실패해도 0 으로 채우지 않고 실패", async () => {
     mockKosis((tbl, y) => (y === YEAR - 1 && tbl === "DT_1A02015" ? "timeout" : "ok"));
-    expect(await fetchReturnFarmStats("47730", "의성군")).toEqual([]);
+    await expect(fetchReturnFarmStatsStrict("47730", "의성군")).rejects.toBeInstanceOf(KosisFetchError);
   });
 
-  it("화면용 — 귀농인은 있는데 가구 표가 자료 없음이면 빈 배열", async () => {
+  it("귀농인은 있는데 가구 표가 자료 없음이면 실패", async () => {
     mockKosis((tbl) => (tbl === "DT_1A02008" ? "nodata" : "ok"));
-    expect(await fetchReturnFarmStats("47730", "의성군")).toEqual([]);
+    await expect(fetchReturnFarmStatsStrict("47730", "의성군")).rejects.toBeInstanceOf(KosisFetchError);
   });
 
   it("스크립트용(Strict) — 재시도 후에도 실패면 KosisFetchError", async () => {
@@ -135,10 +136,9 @@ describe("실패는 전년도로 내려가지 않는다", () => {
     await expect(fetchReturnFarmStatsOfYear(YEAR - 1)).rejects.toBeInstanceOf(KosisFetchError);
   });
 
-  it("Strict — 키가 없으면 throw (화면용은 빈 배열)", async () => {
+  it("Strict — 키가 없으면 throw", async () => {
     vi.stubEnv("KOSIS_API_KEY", "");
     await expect(fetchReturnFarmStatsStrict()).rejects.toBeInstanceOf(KosisFetchError);
-    expect(await fetchReturnFarmStats()).toEqual([]);
   });
 });
 
@@ -159,9 +159,8 @@ describe("err 21(표에 없는 지역 코드) — '그 지역 행 없음' (10/16
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const calls = mockKosis(() => "err21");
     expect(await fetchReturnFarmStatsStrict("11010", "종로구", { retries: 2 })).toEqual([]);
-    expect(await fetchReturnFarmStats("11010", "종로구")).toEqual([]);
-    // 표 3개 × 1회 × 2번 호출 — 재시도(×3)·다른 해(×3) 없음
-    expect(calls).toHaveLength(6);
+    // 표 3개 × 1회 — 재시도(×3)·다른 해(×3) 없음
+    expect(calls).toHaveLength(3);
     expect(calls.every((c) => c.endsWith(`:${YEAR - 1}`))).toBe(true);
     expect(warn).not.toHaveBeenCalled();
   });

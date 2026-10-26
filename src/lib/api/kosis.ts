@@ -419,25 +419,6 @@ export async function fetchReturnFarmStatsStrict(
 }
 
 /**
- * 화면용 — 시·군·구 귀농·귀촌 카드. 실패하면 **빈 배열(카드 숨김)**이고 전년도로 내려가지 않는다.
- * 자료 없음(공표 전)일 때만 이전 해를 쓴다(그때 카드에 그 연도가 붙는다). 원천 지역명이 다르면 빈 배열.
- */
-export async function fetchReturnFarmStats(
-  regionCode?: string,
-  expectedName?: string,
-): Promise<ReturnFarmData[]> {
-  if (!process.env.KOSIS_API_KEY) return [];
-  try {
-    // 빌드 때 KOSIS 가 몰려 시간 초과가 잦다(10/16 로컬 빌드 13곳) — 1회 재시도. 한도는 빌드 3s·런타임 5s 정책 그대로
-    // (_build-phase — 늘리면 빌드 60초 한도에 걸린다). 그래도 실패하면 카드를 숨기고 다음 ISR(하루)에 다시 받는다
-    return await fetchReturnFarmStatsStrict(regionCode, expectedName, { retries: 1 });
-  } catch (e) {
-    console.warn(`KOSIS 귀농 ${regionCode ?? "ALL"} 조회 실패 — 카드 숨김: ${e instanceof Error ? e.message : e}`);
-    return [];
-  }
-}
-
-/**
  * KOSIS 지역명과 우리 시·군·구 이름이 같은 곳인가 — 표기만 다른 경우('세종시' ↔ '세종특별자치시')는 같다고 본다.
  * 코드만 믿고 숫자를 보이지 않기 위한 확인이다(10/7 admCode 15건 밀림).
  */

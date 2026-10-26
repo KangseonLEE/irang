@@ -32,7 +32,7 @@ import {
   fetchSchoolCounts,
 } from "@/lib/api/education";
 import { fetchMultipleClimateData } from "@/lib/api/weather";
-import { fetchReturnFarmStats } from "@/lib/api/kosis";
+import { getReturnFarmStat } from "@/lib/data/return-farm-stats";
 import { SigunguStats } from "../sigungu-stats";
 
 interface GuDataProps {
@@ -58,7 +58,8 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     // NEIS는 구 이름으로 검색 (예: "장안구")
     fetchSigunguSchoolCounts(province.eduCode, gu.name),
     fetchMultipleClimateData(province.stationIds),
-    fetchReturnFarmStats(sigungu.admCode, sigungu.name),
+    // 정적 — 연 1회 공표 숫자를 수집 때 고정(빌드 때 KOSIS 시간 초과로 카드가 숨은 채 굳던 것, 10/26 #184)
+    Promise.resolve(getReturnFarmStat(sigungu.admCode, sigungu.name)),
     fetchFarmHousehold(gu.sgisCode),
   ]);
 
@@ -128,10 +129,9 @@ export async function GuData({ province, sigungu, gu }: GuDataProps) {
     climateData[0] ??
     null;
 
-  // 귀농·귀촌 데이터 (KOSIS — 상위 시군구 기준)
-  const returnFarmAll =
-    returnFarmResult.status === "fulfilled" ? returnFarmResult.value : [];
-  const returnFarm = returnFarmAll.length > 0 ? returnFarmAll[0] : null;
+  // 귀농·귀촌 데이터 (KOSIS 공표값 정적 — 상위 시군구 기준)
+  const returnFarm =
+    returnFarmResult.status === "fulfilled" ? returnFarmResult.value : null;
 
   const hasFallback = isPopulationFallback || isMedicalFallback || isSchoolFallback;
 

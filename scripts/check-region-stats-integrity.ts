@@ -635,12 +635,12 @@ async function buildFarmExpected(key: string, issues: string[]): Promise<Map<str
 }
 
 // ── 귀농·귀촌 기준값 — KOSIS 귀농어·귀촌인 통계 원표를 직접 받는다 (10/16 QA 🟡-1) ──
-// 화면 카드는 lib/api/kosis.ts fetchReturnFarmStats 가 런타임에 같은 표를 읽는다. 여기서는 그 함수를 거치지 않고
+// 화면 카드는 수집기(collect-return-farm-rate)가 같은 표로 만든 정적 lib/data/return-farm-stats.ts 를 읽는다(10/26 #184). 여기서는 그 파일·함수를 거치지 않고
 // 원표 3개(귀농인 DT_1A02002 T02·귀농가구 DT_1A02008 T01·귀촌인 DT_1A02015 T01, 전부 '계')를 다시 받아
 // SIGUNGUS.admCode 와 **응답 지역명**으로 맞춘다. 연도 = 귀농인 표에 자료가 있는 가장 최근 해(올해−1 → −3),
 // 그 해 값이 비공개('X')면 전년도 값(2025 울릉 등 — 화면도 전년도). 자료가 없는 곳(자치구·신설 구)은 카드가 없어야 한다.
 // 구 화면은 부모 시 값을 '○○시 귀농'으로 보여 준다(returnFarmScope). 같은 해 공표값이라 0 허용 — 차이는 화면 쪽 문제
-// (런타임 조회가 시간 초과로 카드를 숨겼거나 다른 해를 보임)다. 1차 QA(10/16)가 손으로 한 139/139 대조를 자동화.
+// (정적 파일이 묵었거나 짝이 틀림 — 재수집·admCode 확인)다. 1차 QA(10/16)가 손으로 한 139/139 대조를 자동화.
 type ReturnFarmExpect = { scope: string | null; person: number; household: number; rural: number; year: number } | null;
 const RF_TABLES = [
   { tbl: "DT_1A02002", objL2: "0", itm: "T02", key: "person" },
