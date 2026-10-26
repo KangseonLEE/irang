@@ -6,11 +6,12 @@
  * - years (선택): 조회할 연수 (기본 10, 최대 15)
  *
  * - Rate Limiting: IP 기반 분당 30건
- * 반환: { data: ReturnFarmTrendItem[] }
+ * 반환: { data: ReturnFarmTrendItem[] } (200, 하루 캐시) — 자료 없음도 200 빈 배열.
+ *   KOSIS 조회 실패는 502 + no-store: 예전엔 실패도 빈 배열 200 이라 빈 추이가 CDN 에 하루 굳었다(10/26 QA 🟡-3)
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { fetchReturnFarmTrend } from "@/lib/api/kosis";
+import { KosisFetchError, fetchReturnFarmTrend } from "@/lib/api/kosis";
 import { SIGUNGUS } from "@/lib/data/sigungus";
 import { getClientIp } from "@/lib/client-ip";
 
@@ -72,7 +73,19 @@ export async function GET(request: NextRequest) {
 
   // 우리 시·군·구 코드만 — 응답 지역명이 그 이름과 같은 행만 그린다 (10/7 admCode 밀림 재발 방지)
   const sigungu = SIGUNGUS.find((s) => s.admCode === regionCode);
-  const data = sigungu ? await fetchReturnFarmTrend(regionCode, years, sigungu.name) : [];
+  let data: Awaited<ReturnType<typeof fetchReturnFarmTrend>> = [];
+  if (sigungu) {
+    try {
+      data = await fetchReturnFarmTrend(regionCode, years, sigungu.name);
+    } catch (e) {
+      if (!(e instanceof KosisFetchError)) throw e;
+      console.warn(`귀농 추이 조회 실패 — ${e.message}`);
+      return NextResponse.json(
+        { error: "KOSIS 조회 실패" },
+        { status: 502, headers: { "Cache-Control": "private, no-store, max-age=0" } },
+      );
+    }
+  }
 
   return NextResponse.json(
     { data },

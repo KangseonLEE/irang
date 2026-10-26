@@ -142,10 +142,26 @@ describe("실패는 전년도로 내려가지 않는다", () => {
   });
 });
 
-describe("추이 — 세 표 중 하나라도 실패하면 그리지 않는다", () => {
-  it("귀촌 표 실패 → 빈 배열(가구·귀촌 0 인 해를 그리지 않는다)", async () => {
+describe("추이 — 세 표 중 하나라도 실패하면 그리지 않는다(실패는 빈 배열이 아니라 throw — 10/26 QA 🟡-3)", () => {
+  it("귀촌 표 실패 → KosisFetchError(가구·귀촌 0 인 해를 그리지 않고, 빈 추이로 캐시되지도 않게)", async () => {
     mockKosis((tbl) => (tbl === "DT_1A02015" ? "http500" : "ok"));
+    await expect(fetchReturnFarmTrend("47730", 10, "의성군")).rejects.toBeInstanceOf(KosisFetchError);
+  });
+  it("귀농인 표 시간 초과 → KosisFetchError", async () => {
+    mockKosis((tbl) => (tbl === "DT_1A02002" ? "timeout" : "ok"));
+    await expect(fetchReturnFarmTrend("47730", 10, "의성군")).rejects.toBeInstanceOf(KosisFetchError);
+  });
+  it("귀농인은 있는데 가구 표가 자료 없음 → KosisFetchError(반쪽)", async () => {
+    mockKosis((tbl) => (tbl === "DT_1A02008" ? "nodata" : "ok"));
+    await expect(fetchReturnFarmTrend("47730", 10, "의성군")).rejects.toBeInstanceOf(KosisFetchError);
+  });
+  it("세 표 모두 자료 없음 → 빈 배열(실패 아님)", async () => {
+    mockKosis(() => "nodata");
     expect(await fetchReturnFarmTrend("47730", 10, "의성군")).toEqual([]);
+  });
+  it("키가 없으면 KosisFetchError", async () => {
+    vi.stubEnv("KOSIS_API_KEY", "");
+    await expect(fetchReturnFarmTrend("47730", 10, "의성군")).rejects.toBeInstanceOf(KosisFetchError);
   });
   it("세 표 정상 → 값", async () => {
     mockKosis(() => "ok");
