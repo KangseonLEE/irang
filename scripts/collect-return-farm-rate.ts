@@ -65,6 +65,28 @@ interface ReturnFarmCardRow {
   year: number;
 }
 
+/** 그 해 귀농인 표(DT_1A02002 T02 계)에서 값이 숫자가 아닌(비공개 'X' 등) 지역 코드 */
+async function fetchHiddenPersonCodes(apiKey: string, year: number): Promise<Set<string>> {
+  const url = new URL("https://kosis.kr/openapi/Param/statisticsParameterData.do");
+  const params: Record<string, string> = {
+    method: "getList", apiKey, itmId: "T02", objL1: "ALL", objL2: "0", format: "json", jsonVD: "Y",
+    prdSe: "Y", startPrdDe: String(year), endPrdDe: String(year), orgId: "101", tblId: "DT_1A02002",
+  };
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  let last: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const json: unknown = await (await fetch(url, { signal: AbortSignal.timeout(30_000) })).json();
+      if (!Array.isArray(json)) throw new Error(`응답 오류 ${JSON.stringify(json).slice(0, 120)}`);
+      const rows = json as { C1: string; ITM_ID: string; DT: string }[];
+      return new Set(rows.filter((r) => r.ITM_ID === "T02" && !/^\d+$/.test(String(r.DT).trim())).map((r) => r.C1));
+    } catch (e) {
+      last = e;
+    }
+  }
+  throw new Error(`KOSIS 귀농인 ${year} 원표(비공개 판정) 조회 실패 — ${last instanceof Error ? last.message : last}`);
+}
+
 async function main() {
   const apiKey = process.env.KOSIS_API_KEY;
   if (!apiKey) throw new Error("KOSIS_API_KEY missing in .env.local");
@@ -101,6 +123,12 @@ async function main() {
     (await fetchReturnFarmStatsOfYear(dataYear - 1, undefined, KOSIS_OPTS)).map((d) => [d.regionCode, d]),
   );
   const prevYearUsed: string[] = [];
+  // 전년도는 최신 해 원표에 그 코드가 '비공개(X 등 숫자 아님)'로 있을 때만 — 행이 아예 없는 곳(폐지·코드 변경)은
+  // 전년도로 내려가지 않는다(10/16 원칙, 10/26 QA 🟡-1). 병합 결과는 X 행을 버려 구분이 안 되므로 원표를 직접 본다
+  const hiddenCodes = await fetchHiddenPersonCodes(apiKey, dataYear);
+  console.log(`[collect-return-farm] ${dataYear} 귀농인 비공개 코드 ${hiddenCodes.size}곳`);
+  const pickRow = (admCode: string) =>
+    kosisMap.get(admCode) ?? (hiddenCodes.has(admCode) ? prevMap.get(admCode) : undefined);
 
   // 3) 최신 연도 시군구 인구 lookup (sgisCode 기준)
   const trendLatestYear = Math.max(...POPULATION_TREND_YEARS);
@@ -120,7 +148,7 @@ async function main() {
 
   for (const sg of SIGUNGUS) {
     const latestRow = kosisMap.get(sg.admCode);
-    const kosisRow = latestRow ?? prevMap.get(sg.admCode);
+    const kosisRow = pickRow(sg.admCode);
     if (!kosisRow) {
       failList.push(`${sg.name} (admCode=${sg.admCode}, KOSIS 미발견)`);
       continue;
@@ -153,7 +181,7 @@ async function main() {
   const cardIncomplete: string[] = [];
   for (const sg of SIGUNGUS) {
     const latestRow = kosisMap.get(sg.admCode);
-    const kosisRow = latestRow ?? prevMap.get(sg.admCode);
+    const kosisRow = pickRow(sg.admCode);
     if (!kosisRow || !isSameRegionName(kosisRow.regionName, sg.name)) continue;
     // mergeReturnFarmData 는 가구·귀촌 행이 없으면 0 을 남긴다 — 귀농인이 있는데 0 이면 빠진 값이다
     if (kosisRow.returnFarmPerson > 0 && (kosisRow.returnFarmHousehold <= 0 || kosisRow.returnRuralPerson <= 0)) {
@@ -169,7 +197,10 @@ async function main() {
       year: kosisRow.year,
     });
   }
-  if (cardIncomplete.length) console.log(`[card] 값 일부 없음 — 카드 제외 ${cardIncomplete.length}곳: ${cardIncomplete.join(", ")}`);
+  // 원천 세 표의 지역 집합은 같다 — 하나라도 빠졌으면 조회가 덜 된 것이니 아무것도 쓰지 않는다(T17·C1, 10/26 QA 🟡-2)
+  if (cardIncomplete.length) {
+    throw new Error(`귀농인은 있는데 가구·귀촌 값이 없는 곳 ${cardIncomplete.length}곳: ${cardIncomplete.join(", ")} — 쓰지 않아요`);
+  }
   // 지금 파일보다 크게 줄면 조회 문제로 보고 아무것도 쓰지 않는다
   if (RETURN_FARM_SIGUNGU.length && cardList.length < RETURN_FARM_SIGUNGU.length * 0.9) {
     throw new Error(`카드 행 ${cardList.length} < 지금 파일 ${RETURN_FARM_SIGUNGU.length}의 90% — 조회 문제로 보고 쓰지 않아요`);
