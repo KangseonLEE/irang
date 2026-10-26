@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Sparkles, ArrowRight, X } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { UPDATES, LATEST_UPDATE_ID } from "@/lib/data/updates";

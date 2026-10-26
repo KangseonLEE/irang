@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { CommunityJumpLink } from "@/components/community/community-jump-link";
 import { PersonaCta } from "@/components/persona/persona-cta";

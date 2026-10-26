@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { migrateFarmTypeId, FARM_TYPES, type FarmTypeId } from "@/lib/data/match-questions";
 import s from "./page.module.css";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, Check } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { getRoadmap } from "@/lib/data/roadmap-steps";

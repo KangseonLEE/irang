@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Clock, X, ArrowLeft, MapPin, FileText, Loader2, Compass, GraduationCap, ArrowUpLeft, Trash2 } from "lucide-react";
 // ArrowUpLeft: 자동완성 우상단 화살표 (네이버 패턴 — 클릭 시 입력창 채움)
 import { IrangSprout as Sprout } from "@/lib/icons/irang-sprout";

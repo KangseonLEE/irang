@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { GitCompareArrows, Info, ExternalLink } from "lucide-react";
 import { SubPageHero } from "@/components/ui/sub-page-hero";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";

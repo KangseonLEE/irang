@@ -8,7 +8,7 @@
 
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Trophy, Users, Sprout, HeartPulse, GraduationCap, Compass, ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";

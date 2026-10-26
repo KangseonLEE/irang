@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { FAQPage } from "schema-dts";

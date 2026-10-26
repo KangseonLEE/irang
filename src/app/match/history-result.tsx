@@ -5,7 +5,7 @@
  * 결과 화면을 재구성합니다. history에서 클릭한 결과가 Supabase에 없어도 동작.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   ArrowRight,
   ChevronRight,

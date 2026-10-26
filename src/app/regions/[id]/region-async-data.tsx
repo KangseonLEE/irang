@@ -10,7 +10,7 @@
  * "실제로 있는 섹션"만 가리키려면 탭을 그리는 쪽이 목록 개수를 알아야 해서다 (10/6 QA1).
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   FileText,
   GraduationCap,

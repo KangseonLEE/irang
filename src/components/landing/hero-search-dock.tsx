@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { JOURNEY_LANES } from "@/lib/data/journey-lanes";
 import { HeroSearchForm } from "./hero-search-form";
 import s from "./hero-search-dock.module.css";

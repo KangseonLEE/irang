@@ -4,7 +4,7 @@
  * - 세 목록 페이지(지원사업·교육·행사)에서 공통 사용
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Info } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { withJosa } from "@/lib/format";

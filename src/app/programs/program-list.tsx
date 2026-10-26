@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Loader2, FileText } from "lucide-react";
 import { loadMorePrograms } from "./actions";
 import { ProgramCard } from "./program-card";

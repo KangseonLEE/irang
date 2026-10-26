@@ -5,7 +5,7 @@
  * 정적 프리렌더 + useSearchParams 라 BAILOUT 으로 CSR 에 넘어가, HTML 에는 로딩 스켈레톤만 있었다.
  * 카드 누름(모드 진입)만 ModeCardLink 가 받는다. 카드는 버튼이 아니라 링크라 제목(h2)을 담을 수 있다.
  */
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   ArrowRight,
   Calculator,

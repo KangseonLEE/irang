@@ -10,7 +10,7 @@
  * - 아이콘은 lucide 전용(브랜드 규칙) — 참고 포털의 컬러 아이콘은 그린 팔레트로 번역.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   Map,
   GitCompareArrows,

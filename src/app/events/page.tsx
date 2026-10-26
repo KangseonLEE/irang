@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Calendar } from "lucide-react";
 import { formatDateRange } from "@/lib/format";
 import {

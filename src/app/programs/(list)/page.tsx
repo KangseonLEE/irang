@@ -28,7 +28,7 @@ import { orderProgramsForList, scoringProgramPersona } from "@/lib/programs/list
 import { loadSyncMeta, buildPeriodLabel, getDataYear } from "@/lib/data/loader";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { POLICY_TEXT, YOUTH_SETTLEMENT } from "@/lib/data/policy-facts";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { ProgramList } from "../program-list";
 import { ProgramRequestCta } from "../program-request-cta";

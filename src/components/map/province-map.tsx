@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { useRouter } from "next/navigation";
 import type { SigunguMapLocation } from "@/lib/data/province-maps";
 import { getSigunguBySidoAndId } from "@/lib/data/sigungus";

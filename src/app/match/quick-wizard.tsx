@@ -24,7 +24,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   ArrowLeft,
   ArrowRight,

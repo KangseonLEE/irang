@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { StatusBadge } from "@/components/ui/status-badge";

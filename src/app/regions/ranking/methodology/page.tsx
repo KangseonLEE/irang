@@ -6,7 +6,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Fragment } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { BookOpen } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";

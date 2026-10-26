@@ -13,7 +13,7 @@
 //   - 강·약점 explain은 modal 안에서만 (카드 IA 단순화).
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { SigunguDetailModal } from "@/components/region/sigungu-detail-modal";
 import type { DimensionScores, DimensionId } from "@/lib/data/dimension-scores";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { CheckCircle2, Circle, AlertTriangle, ClipboardCheck, ArrowRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";

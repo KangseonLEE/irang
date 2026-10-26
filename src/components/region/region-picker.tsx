@@ -14,7 +14,7 @@
  */
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight } from "lucide-react";
 import { SelectCombobox, type SelectComboboxOption } from "@/components/ui/select-combobox";
 import s from "./region-picker.module.css";

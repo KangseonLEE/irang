@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { SectionPager } from "@/components/ui/section-pager";
 import s from "./opportunity-tabs.module.css";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, Phone } from "lucide-react";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { DisclaimerBadge } from "@/components/ui/disclaimer-badge";
 import { NAV_ITEMS } from "@/lib/data/navigation";
 import s from "./footer.module.css";

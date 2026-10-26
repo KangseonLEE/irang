@@ -5,7 +5,7 @@
  * 상태 필터 + 카테고리 필터 + 키워드 빈도 + 상태 변경
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { fetchRequestList, fetchRequestKeywords } from "@/lib/admin/queries";
 import { StatusToggle } from "./status-toggle";
 import s from "./page.module.css";

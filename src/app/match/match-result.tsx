@@ -5,7 +5,7 @@
  * 정착 유형, 추천 지역, 추천 작물, 추천 지원사업을 보여줍니다.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   ArrowRight,
   ChevronRight,

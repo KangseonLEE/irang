@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowLeft, MessageSquareText } from "lucide-react";
 import { CommunityNotes } from "@/components/community/community-notes";
 import type { NoteTargetType } from "@/lib/community/types";

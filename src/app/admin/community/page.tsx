@@ -5,7 +5,7 @@
  * 스타일은 요청 관리 페이지 모듈을 재사용(카드·필터 pill·배지), 액션만 별도.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { listNotesForAdmin } from "@/lib/community/queries";
 import {
   TARGET_TYPE_LABELS,

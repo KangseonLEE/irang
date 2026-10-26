@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";

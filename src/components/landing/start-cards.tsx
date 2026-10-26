@@ -7,7 +7,7 @@
  */
 
 import { useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { SnapDots } from "@/components/ui/snap-dots";

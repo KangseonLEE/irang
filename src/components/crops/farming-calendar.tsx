@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ChevronDown, Search, X } from "lucide-react";
 import {
   CROP_CATEGORY_NAMES,

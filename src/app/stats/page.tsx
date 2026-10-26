@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";

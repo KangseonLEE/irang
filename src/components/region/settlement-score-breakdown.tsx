@@ -11,7 +11,7 @@
  * Server Component. 모든 계산은 호출 측에서 끝낸 값을 props로 받는다.
  */
 
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import type { DimensionEvidenceMap } from "@/lib/data/dimension-scores";

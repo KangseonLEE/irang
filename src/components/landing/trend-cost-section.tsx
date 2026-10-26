@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight } from "lucide-react";
 import { Icon as IconWrap } from "@/components/ui/icon";
 import {

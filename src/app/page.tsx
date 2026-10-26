@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /** 홈페이지 ISR — 6h마다 갱신 (뉴스 갱신 주기 + 봇 트래픽 절감 균형) */
 export const revalidate = 21600;
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { QuickLinkSection } from "@/components/landing/quick-link-section";

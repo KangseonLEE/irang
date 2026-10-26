@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { shareMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { CommunityNotes } from "@/components/community/community-notes";
 import { InterviewContextSection } from "@/components/interview/interview-context-section";
 import { CropLinkCard } from "@/components/crops/crop-link-card";

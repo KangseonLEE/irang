@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { MessageSquareText, ThumbsUp, Loader2, Pencil, Flag } from "lucide-react";
 import { analytics, trackEvent } from "@/lib/analytics";
 import {

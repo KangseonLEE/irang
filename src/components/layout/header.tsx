@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useId, useRef, useSyncExternalStore } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";

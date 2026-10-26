@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { useRouter } from "next/navigation";
 import type { GuMapLocation } from "@/lib/data/district-maps";
 import { getGuByIds } from "@/lib/data/gus";

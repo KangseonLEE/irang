@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, ArrowUpRight, Banknote } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SupportTypeBadge } from "@/components/ui/support-type-badge";

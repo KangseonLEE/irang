@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { MapPin, Calendar } from "lucide-react";
 import type { SupportProgram } from "@/lib/data/programs";
 import { formatApplicationPeriod } from "@/lib/format";

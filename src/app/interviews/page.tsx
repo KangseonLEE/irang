@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/share-metadata";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ArrowRight, Quote } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { SubPageHero } from "@/components/ui/sub-page-hero";

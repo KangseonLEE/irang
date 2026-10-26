@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo/share-metadata";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { ShareButton } from "@/components/ui/share-button";
 import { KakaoShareButton } from "@/components/ui/kakao-share-button";
 import { RegionShareMenu } from "@/components/region/region-share-menu";

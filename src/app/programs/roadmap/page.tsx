@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { shareMetadata } from "@/lib/seo/share-metadata";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import { BookOpen, GitCompareArrows } from "lucide-react";
 import { IrangSearch as Search } from "@/components/ui/irang-search";
 import { AutoGlossary } from "@/components/ui/auto-glossary";

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   MapPin,
   Sprout,

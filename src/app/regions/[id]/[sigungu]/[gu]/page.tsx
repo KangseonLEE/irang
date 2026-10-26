@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { pageMetadata } from "@/lib/seo/share-metadata";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/app-link";
 import {
   ArrowLeft,
   FileText,
