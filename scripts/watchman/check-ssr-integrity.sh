@@ -139,7 +139,9 @@ while [ $IDX -lt ${#PAGE_PATHS[@]} ]; do
 
   size=$(wc -c < "$out_file" | tr -d ' ')
   h1=$(grep -o "<h1" "$out_file" | wc -l | tr -d ' ')
-  bail=$(grep -o "BAILOUT_TO_CLIENT_SIDE_RENDERING" "$out_file" | wc -l | tr -d ' ')
+  # Next 16.4 부터 digest 문자열이 비어(data-dgst="") 마커 글자로는 0개가 된다 —
+  # 버전과 무관한 클라이언트 전환 Suspense 경계(<!--$!--> + template) 개수로 센다 (10/27).
+  bail=$(grep -o '<!--\$!--><template data-dgst=' "$out_file" | wc -l | tr -d ' ')
 
   echo "  ${label} → ${size}B / h1 ${h1}개 / bailout ${bail}개 (하한 ${floor}B, bailout 허용 ${max_bail}개)"
 
@@ -152,7 +154,7 @@ while [ $IDX -lt ${#PAGE_PATHS[@]} ]; do
   fi
 
   if [ "$bail" -gt "$max_bail" ]; then
-    report "🟡" "§13 SSR 무결성" "${label} BAILOUT_TO_CLIENT_SIDE_RENDERING 마커 ${bail}개 (허용 ${max_bail}개 초과) — 위치(검색창 vs 본문) 확인 필요"
+    report "🟡" "§13 SSR 무결성" "${label} BAILOUT(클라이언트 전환 Suspense) ${bail}개 (허용 ${max_bail}개 초과) — 위치(검색창 vs 본문) 확인 필요"
   fi
 
   # noindex meta 회귀 (§ 로봇 회귀와 별개로 페이지 단위 검사)
