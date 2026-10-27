@@ -61,7 +61,7 @@
 
 **배포·릴리스**
 - D1 release 병합 전 release 트리 = 지난 배포인지, 새 환경변수·인프라 파일(next.config·middleware·vercel.json·Worker)·마이그레이션 차이를 본다.
-- D2 배포 뒤 CI(release)·E2E smoke·cf-purge 초록 + 운영 실측(주요 경로 200·h1 1·BAILOUT 수 배포 전과 동일). CLI 배포는 cf-purge·smoke 수동 dispatch.
+- D2 배포 뒤 CI(release)·E2E smoke·cf-purge 초록 + 운영 실측(주요 경로 200·h1 1·BAILOUT 수 배포 전과 동일 — Next 16.4+ 는 마커 글자가 비므로 `<!--$!--><template data-dgst=` 개수로). CLI 배포는 cf-purge·smoke 수동 dispatch.
 - D3 초록 CI 는 배포 증거가 아니다 — 운영 커밋 해시로 확인(9/17 Git 연동 13시간 정지). 세션 시작 때 `gh run list --workflow=CI -L 3` 도 본다(main CI 실패 4일 방치).
 - D4 Vercel 명령 칸은 길이에 막힌다 — 로직은 스크립트로, 배포 규칙을 바꾸면 그 경로를 미리보기에서 실제로 태운다.
 - D5 Edge Function 은 리포 수정 ≠ 배포. `--no-verify-jwt` 배포 후 verify_jwt=false 확인. 순서: 마이그레이션 apply → 함수 배포 → push → dispatch 실측.
