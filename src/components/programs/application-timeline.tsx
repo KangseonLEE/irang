@@ -8,6 +8,7 @@ import {
   ALWAYS_OPEN,
   daysBetween,
   deriveStatus,
+  detailStatusLabel,
   programStatusLabel,
   type ProgramStatus,
 } from "@/lib/program-status";
@@ -28,6 +29,8 @@ interface ApplicationTimelineProps {
    * `status`·`statusLabel` 도 이 날 기준으로 계산된 값이어야 한다(같은 서버 렌더에서 함께 넘긴다).
    */
   asOf: string;
+  /** 원문 상태 — broken 이면 열린 상태(모집중·모집예정)·진행 막대·D-day 를 감춘다 (detailStatusLabel, 10/28) */
+  linkStatus?: string | null;
 }
 
 /** "2026-01-12" → "1/12" — 문자열에서 바로 읽는다. `new Date()` 를 거치면 뉴욕 등에서 하루 밀린다(10/3) */
@@ -112,6 +115,7 @@ export function ApplicationTimeline({
   applicationCycle,
   organization,
   asOf,
+  linkStatus,
 }: ApplicationTimelineProps) {
   const today = useKstToday(asOf);
   // 스냅샷과 같은 날이면 서버가 넘긴 상태를 그대로(= 서버 HTML 과 동일), 날이 바뀌었으면 오늘 기준으로 다시 판정
@@ -122,6 +126,7 @@ export function ApplicationTimeline({
   const liveLabel = sameDay
     ? statusLabel
     : programStatusLabel({ status: liveStatus, applicationStart, applicationEnd, applicationCycle });
+  const shownLabel = detailStatusLabel(liveLabel, linkStatus);
 
   // 9999-12-31 페어 = 상시 모집 또는 공고 발표 예정 — 일자·진행률·D-day 무의미
   const startUnknown = !applicationStart || applicationStart === ALWAYS_OPEN;
@@ -147,9 +152,11 @@ export function ApplicationTimeline({
       <div className={s.wrap}>
         {header}
         <dl className={s.rows}>
-          <Row label="상태" center>
-            <StatusBadge status={liveLabel} />
-          </Row>
+          {shownLabel && (
+            <Row label="상태" center>
+              <StatusBadge status={shownLabel} />
+            </Row>
+          )}
           <Row label="접수 시기">{period}</Row>
           <Row label="확인처">{organization}</Row>
         </dl>
@@ -174,9 +181,11 @@ export function ApplicationTimeline({
       {header}
 
       <dl className={s.rows}>
-        <Row label="상태" center>
-          <StatusBadge status={liveLabel} />
-        </Row>
+        {shownLabel && (
+          <Row label="상태" center>
+            <StatusBadge status={shownLabel} />
+          </Row>
+        )}
         <Row label="접수 시기">
           <span className={s.dates}>
             {formatShortDate(applicationStart)}
@@ -187,24 +196,29 @@ export function ApplicationTimeline({
         <Row label="확인처">{organization}</Row>
       </dl>
 
-      <div className={s.bar}>
-        <div
-          className={`${s.barFill} ${liveStatus === "모집중" ? s.barActive : liveStatus === "모집예정" ? s.barUpcoming : s.barClosed}`}
-          style={{ width: `${progress}%` }}
-        />
-        {liveStatus === "모집중" && progress > 0 && progress < 100 && (
-          <div className={s.barMarker} style={{ left: `${progress}%` }} />
-        )}
-      </div>
+      {/* 원문이 깨진 행은 진행 막대·D-day 를 그리지 않는다 — 날짜로만 '진행 중'을 말하게 된다 */}
+      {shownLabel && (
+        <>
+          <div className={s.bar}>
+            <div
+              className={`${s.barFill} ${liveStatus === "모집중" ? s.barActive : liveStatus === "모집예정" ? s.barUpcoming : s.barClosed}`}
+              style={{ width: `${progress}%` }}
+            />
+            {liveStatus === "모집중" && progress > 0 && progress < 100 && (
+              <div className={s.barMarker} style={{ left: `${progress}%` }} />
+            )}
+          </div>
 
-      <div className={s.info}>
-        <Icon icon={Clock} size="xs" />
-        <DaysInfo
-          status={liveStatus}
-          daysUntilStart={daysUntilStart}
-          daysUntilEnd={daysUntilEnd}
-        />
-      </div>
+          <div className={s.info}>
+            <Icon icon={Clock} size="xs" />
+            <DaysInfo
+              status={liveStatus}
+              daysUntilStart={daysUntilStart}
+              daysUntilEnd={daysUntilEnd}
+            />
+          </div>
+        </>
+      )}
 
       <p className={s.notice}>{NOTICE}</p>
     </div>

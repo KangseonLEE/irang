@@ -44,6 +44,14 @@ const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GD = "https://www.greendaero.go.kr";
 const MIN_TEXT = 1500;
+/**
+ * 미국 러너(CI)에선 막히고 한국 회선에선 열리는 원문 도메인 (W4 — 해외만의 실패는 URL 단위 경고).
+ * 넣는 조건: 한국 회선에서 200·본문 일치를 확인한 뒤에만. CI 에서 이 도메인의 '읽지 못함'은 ⚪ 로 적는다
+ * (매일 🟡 이슈가 다른 발견을 가린다 — 8/29 #115). 로컬(한국) 실행에선 그대로 🟡 라 진짜 404 는 거기서 잡힌다.
+ *   www.cheongdo.go.kr — 10/27 한국 200(임시거주 임대료 본문) · CI 본문 225~227자
+ *   www.goryeong.go.kr — 10/27 한국 200(하반기 귀농인 지원사업 공고) · CI 404
+ */
+const KR_ONLY_HOSTS = new Set(["www.cheongdo.go.kr", "www.goryeong.go.kr"]);
 const SHOW = 15;
 
 type Kind = "지원사업" | "교육" | "행사";
@@ -77,24 +85,29 @@ const realEnd = (end: string | null | undefined) => (!end || end === "9999-12-31
 
 /* ── 대상 모으기 ── */
 
-async function loadDbTargets(today: string): Promise<{ targets: Target[]; error?: string }> {
+async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds: Set<string>; error?: string }> {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return { targets: [], error: "Supabase 환경변수 없음" };
+  if (!url || !key) return { targets: [], allIds: new Set(), error: "Supabase 환경변수 없음" };
   const sb = createClient(url, key, { auth: { persistSession: false } });
   const specs = [
-    { table: "support_programs", kind: "지원사업", urlCol: "source_url", endCol: null },
-    { table: "education_courses", kind: "교육", urlCol: "url", endCol: null },
-    { table: "farm_events", kind: "행사", urlCol: "url", endCol: "date_end" },
+    { table: "support_programs", kind: "지원사업", urlCol: "source_url", endCol: null, linkCol: "link_status" },
+    { table: "education_courses", kind: "교육", urlCol: "url", endCol: null, linkCol: "link_status" },
+    { table: "farm_events", kind: "행사", urlCol: "url", endCol: "date_end", linkCol: null },
   ] as const;
   const targets: Target[] = [];
+  // 정적 병합 기준은 접수 중 행이 아니라 DB 의 모든 slug — 화면은 DB 에 있으면 DB 값을 쓴다(loadPrograms 병합 규칙)
+  const allIds = new Set<string>();
   for (const s of specs) {
-    const cols = ["slug", "title", s.urlCol, "application_start", "application_end", s.endCol].filter(Boolean).join(",");
+    const cols = ["slug", "title", s.urlCol, "application_start", "application_end", s.endCol, s.linkCol].filter(Boolean).join(",");
     const { data, error } = await sb.from(s.table).select(cols).limit(5000);
-    if (error) return { targets: [], error: `${s.table} 조회 실패: ${error.message}` };
+    if (error) return { targets: [], allIds: new Set(), error: `${s.table} 조회 실패: ${error.message}` };
     for (const r of (data ?? []) as unknown as Record<string, string | null>[]) {
+      if (r.slug) allIds.add(r.slug);
       const end = r.application_end ?? (s.endCol ? r[s.endCol] : null);
       if (!isOpen(r.application_start, end, today)) continue;
+      // 목록·상세가 숨기는 행(원문 깨짐)은 화면에 접수 중으로 안 보인다 — 화면과 같게 뺀다 (10/28)
+      if (s.linkCol && r[s.linkCol] === "broken") continue;
       targets.push({
         id: r.slug ?? "",
         title: r.title ?? "",
@@ -106,7 +119,7 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; error?
       });
     }
   }
-  return { targets };
+  return { targets, allIds };
 }
 
 function staticTargets(today: string, dbIds: Set<string>): Target[] {
@@ -136,11 +149,13 @@ async function getText(url: string, headers: Record<string, string> = {}): Promi
   return res.text();
 }
 
-/** 그린대로 교육 JSON — 우리 slug 가 다 나오거나 목록이 끝날 때까지(최대 6쪽) */
+/** 그린대로 교육 JSON — 우리 slug 가 다 나오거나 목록이 끝날 때까지(최대 GD_MAX_PAGES 쪽)
+ *  목록 순서가 날마다 바뀌어 6쪽(1,200건) 한도에선 있는 행도 '못 찾음'이 됐다(10/28, 전체 2,779건) — 전체를 덮게 둔다. */
+const GD_MAX_PAGES = 25;
 async function greendaeroEducation(wanted: Set<string>) {
   const found = new Map<string, { start?: string; end?: string; name: string }>();
   let exhausted = false;
-  for (let page = 1; page <= 6 && found.size < wanted.size; page++) {
+  for (let page = 1; page <= GD_MAX_PAGES && found.size < wanted.size; page++) {
     const body = await getText(`${GD}/svc/rfph/edc/offline/getEdcList.do?page=${page}&itemsPerPage=200`, {
       Accept: "application/json",
       "X-Requested-With": "XMLHttpRequest",
@@ -218,6 +233,14 @@ async function checkHtml(t: Target, today: string): Promise<Finding | null> {
   return null;
 }
 
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
+
 /* ── 실행 ── */
 
 async function main() {
@@ -227,7 +250,7 @@ async function main() {
 
   const db = await loadDbTargets(today);
   if (db.error) findings.push({ grade: "🟡", item: "DB 대상 조회 실패", detail: `${db.error} — 수집·DB 행은 이번에 확인 못 함` });
-  const targets = [...db.targets, ...staticTargets(today, new Set(db.targets.map((t) => t.id)))];
+  const targets = [...db.targets, ...staticTargets(today, db.allIds)];
 
   const gdEdu = targets.filter((t) => t.id.startsWith("crawl-greendaero-education-"));
   const gdLive = targets.filter((t) => t.id.startsWith("crawl-greendaero-live-"));
@@ -243,7 +266,7 @@ async function main() {
       for (const t of gdEdu) {
         const src = found.get(t.id);
         if (!src) {
-          findings.push({ grade: "🟡", item: `그린대로 목록에서 못 찾음${exhausted ? "" : "(6쪽 안)"}`, detail: t.id });
+          findings.push({ grade: "🟡", item: `그린대로 목록에서 못 찾음${exhausted ? "" : `(${GD_MAX_PAGES}쪽 안)`}`, detail: t.id });
           continue;
         }
         checked++;
@@ -290,7 +313,9 @@ async function main() {
   for (const t of posts) {
     const f = await checkHtml(t, today);
     if (!f || f.grade !== "🟡" || f.item !== "원문을 읽지 못함") checked++;
-    if (f) findings.push(f);
+    if (f && ci && f.item === "원문을 읽지 못함" && KR_ONLY_HOSTS.has(hostOf(t.url))) {
+      findings.push({ ...f, grade: "⚪", item: "원문을 읽지 못함(해외 회선 차단 도메인 — 한국에서 확인)" });
+    } else if (f) findings.push(f);
   }
 
   // 마감일 없이(9999) 열린 행이 시작한 해를 넘겼다 — '2026년 사업·예산 소진 시까지'가 해가 바뀌어도 '모집중'으로 남는다

@@ -10,6 +10,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Course } from "schema-dts";
 import { formatDate } from "@/lib/format";
+import { detailStatusLabel } from "@/lib/program-status";
 import {
   MapPin,
   Building2,
@@ -120,6 +121,7 @@ export default async function EducationDetailPage({
   }
 
   const related = getRelatedCourses(course);
+  const badgeLabel = detailStatusLabel(course.status, course.linkStatus);
   const summary = displayText(course.id, course.description);
   // 수집 행의 기본값·채움값은 칸째 뺀다 (10/6 QA Q1-W4, lib/programs/display) — 큐레이션 행은 그대로
   const type = displayEducationType(course.id, course.type);
@@ -154,7 +156,7 @@ export default async function EducationDetailPage({
       {/* Title + Badges */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <StatusBadge status={course.status} />
+          {badgeLabel && <StatusBadge status={badgeLabel} />}
           {level && (
             <span className={`${s.levelBadge} ${LEVEL_CLASS[level]}`}>
               {level}

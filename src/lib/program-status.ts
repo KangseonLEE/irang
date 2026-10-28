@@ -162,3 +162,13 @@ export function programStatusLabel(p: {
   return p.applicationCycle?.trim() ? CYCLE_LABEL : UNANNOUNCED_LABEL;
 }
 
+
+/**
+ * 상세 상태 배지에 보일 라벨 — 원문이 깨진(link_status=broken) 행은 '모집중'·'모집예정' 같은
+ * 열린 상태를 보이지 않는다(null). 날짜로만 정해지는 상태라 원천에서 사라진 과정이 직접 링크로
+ * 들어오면 '모집중'으로 보였다(10/28 그린대로 541f897a). 지난 일인 '마감'은 사실이라 남긴다.
+ */
+export function detailStatusLabel(label: string, linkStatus?: string | null): string | null {
+  if (linkStatus === "broken" && label !== "마감") return null;
+  return label;
+}

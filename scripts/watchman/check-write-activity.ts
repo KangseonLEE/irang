@@ -36,6 +36,8 @@ import { config } from "dotenv";
 import { execFileSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
+// 의존성 0 .mjs 공용 클라이언트 — ga4-snapshot·check-ga4-anomaly 와 같은 것
+import { createGa4Client, ga4Env, HOST_FILTER } from "./ga4-client.mjs";
 
 const CI_MODE = process.argv.includes("--ci");
 
@@ -64,6 +66,8 @@ const WRITE_TABLES = [
     windowDays: 7,
     zeroGrade: "🟡" as const,
     relatedPaths: ["src/app/api/search-log", "src/components/search/search-bar.tsx"],
+    // 같은 화면에서 함께 나가는 GA 이벤트 — 🔴 후보일 때 같은 창으로 대조해 '끊김/미사용'을 가른다 (W3, 10/28)
+    gaEvent: "search",
   },
   {
     table: "quick_feedback",
@@ -194,6 +198,8 @@ interface TableOutcome {
   deploys: string[] | null;
   /** 배포 직전 7일(8~14일 전) 실측 카운트. null이면 조회 실패(판정 불가) */
   beforeDeploy: number | null;
+  /** 같은 판정에 쓰는 GA 이벤트 이름(있는 테이블만) */
+  gaEvent?: string;
   error?: string;
 }
 
@@ -273,7 +279,9 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
 
   const outcomes: TableOutcome[] = [];
 
-  for (const { table, label, diagColumn, windowDays, zeroGrade, relatedPaths } of WRITE_TABLES) {
+  for (const spec of WRITE_TABLES) {
+    const { table, label, diagColumn, windowDays, zeroGrade, relatedPaths } = spec;
+    const gaEvent = "gaEvent" in spec ? spec.gaEvent : undefined;
     tablesChecked += 1;
 
     const long = await countEffective(sb, table, diagColumn, windowDays);
@@ -331,7 +339,7 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
       console.log(`      ↳ ${beforeNote}`);
     }
 
-    outcomes.push({ table, windowDays, zeroGrade, effective: long.effective, effectiveShort, deploys, beforeDeploy });
+    outcomes.push({ table, windowDays, zeroGrade, effective: long.effective, effectiveShort, deploys, beforeDeploy, gaEvent });
   }
 
   console.log("");
@@ -358,9 +366,26 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
       o.beforeDeploy !== null &&
       o.beforeDeploy >= MIN_BEFORE_DEPLOY_FOR_REGRESSION,
   );
-  if (regressed.length > 0) {
-    const detail = regressed
-      .map((o) => `${o.table} 최근 ${DEPLOY_WINDOW_DAYS}일 0건 + 관련 배포 ${o.deploys!.length}건(${o.deploys![0]})`)
+  // GA 대조 (10/28): search_logs 7일 0건이 🔴 로 떴지만 GA search 이벤트도 같은 7일 0건 — 운영 /search 는
+  // 요청을 보내고 엔드포인트도 응답했다(활동 부재). GA 도 0이면 ⚪ 로 내리고, GA 는 있는데 DB 가 0이면 끊김 근거로 적는다.
+  const gaCounts = new Map<string, number | null>();
+  for (const o of regressed) if (o.gaEvent) gaCounts.set(o.table, await gaEventCount(o.gaEvent, DEPLOY_WINDOW_DAYS));
+  const idle = regressed.filter((o) => gaCounts.get(o.table) === 0);
+  for (const o of idle) {
+    addFinding(
+      "⚪",
+      "§11 write 활성도",
+      `${o.table} 최근 ${DEPLOY_WINDOW_DAYS}일 0건 · GA ${o.gaEvent} 이벤트도 같은 ${DEPLOY_WINDOW_DAYS}일 0건 → 사용자 활동 부재(적재 끊김 아님)${alivePart}`,
+    );
+  }
+  const suspect = regressed.filter((o) => !idle.includes(o));
+  if (suspect.length > 0) {
+    const detail = suspect
+      .map((o) => {
+        const ga = gaCounts.get(o.table);
+        const gaNote = !o.gaEvent ? "" : ga == null ? " · GA 대조 불가" : ` · GA ${o.gaEvent} ${ga}건인데 DB 0건 → 적재 끊김 유력`;
+        return `${o.table} 최근 ${DEPLOY_WINDOW_DAYS}일 0건 + 관련 배포 ${o.deploys!.length}건(${o.deploys![0]})${gaNote}`;
+      })
       .join(" · ");
     // 9/16: "회귀 의심"으로 단정하지 않는다. 같은 증상(0건 + 관련 배포)이 저트래픽에서도 나온다 —
     // 실제로 9/8 이후 search_logs 0건은 GA search 이벤트도 같은 날부터 0이라 적재 끊김이 아니라
@@ -398,6 +423,27 @@ async function checkWriteActivity(sb: SupabaseClient): Promise<void> {
         ? "트래픽 정체 또는 클라이언트 진입점 누락 의심"
         : "저트래픽 기능 — 추세 관찰만 (silent fail은 §12 fallback log가 감시)";
     addFinding(grade, "§11 write 활성도", `${detail}${alivePart} — ${note}`);
+  }
+}
+
+/**
+ * GA 이벤트의 최근 N일 건수(사이트 호스트만). GA 자격증명이 없거나 조회가 실패하면 null — 판정을 바꾸지 않는다.
+ */
+async function gaEventCount(eventName: string, days: number): Promise<number | null> {
+  const env = ga4Env();
+  if (!env) return null;
+  try {
+    const report = await createGa4Client({ ...env, dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }] });
+    const rows: { m: number[] }[] = await report({
+      metrics: [{ name: "eventCount" }],
+      dimensionFilter: {
+        andGroup: { expressions: [{ filter: { fieldName: "eventName", stringFilter: { value: eventName } } }, HOST_FILTER] },
+      },
+    });
+    return rows.reduce((sum, r) => sum + (r.m[0] ?? 0), 0);
+  } catch (e) {
+    console.log(`      ↳ GA ${eventName} 조회 실패: ${(e as Error).message.slice(0, 120)}`);
+    return null;
   }
 }
 
