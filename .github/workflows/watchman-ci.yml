@@ -96,6 +96,9 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # §11 search_logs 0건을 GA search 이벤트와 같은 창으로 대조 (10/28) — 없으면 대조 없이 판정
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_SA_JSON: ${{ secrets.GA4_SA_JSON }}
         run: npx tsx scripts/watchman/check-write-activity.ts --ci
 
       - name: "§15 cron/스케줄 워크플로 실패 감시"

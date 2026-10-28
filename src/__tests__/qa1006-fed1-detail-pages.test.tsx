@@ -63,9 +63,23 @@ const CRAWLED_RDA_COURSE: EducationCourse = {
   url: "https://www.rda.go.kr/young/custom/education/view.do?sId=1",
 };
 
+/** 10/28 그린대로 541f897a — 원천에서 과정이 사라져 broken, 날짜로는 아직 모집중 */
+const BROKEN_OPEN_COURSE: EducationCourse = {
+  ...CRAWLED_RDA_COURSE,
+  id: "crawl-greendaero-education-541f897a",
+  title: "[대면] 전남광주 귀농산어촌 입문 교육",
+  applicationStart: "2026-10-12",
+  applicationEnd: "2099-11-06",
+  status: "모집중",
+  url: "https://www.greendaero.go.kr/svc/rfph/edc/offline/front/applicationDetail.do?seq1=EDUCRSE_000000006030&seq2=EDUDCRSE_00000013951",
+  linkStatus: "broken",
+};
+const BROKEN_CLOSED_COURSE: EducationCourse = { ...BROKEN_OPEN_COURSE, id: "crawl-greendaero-education-broken-closed", status: "마감" };
+const BROKEN_OPEN_PROGRAM: SupportProgram = { ...CRAWLED_PROGRAM, id: "crawl-agrix-programs-broken-open", applicationEnd: "2099-12-31", status: "모집중", linkStatus: "broken" };
+
 vi.mock("@/lib/data/programs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/data/programs")>();
-  const extra = new Map([CRAWLED_PROGRAM, CRAWLED_AGRIX].map((p) => [p.id, p]));
+  const extra = new Map([CRAWLED_PROGRAM, CRAWLED_AGRIX, BROKEN_OPEN_PROGRAM].map((p) => [p.id, p]));
   return {
     ...actual,
     getProgramByIdAsync: vi.fn(async (id: string) => extra.get(id) ?? actual.getProgramById(id)),
@@ -77,7 +91,7 @@ vi.mock("@/lib/data/education", async (importOriginal) => {
   return {
     ...actual,
     getEducationByIdAsync: vi.fn(async (id: string) =>
-      id === CRAWLED_RDA_COURSE.id ? CRAWLED_RDA_COURSE : actual.getEducationById(id),
+      [CRAWLED_RDA_COURSE, BROKEN_OPEN_COURSE, BROKEN_CLOSED_COURSE].find((c) => c.id === id) ?? actual.getEducationById(id),
     ),
   };
 });
@@ -272,5 +286,30 @@ describe("EligibilityCheck — 연령 항목 숨김·빈 체크 방지", () => {
       .filter((l) => l.endsWith("미확인"));
     expect(labels[0]).toBe("만 18~65세 미확인");
     expect(labels).toHaveLength(2);
+  });
+});
+
+describe("원문이 깨진 행 — 상세 상태 배지 (10/28 그린대로 541f897a)", () => {
+  // StatusBadge 는 색 변형 클래스(green·amber·gray) 하나만 단다
+  const badges = (html: string) => [...html.matchAll(/<span class="_(?:green|amber|gray)_[^"]*">([^<]+)<\/span>/g)].map((m) => m[1]);
+  const renderEducation = async (id: string) =>
+    renderToStaticMarkup(await educationPage.default({ params: Promise.resolve({ id }) }));
+
+  it("교육: 날짜로 모집중이어도 '모집중' 배지를 보이지 않는다", async () => {
+    const html = await renderEducation(BROKEN_OPEN_COURSE.id);
+    expect(badges(html)).not.toContain("모집중");
+    expect(visibleText(html)).toContain("원문 페이지가 현재 연결되지 않아요");
+  });
+
+  it("교육: 지난 일인 '마감'은 그대로 보인다", async () => {
+    expect(badges(await renderEducation(BROKEN_CLOSED_COURSE.id))).toContain("마감");
+  });
+
+  it("교육: 원문이 살아 있는 행은 상태 배지가 그대로다", async () => {
+    expect(badges(await renderEducation(CRAWLED_RDA_COURSE.id))).toContain("마감");
+  });
+
+  it("지원사업: 깨진 행은 '모집중' 배지를 보이지 않는다", async () => {
+    expect(badges(await renderProgram(BROKEN_OPEN_PROGRAM.id))).not.toContain("모집중");
   });
 });

@@ -22,7 +22,7 @@ import {
   HelpCircle,
   ChevronDown, ArrowRight } from "lucide-react";
 import { formatApplicationPeriod } from "@/lib/format";
-import { ALWAYS_OPEN, kstToday, programStatusLabel } from "@/lib/program-status";
+import { ALWAYS_OPEN, detailStatusLabel, kstToday, programStatusLabel } from "@/lib/program-status";
 import { getProgramByIdAsync, PROGRAMS } from "@/lib/data/programs";
 import { getProgramGuide } from "@/lib/data/program-guides";
 import { getCropByName } from "@/lib/data/crops";
@@ -102,6 +102,7 @@ export default async function ProgramDetailPage({
 
   const guide = getProgramGuide(id);
   const statusLabel = programStatusLabel(program);
+  const badgeLabel = detailStatusLabel(statusLabel, program.linkStatus);
   // 수집 행 요약·설명이 출처 문장뿐이면 숨긴다 — 카드(program-card)와 같은 규칙 (10/3).
   // 수집기가 요약과 설명을 같은 원문 발췌로 채우므로 같으면 "사업 설명"을 한 번 더 보여 주지 않는다.
   const summary = displayText(program.id, program.summary);
@@ -216,7 +217,7 @@ export default async function ProgramDetailPage({
       {/* Title + Status */}
       <div className={s.titleSection}>
         <div className={s.badgeRow}>
-          <StatusBadge status={statusLabel} />
+          {badgeLabel && <StatusBadge status={badgeLabel} />}
           {supportType && <SupportTypeBadge type={supportType} prefix="지원 유형: " />}
         </div>
         <div className={s.titleRow}>
@@ -537,6 +538,7 @@ export default async function ProgramDetailPage({
             applicationCycle={program.applicationCycle}
             organization={program.organization}
             asOf={kstToday()}
+            linkStatus={program.linkStatus}
           />
 
           {/* 진단 CTA 는 sticky 탭 카드 **앞**에 — 뒤에 두면 sticky 밑으로 파고들어 안 보인다(9/17 작물 상세 동일) */}
