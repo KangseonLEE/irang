@@ -44,6 +44,14 @@ const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GD = "https://www.greendaero.go.kr";
 const MIN_TEXT = 1500;
+/**
+ * 미국 러너(CI)에선 막히고 한국 회선에선 열리는 원문 도메인 (W4 — 해외만의 실패는 URL 단위 경고).
+ * 넣는 조건: 한국 회선에서 200·본문 일치를 확인한 뒤에만. CI 에서 이 도메인의 '읽지 못함'은 ⚪ 로 적는다
+ * (매일 🟡 이슈가 다른 발견을 가린다 — 8/29 #115). 로컬(한국) 실행에선 그대로 🟡 라 진짜 404 는 거기서 잡힌다.
+ *   www.cheongdo.go.kr — 10/27 한국 200(임시거주 임대료 본문) · CI 본문 225~227자
+ *   www.goryeong.go.kr — 10/27 한국 200(하반기 귀농인 지원사업 공고) · CI 404
+ */
+const KR_ONLY_HOSTS = new Set(["www.cheongdo.go.kr", "www.goryeong.go.kr"]);
 const SHOW = 15;
 
 type Kind = "지원사업" | "교육" | "행사";
@@ -225,6 +233,14 @@ async function checkHtml(t: Target, today: string): Promise<Finding | null> {
   return null;
 }
 
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
+
 /* ── 실행 ── */
 
 async function main() {
@@ -297,7 +313,9 @@ async function main() {
   for (const t of posts) {
     const f = await checkHtml(t, today);
     if (!f || f.grade !== "🟡" || f.item !== "원문을 읽지 못함") checked++;
-    if (f) findings.push(f);
+    if (f && ci && f.item === "원문을 읽지 못함" && KR_ONLY_HOSTS.has(hostOf(t.url))) {
+      findings.push({ ...f, grade: "⚪", item: "원문을 읽지 못함(해외 회선 차단 도메인 — 한국에서 확인)" });
+    } else if (f) findings.push(f);
   }
 
   // 마감일 없이(9999) 열린 행이 시작한 해를 넘겼다 — '2026년 사업·예산 소진 시까지'가 해가 바뀌어도 '모집중'으로 남는다
