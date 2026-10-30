@@ -505,6 +505,9 @@ export async function fetchGreendaeroSourceState(itemsPerPage = 200): Promise<Gd
     if (json.list.length < itemsPerPage) {
       const total = Number(json.totalItems ?? 0);
       if (open.size < total) errors.push(`그린대로 접수중 탭: totalItems ${total}인데 ${open.size}건만 읽음`);
+      // 접수 중 과정이 전국에 하나도 없는 날은 없다(9/29 이후 실측 최소 99건) — 빈 응답은 원천 이상으로 보고
+      // 대조하지 않는다. 그냥 믿으면 마감 탭 1쪽 밖의 모든 행이 '사라짐'이 된다(T17, 10/30 QA 🟡4).
+      if (open.size === 0) errors.push("그린대로 접수중 탭: 0건 — 원천 이상 의심(대조 안 함)");
       break;
     }
     if (page === 5) errors.push(`그린대로 접수중 탭: 5쪽(${5 * itemsPerPage}건)을 넘음 — 쪽수 한도 확인`);
@@ -556,6 +559,9 @@ export interface GdReconcileChange {
   to: string;
 }
 
+/** 날짜 미상 표기 — crawl-utils `UNKNOWN_DATE` 와 같은 값(이 파일은 그쪽에서 타입만 가져온다) */
+const UNKNOWN_DATE = "9999-12-31";
+
 /** 수집 URL 의 seq2 = eduDetailCrseId */
 export function gdDetailIdOf(url: string | null): string | null {
   const m = url?.match(/[?&]seq2=([^&]+)/);
@@ -598,7 +604,9 @@ export function planGreendaeroReconcile(
       continue;
     }
 
-    if (row.application_start && row.application_start > today) continue;
+    // 시작 전(모집예정) 행은 접수중 탭에 없을 수 있다. 시작일 미상(9999)은 '시작 전'이 아니라
+    // 마감일까지 모집중으로 보이는 행(deriveStatus)이라 대조한다(10/30 QA 🟡3).
+    if (row.application_start && row.application_start !== UNKNOWN_DATE && row.application_start > today) continue;
 
     const closed = state.closed.get(id);
     if (closed) {

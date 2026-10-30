@@ -89,7 +89,8 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
     # 로그에만 남았다. 🟡·⚪ 는 이슈를 닫은 뒤 새 이슈로 충분하지만 🔴 는 하루도 묵히면 안 된다.
     if [ "$CRIT" -gt 0 ]; then
       OPEN_NUM=$(gh issue list --label "watchman" --state open --json number --jq '.[0].number' 2>/dev/null || true)
-      CRIT_ROWS=$(grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ printf "| 🔴 | %s | %s |\n", $2, $3 }')
+      # 근거($3 이후)에 '|' 가 더 있어도 잘리지 않게 3번째 칸부터 다시 잇는다
+      CRIT_ROWS=$(grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ r=$3; for (i=4; i<=NF; i++) r=r "|" $i; gsub(/\|/, "\\|", r); printf "| 🔴 | %s | %s |\n", $2, r }')
       COMMENT_FILE=$(mktemp)
       {
         echo "## 🔴 새 즉시 액션 — $(date -u '+%Y-%m-%d %H:%M UTC')"

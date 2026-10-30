@@ -65,6 +65,18 @@ describe("planGreendaeroReconcile — 원천 상태에 맞춰 바꿀 칸", () =>
     expect(c).toMatchObject({ reason: "원천 조기 마감", patch: { application_end: YESTERDAY } });
   });
 
+  it("마감 탭에 있고 원천 마감일이 오늘이면 아직 안 지난 것 — 어제로 (10/30 QA 🟡1 경계)", () => {
+    const rows = [row("education_courses", "TDAY", "2026-10-01", TODAY)];
+    const [c] = planGreendaeroReconcile(rows, state({}, { TDAY: { start: "2026-10-01", end: TODAY } }), TODAY, YESTERDAY);
+    expect(c).toMatchObject({ reason: "원천 조기 마감", patch: { application_end: YESTERDAY } });
+  });
+
+  it("시작일 미상(9999)인 행은 화면에서 모집중이라 대조한다 — 원천에 없으면 broken (10/30 QA 🟡3)", () => {
+    const rows = [row("education_courses", "UNK", "9999-12-31", "2026-11-20")];
+    const [c] = planGreendaeroReconcile(rows, state({}, {}), TODAY, YESTERDAY);
+    expect(c).toMatchObject({ reason: "원천에서 사라짐", patch: { link_status: "broken" } });
+  });
+
   it("두 탭 어디에도 없으면 교육은 broken, 행사는 어제로 마감 (0557e218)", () => {
     const rows = [
       row("education_courses", "0557", "2026-10-20", "2026-11-15"),
@@ -107,6 +119,15 @@ describe("fetchGreendaeroSourceState — 덜 읽은 원천으로 판정하지 �
     expect(s.closedFloor).toBe("2026-09-10");
   });
 
+  it("접수중 탭이 0건이면 오류 — 빈 원천을 믿으면 전부 '사라짐'이 된다 (10/30 QA 🟡4)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (u: string) =>
+      u.includes("ddlnYn=N")
+        ? json({ page: 1, itemsPerPage: 200, totalItems: 0, list: [] })
+        : json({ list: [item("B", "2026-11-02")] }),
+    ));
+    expect((await fetchGreendaeroSourceState()).errors).toContain("그린대로 접수중 탭: 0건 — 원천 이상 의심(대조 안 함)");
+  });
+
   it("접수중 탭이 총건수보다 적으면 오류", async () => {
     vi.stubGlobal("fetch", vi.fn(async (u: string) =>
       u.includes("ddlnYn=N")
@@ -119,7 +140,7 @@ describe("fetchGreendaeroSourceState — 덜 읽은 원천으로 판정하지 �
   it("마감 탭이 마감일 내림차순이 아니면 오류 — '최근 마감분이 1쪽에 다 있다'가 깨진다", async () => {
     vi.stubGlobal("fetch", vi.fn(async (u: string) =>
       u.includes("ddlnYn=N")
-        ? json({ page: 1, itemsPerPage: 200, totalItems: 0, list: [] })
+        ? json({ page: 1, itemsPerPage: 200, totalItems: 1, list: [item("A", "2026-11-05")] })
         : json({ list: [item("C", "2026-09-10"), item("B", "2026-11-02")] }),
     ));
     expect((await fetchGreendaeroSourceState()).errors).toContain("그린대로 마감 탭: 마감일 내림차순이 아님 — 정렬 변경 의심");
