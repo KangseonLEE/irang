@@ -85,6 +85,28 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
   if [ "$OPEN_COUNT" != "0" ]; then
     echo "ℹ️  열린 watchman 이슈가 이미 ${OPEN_COUNT}건 있어요. 새 이슈를 만들지 않아요."
     echo "    (미해결 항목 정리 후 이슈를 닫으면 다음 실행에서 새로 보고해요)"
+    # 🔴 는 열린 이슈에 댓글로 알린다 — 10/29 §20 🔴(원천 마감인데 화면은 접수 중)가 10/28 🟡 이슈에 막혀
+    # 로그에만 남았다. 🟡·⚪ 는 이슈를 닫은 뒤 새 이슈로 충분하지만 🔴 는 하루도 묵히면 안 된다.
+    if [ "$CRIT" -gt 0 ]; then
+      OPEN_NUM=$(gh issue list --label "watchman" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+      CRIT_ROWS=$(grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ printf "| 🔴 | %s | %s |\n", $2, $3 }')
+      COMMENT_FILE=$(mktemp)
+      {
+        echo "## 🔴 새 즉시 액션 — $(date -u '+%Y-%m-%d %H:%M UTC')"
+        echo ""
+        echo "이 이슈가 열려 있어 새 이슈 대신 댓글로 알려요."
+        echo ""
+        echo "| 등급 | 항목 | 근거 |"
+        echo "|------|------|------|"
+        printf '%b' "$CRIT_ROWS"
+      } > "$COMMENT_FILE"
+      if [ -n "${OPEN_NUM:-}" ] && ERR=$(gh issue comment "$OPEN_NUM" --body-file "$COMMENT_FILE" 2>&1); then
+        echo "✅ 열린 이슈 #${OPEN_NUM} 에 🔴 ${CRIT}건을 댓글로 남겼어요."
+      else
+        echo "⚠️  🔴 댓글 실패: ${ERR:-열린 이슈 번호를 못 찾음} — 워크플로 실패 상태가 대체 알림이에요."
+      fi
+      rm -f "$COMMENT_FILE"
+    fi
   else
     TITLE_PREFIX="🛡️ watchman 감시 이상"
     [ "$CRIT" -gt 0 ] && TITLE_PREFIX="🛡️ watchman 감시 이상 🔴"
