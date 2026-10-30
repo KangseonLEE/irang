@@ -215,7 +215,6 @@ function isPageOrLayout(path: string): boolean {
 }
 
 function analyze(recs: FileRec[]): { failures: Failure[]; carries: Set<string> } {
-  const byPath = new Map(recs.map((r) => [r.path, r]));
   const stripped = new Map(recs.map((r) => [r.path, stripComments(r.source)]));
 
   // ── P1: carries fixpoint ──

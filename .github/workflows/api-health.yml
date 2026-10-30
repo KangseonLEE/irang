@@ -130,9 +130,22 @@ jobs:
           check_api "HIRA" \
             "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList?serviceKey=${DATA_GO_KR_API_KEY:-MISSING}&sidoCd=110000&pageNo=1&numOfRows=1&_type=json"
 
-          # ── 5. NEIS (교육부) ────────────────────────────────────────
-          check_api "NEIS" \
-            "https://open.neis.go.kr/hub/schulInfo?KEY=${NEIS_API_KEY:-MISSING}&Type=json&pIndex=1&pSize=1&SCHUL_KND_SC_NM=초등학교"
+          # ── 5. NEIS (교육부) — 앱 실사용 경로(education.ts·school-list route 의 hub/schoolInfo)와 동일.
+          #      10/30: 종전 hub/schulInfo 오타는 200 + {"RESULT":{"CODE":"ERROR-310"}} 를 ✅ 로 통과시켰다(C6).
+          #      NEIS 는 키가 틀려도 200 + ERROR-290 이라 본문까지 본다 ──────────────────────────
+          NEIS_URL="https://open.neis.go.kr/hub/schoolInfo?KEY=${NEIS_API_KEY:-MISSING}&Type=json&pIndex=1&pSize=1&SCHUL_KND_SC_NM=%EC%B4%88%EB%93%B1%ED%95%99%EA%B5%90"
+          # 10/30 로컬 실측: 한글을 그대로 넣으면 200 + INFO-200(데이터 없음)·list_total_count 없음 → 퍼센트 인코딩(초등학교)
+          check_api "NEIS" "$NEIS_URL"
+          NEIS_BODY=$(curl -s --max-time "$TIMEOUT" "$NEIS_URL" 2>/dev/null || true)
+          if printf '%s' "$NEIS_BODY" | grep -q '"CODE":"ERROR-'; then
+            NEIS_ERR=$(printf '%s' "$NEIS_BODY" | sed -n 's/.*"CODE":"\(ERROR-[0-9]*\)".*/\1/p' | head -c 40)
+            RESULT_TABLE="${RESULT_TABLE}| NEIS 본문 | 키·경로 검증 | ❌ ${NEIS_ERR:-오류 응답} | | GitHub 시크릿 NEIS_API_KEY·요청 경로 확인 |\n"
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            echo "[❌] NEIS 본문 — ${NEIS_ERR:-오류 응답}"
+          elif ! printf '%s' "$NEIS_BODY" | grep -q 'list_total_count'; then
+            RESULT_TABLE="${RESULT_TABLE}| NEIS 본문 | 형식 검증 | ⚠️ list_total_count 없음 | | 응답 형식 변경 의심 |\n"
+            echo "[⚠️] NEIS 본문 — list_total_count 없음"
+          fi
 
           # ── 6. RDA (농진청 청년농 API) — 앱 실사용 경로(rda.ts policyList). typeDv=json 필수(없으면 code -97) ──
           check_api "RDA" \
