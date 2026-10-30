@@ -377,10 +377,14 @@ export function mapEduItem(raw: GdEduItem, today: string): CrawledItem | null {
  * 그린대로 통합교육신청 목록 수집.
  * 접수가 열려 있거나 예정인 건만 남긴다 (마감은 버린다).
  *
+ * `ddlnYn=N`(사이트 '접수중' 탭, applicationList.js) 으로 원천이 접수 중으로 보는 과정만 받는다 (10/30).
+ * 전체 목록(2,780건)은 순서가 날마다 바뀌어 3쪽(600건) 안에 접수 중 과정이 다 들어온다는 보장이 없었고
+ * (10/28 b69ceddf 가 하루 만에 뒤쪽 쪽으로 밀림), N 탭은 99건 한 번 요청 · 1.3초다.
+ *
  * @param today KST 오늘 (YYYY-MM-DD) — sync-crawl 이 crawl-utils `kstToday()` 로 넘긴다. 10/4 이전엔 여기서
  *              UTC 로 계산해, 06:00 KST 스케줄(21:00 UTC 전날)에서 하루 전 날짜로 접수 상태를 매겼다.
  *              이 파일은 tsc 제약(TS5097)으로 crawl-utils 의 값을 import 할 수 없어 인자로 받는다
- * @param maxPages 페이지 수 (1페이지 = 200건, 기본 3페이지 = 600건)
+ * @param maxPages 페이지 수 (1페이지 = 200건, 기본 3페이지 = 600건 — 접수중 탭은 10/30 99건)
  */
 export async function fetchGreendaeroEducation(
   today: string,
@@ -396,7 +400,7 @@ export async function fetchGreendaeroEducation(
     try {
       // 재시도는 1페이지만 — 1페이지가 응답했다면 원천은 살아 있다 (150초 wall-clock 보호)
       json = await getJson<GdEduResponse>(
-        `${EDU_LIST_URL}?page=${page}&itemsPerPage=${itemsPerPage}`,
+        `${EDU_LIST_URL}?page=${page}&itemsPerPage=${itemsPerPage}&ddlnYn=N`,
         EDU_REFERER,
         20000,
         page === 1,
@@ -420,7 +424,6 @@ export async function fetchGreendaeroEducation(
       break;
     }
 
-    const before = collected.length;
     for (const raw of json.list) {
       const item = mapEduItem(raw, today);
       if (!item) continue;
@@ -436,12 +439,184 @@ export async function fetchGreendaeroEducation(
     );
 
     if (json.list.length < itemsPerPage) break;
-    // 목록은 교육 시작일 오름차순이라 접수 중인 건은 앞쪽에 몰린다.
-    // 한 페이지가 아무것도 보태지 못하면 뒤 페이지도 마찬가지다 (실측: 2·3페이지 0건 / 16초).
-    if (collected.length === before) break;
   }
 
   return { items: collected, errors };
+}
+
+// ═══════════════════════════════════════
+// 1-1. 원천 상태 대조 — 이미 적재한 행의 날짜·마감을 원천에 맞춘다 (10/30)
+// ═══════════════════════════════════════
+
+/** 원천이 준 과정 하나의 접수 기간 */
+export interface GdWindow {
+  start?: string;
+  end?: string;
+}
+
+export interface GdSourceState {
+  /** 원천 '접수중' 탭 전부 — eduDetailCrseId → 접수 기간 */
+  open: Map<string, GdWindow>;
+  /** 원천 '마감' 탭 1쪽 — 접수 마감일 내림차순이라 최근 약 7주 마감분이 다 들어온다 */
+  closed: Map<string, GdWindow>;
+  /** 마감 탭 1쪽의 가장 이른 마감일 — 이보다 앞서 마감된 과정은 closed 에 없다 */
+  closedFloor?: string;
+  /** 하나라도 비면 대조하지 않는다 (T17 — 덜 읽은 원천으로 '사라짐'을 판정하지 않는다) */
+  errors: string[];
+}
+
+/**
+ * 원천 접수 상태 두 탭을 읽는다.
+ * 수집 행은 한 번 검증되면 sync-crawl 이 다시 쓰지 않아(is_verified 건너뜀) 원천이 마감일을 바꾸거나
+ * 일찍 닫아도 화면은 처음 값으로 '모집중'이었다 — 10/27~30 watchman §20 이 매일 1~3행씩 잡았고
+ * 그때마다 SQL 로 고쳤다(20261028_greendaero_education_source_drift). 이 상태로 매일 스스로 맞춘다.
+ */
+export async function fetchGreendaeroSourceState(itemsPerPage = 200): Promise<GdSourceState> {
+  const open = new Map<string, GdWindow>();
+  const closed = new Map<string, GdWindow>();
+  const errors: string[] = [];
+  const windowOf = (raw: GdEduItem): GdWindow => ({
+    start: toIsoDate(raw.eduRcrtBgngDt),
+    end: toIsoDate(raw.eduRcrtEndDt),
+  });
+
+  // 접수중 탭 — 전부 (쪽수는 총건수로 끝낸다)
+  for (let page = 1; page <= 5; page++) {
+    let json: GdEduResponse;
+    try {
+      json = await getJson<GdEduResponse>(
+        `${EDU_LIST_URL}?page=${page}&itemsPerPage=${itemsPerPage}&ddlnYn=N`,
+        EDU_REFERER,
+        20000,
+        page === 1,
+      );
+    } catch (err) {
+      errors.push(`그린대로 접수중 탭 ${page}페이지 요청 실패${describeGdFailure(err, page === 1)}`);
+      break;
+    }
+    if (!Array.isArray(json.list)) {
+      errors.push(`그린대로 접수중 탭 ${page}페이지: list 가 없음 — 응답 형식 변경 의심`);
+      break;
+    }
+    for (const raw of json.list) {
+      const id = (raw.eduDetailCrseId ?? "").trim();
+      if (id) open.set(id, windowOf(raw));
+    }
+    if (json.list.length < itemsPerPage) {
+      const total = Number(json.totalItems ?? 0);
+      if (open.size < total) errors.push(`그린대로 접수중 탭: totalItems ${total}인데 ${open.size}건만 읽음`);
+      break;
+    }
+    if (page === 5) errors.push(`그린대로 접수중 탭: 5쪽(${5 * itemsPerPage}건)을 넘음 — 쪽수 한도 확인`);
+  }
+
+  // 마감 탭 1쪽 — 마감일 내림차순이어야 '최근 마감분이 다 있다'가 성립한다
+  try {
+    const json = await getJson<GdEduResponse>(
+      `${EDU_LIST_URL}?page=1&itemsPerPage=${itemsPerPage}&ddlnYn=Y`,
+      EDU_REFERER,
+      25000,
+      true,
+    );
+    if (!Array.isArray(json.list) || json.list.length === 0) {
+      errors.push("그린대로 마감 탭: 목록이 비었음 — 응답 형식 변경 의심");
+    } else {
+      const ends = json.list.map((raw) => toIsoDate(raw.eduRcrtEndDt) ?? "");
+      if (ends.some((e, i) => i > 0 && e > ends[i - 1])) {
+        errors.push("그린대로 마감 탭: 마감일 내림차순이 아님 — 정렬 변경 의심");
+      }
+      for (const raw of json.list) {
+        const id = (raw.eduDetailCrseId ?? "").trim();
+        if (id) closed.set(id, windowOf(raw));
+      }
+      return { open, closed, closedFloor: ends[ends.length - 1] || undefined, errors };
+    }
+  } catch (err) {
+    errors.push(`그린대로 마감 탭 요청 실패${describeGdFailure(err, true)}`);
+  }
+  return { open, closed, errors };
+}
+
+/** 대조 대상 — 우리 DB 에서 아직 접수 중·예정으로 보이는 그린대로 교육 수집 행 */
+export interface GdDbRow {
+  table: "education_courses" | "farm_events";
+  slug: string;
+  url: string | null;
+  application_start: string | null;
+  application_end: string | null;
+}
+
+export interface GdReconcileChange {
+  table: GdDbRow["table"];
+  slug: string;
+  /** 바꿀 칸 — 날짜는 원천 값, 원천이 일찍 닫은 과정은 전날로 마감 */
+  patch: { application_start?: string; application_end?: string; link_status?: "broken" };
+  reason: "날짜 변경" | "원천 마감" | "원천 조기 마감" | "원천에서 사라짐";
+  from: string;
+  to: string;
+}
+
+/** 수집 URL 의 seq2 = eduDetailCrseId */
+export function gdDetailIdOf(url: string | null): string | null {
+  const m = url?.match(/[?&]seq2=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/**
+ * 원천 상태와 DB 행을 대조해 바꿀 칸을 정한다 (순수 함수 — 쓰기는 호출부).
+ *
+ * - 접수중 탭에 있고 날짜가 다름 → 원천 날짜로 (b69ceddf: 마감 10/28 → 10/29, e944c1e4: 11/6 → 11/9)
+ * - 마감 탭에 있음 → 원천 마감일이 지났으면 그 날짜(481af968: 11/4 → 10/28),
+ *   아직 안 지났는데 닫혔으면(정원 마감 등) 어제 날짜로 마감 — 화면 상태가 날짜에서만 나오므로
+ *   (program-status deriveStatus) '오늘 이미 닫혀 있음'을 나타낼 유일한 값이다
+ * - 두 탭 어디에도 없음 → 원천에서 과정이 내려감(541f897a 와 같은 경우).
+ *   교육은 link_status='broken'(목록 숨김·상세 대체 안내), 행사는 그 칸이 없어 어제 날짜로 마감
+ * - 접수 시작 전(모집예정) 행은 접수중 탭에 없을 수 있어 건드리지 않는다
+ */
+export function planGreendaeroReconcile(
+  rows: GdDbRow[],
+  state: Pick<GdSourceState, "open" | "closed">,
+  today: string,
+  yesterday: string,
+): GdReconcileChange[] {
+  const changes: GdReconcileChange[] = [];
+  for (const row of rows) {
+    const id = gdDetailIdOf(row.url);
+    if (!id) continue;
+    const ours = `${row.application_start ?? "?"}~${row.application_end ?? "?"}`;
+    const base = { table: row.table, slug: row.slug, from: ours };
+
+    const open = state.open.get(id);
+    if (open) {
+      if (!open.end) continue;
+      const patch: GdReconcileChange["patch"] = {};
+      if (open.start && open.start !== row.application_start) patch.application_start = open.start;
+      if (open.end !== row.application_end) patch.application_end = open.end;
+      if (Object.keys(patch).length > 0) {
+        changes.push({ ...base, patch, reason: "날짜 변경", to: `${open.start ?? "?"}~${open.end}` });
+      }
+      continue;
+    }
+
+    if (row.application_start && row.application_start > today) continue;
+
+    const closed = state.closed.get(id);
+    if (closed) {
+      if (closed.end && closed.end < today) {
+        changes.push({ ...base, patch: { application_end: closed.end }, reason: "원천 마감", to: `~${closed.end}` });
+      } else {
+        changes.push({ ...base, patch: { application_end: yesterday }, reason: "원천 조기 마감", to: `~${yesterday}` });
+      }
+      continue;
+    }
+
+    if (row.table === "education_courses") {
+      changes.push({ ...base, patch: { link_status: "broken" }, reason: "원천에서 사라짐", to: "broken" });
+    } else {
+      changes.push({ ...base, patch: { application_end: yesterday }, reason: "원천에서 사라짐", to: `~${yesterday}` });
+    }
+  }
+  return changes;
 }
 
 // ═══════════════════════════════════════

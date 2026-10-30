@@ -41,6 +41,10 @@ import { normalizeRegion, regionLabel } from "../_shared/region.ts";
 import {
   fetchGreendaeroEducation,
   fetchGreendaeroLive,
+  fetchGreendaeroSourceState,
+  planGreendaeroReconcile,
+  type GdDbRow,
+  type GdReconcileChange,
 } from "../_shared/greendaero.ts";
 
 /** 타겟당 적재 상한 (Edge Function wall-clock 보호) */
@@ -77,8 +81,17 @@ interface CrawlResult {
   skipped: number;
   /** 항목 단위 분류로 실제 적재된 테이블별 건수 */
   byTable: Record<string, number>;
+  /** 이미 적재한 행을 원천 상태에 맞춰 고친 내역 (그린대로 교육만, 10/30) */
+  reconciled?: GdReconcileChange[];
   errors: string[];
 }
+
+/**
+ * 원천 대조 한 번에 고칠 수 있는 최대 비율 — 넘으면 원천 이상(탭 의미 변경·부분 응답)으로 보고 쓰지 않는다.
+ * 10/27~30 실측: 접수 중 103행 중 하루 1~5행이 어긋났다.
+ */
+const RECONCILE_MAX_RATIO = 0.3;
+const RECONCILE_MIN_CAP = 10;
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
@@ -184,6 +197,7 @@ Deno.serve(async (req: Request) => {
         new: r.newItems,
         skipped: r.skipped,
         byTable: r.byTable,
+        ...(r.reconciled ? { reconciled: r.reconciled } : {}),
       })),
       timestamp: new Date().toISOString(),
     },
@@ -241,6 +255,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
   let newItems = 0;
   let skipped = 0;
   let items: CrawledItem[] = [];
+  let reconciled: GdReconcileChange[] | undefined;
 
   const deadline = Date.now() + CRAWL_DEADLINE_MS;
 
@@ -483,6 +498,12 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     console.log(
       `[sync-crawl] ${target.name} 완료: ${newItems}건 적재(${JSON.stringify(byTable)}), ${skipped}건 스킵, URL 체크 ${checks}회`
     );
+
+    // ── 5. 원천 상태 대조 (그린대로 교육) ──
+    // 검증된 행은 위 upsert 에서 빠지므로, 원천이 마감일을 바꾸거나 일찍 닫은 것은 여기서만 따라간다.
+    if (target.id === "greendaero-education") {
+      reconciled = await reconcileGreendaero(supabase, today, errors);
+    }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`${target.name}: ${msg}`);
@@ -496,6 +517,65 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     newItems,
     skipped,
     byTable,
+    ...(reconciled ? { reconciled } : {}),
     errors,
   };
+}
+
+/**
+ * 그린대로 교육 수집 행(교육·행사 두 테이블)을 원천 접수 상태에 맞춘다.
+ * 원천 두 탭 중 하나라도 덜 읽었거나, 고칠 행이 비정상으로 많으면 아무것도 쓰지 않고 오류로 남긴다(T17).
+ */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaero(supabase: any, today: string, errors: string[]): Promise<GdReconcileChange[]> {
+  const state = await fetchGreendaeroSourceState();
+  if (state.errors.length > 0) {
+    errors.push(...state.errors.map((m) => `원천 대조 건너뜀: ${m}`));
+    return [];
+  }
+
+  const rows: GdDbRow[] = [];
+  const edu = await supabase
+    .from("education_courses")
+    .select("slug, url, application_start, application_end")
+    .like("slug", "crawl-greendaero-education-%")
+    .gte("application_end", today)
+    .or("link_status.is.null,link_status.neq.broken");
+  const evt = await supabase
+    .from("farm_events")
+    .select("slug, url, application_start, application_end")
+    .like("slug", "crawl-greendaero-education-%")
+    .gte("application_end", today);
+  for (const [table, res] of [["education_courses", edu], ["farm_events", evt]] as const) {
+    if (res.error) {
+      errors.push(`원천 대조 건너뜀: ${table} 조회 실패 — ${res.error.message}`);
+      return [];
+    }
+    for (const r of res.data ?? []) rows.push({ table, ...r });
+  }
+
+  const yesterday = kstToday(Date.now() - 86_400_000);
+  const changes = planGreendaeroReconcile(rows, state, today, yesterday);
+  const cap = Math.max(RECONCILE_MIN_CAP, Math.ceil(rows.length * RECONCILE_MAX_RATIO));
+  if (changes.length > cap) {
+    errors.push(`원천 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
+    return [];
+  }
+
+  const applied: GdReconcileChange[] = [];
+  for (const c of changes) {
+    const { error } = await supabase
+      .from(c.table)
+      .update({ ...c.patch, updated_at: new Date().toISOString() })
+      .eq("slug", c.slug);
+    if (error) {
+      errors.push(`원천 대조 ${c.table}:${c.slug} 쓰기 실패 — ${error.message}`);
+      continue;
+    }
+    applied.push(c);
+    console.log(`[sync-crawl] 원천 대조 ${c.reason}: ${c.table}:${c.slug} ${c.from} → ${c.to}`);
+  }
+  console.log(`[sync-crawl] 원천 대조: 대상 ${rows.length}행 · 고침 ${applied.length}건`);
+  return applied;
 }
