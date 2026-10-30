@@ -114,6 +114,7 @@ https://www.yyg.go.kr/ 센터 영양군청(10/7 #165 미국 404 · 한국 200 "�
 https://www.goseong.go.kr/ 센터 고성군청(경남, 10/7 #165 미국 400 · 한국 200 "경상남도 고성군청")
 https://jung.daegu.kr/ 센터 대구 중구청(봇 방어: JS 쿠키 확인 후 새로고침 — 자동 점검은 늘 400 · 10/8 쿠키 재현 200 "대구광역시 중구청" → /new/pages/main/ "대구광역시 중구")
 http://www.sbdream.kr/home/bbs/board.php?bo_table=basic&wr_id=125 ED-008(10/10·10/11 #170·#171 미국 403 · 한국 200 ‘2026년 영주시 체류형농업창업지원센터(소백산귀농드림타운) 교육생 모집 안내’)
+https://www.chungju.go.kr/www/selectBbsNttView.do?key=494&bbsNo=6&nttNo=322328 SP-078(10/30 #191 미국 502 3회 · 한국 200 6.8초 ‘오늘의 뉴스 상세보기 - 충주시청’ · 본문 2027년 과수 시설현대화 및 명품과원조성사업)
 GEO
 
 is_geo_url() {

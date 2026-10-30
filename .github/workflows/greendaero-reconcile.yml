@@ -1,0 +1,39 @@
+# 그린대로 교육 원천 대조 — 하루 중 추가 3회 (2026-10-30)
+#
+# 06:00 KST 수집(sync-data.yml) 한 번으로는 그린대로가 낮에 바꾼 접수 상태(조기 마감·접수 재개·마감 연장)가
+# 다음 날 아침까지 화면에 남았다 (10/30 #192: a5488c12 오후 조기 마감 🔴 · 25ec120f 접수 재개 🟡 — 둘 다 11:53 수집 뒤
+# 바뀐 것, 15:10 dispatch 로 해소). 사람이 dispatch 하던 그 일을 스케줄로 옮긴다.
+#
+# - 타깃은 greendaero-education 하나 — upsert 는 검증된 행을 건너뛰고(skipped), 원천 대조(reconcile)만 실질 동작
+# - Vercel 은 건드리지 않는다: Supabase Edge Function 1회 + DB 쓰기뿐. 교육 목록은 요청 때 DB 를 읽고 상세는 ISR 1시간
+# - 실패 판정·로그는 sync-data.yml 과 같은 scripts/sync/crawl-target.sh
+# - watchman §15(check-schedule-health.sh) 가 이 워크플로의 스케줄 실패도 본다
+
+name: "그린대로 원천 대조"
+
+on:
+  schedule:
+    - cron: "30 2 * * *" # 11:30 KST
+    - cron: "30 5 * * *" # 14:30 KST — watchman §20(요즘 14:50 KST 실행) 직전
+    - cron: "30 9 * * *" # 18:30 KST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: greendaero-reconcile
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: "greendaero-education 원천 대조"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: "sync-crawl greendaero-education"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: bash scripts/sync/crawl-target.sh greendaero-education false
