@@ -74,7 +74,9 @@ fi
 ISSUE_ROWS=""
 while IFS='|' read -r g item reason; do
   [ -z "${item:-}" ] && continue
-  ISSUE_ROWS="${ISSUE_ROWS}| ${g} | ${item} | ${reason} |\n"
+  # 실제 줄바꿈으로 잇는다 — 예전 '\n' + echo -e 는 근거 안의 백슬래시(C:\new 등)를 이스케이프로 해석했다(10/30 2차 QA Y2)
+  reason="${reason//|/\\|}" # 근거 안의 '|' 가 표 칸을 가르지 않게
+  ISSUE_ROWS="${ISSUE_ROWS}| ${g} | ${item} | ${reason} |"$'\n'
 done < "$FINDINGS_FILE"
 
 if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
@@ -89,8 +91,6 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
     # 로그에만 남았다. 🟡·⚪ 는 이슈를 닫은 뒤 새 이슈로 충분하지만 🔴 는 하루도 묵히면 안 된다.
     if [ "$CRIT" -gt 0 ]; then
       OPEN_NUM=$(gh issue list --label "watchman" --state open --json number --jq '.[0].number' 2>/dev/null || true)
-      # 근거($3 이후)에 '|' 가 더 있어도 잘리지 않게 3번째 칸부터 다시 잇는다
-      CRIT_ROWS=$(grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ r=$3; for (i=4; i<=NF; i++) r=r "|" $i; gsub(/\|/, "\\|", r); printf "| 🔴 | %s | %s |\n", $2, r }')
       COMMENT_FILE=$(mktemp)
       {
         echo "## 🔴 새 즉시 액션 — $(date -u '+%Y-%m-%d %H:%M UTC')"
@@ -99,7 +99,9 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
         echo ""
         echo "| 등급 | 항목 | 근거 |"
         echo "|------|------|------|"
-        printf '%b' "$CRIT_ROWS"
+        # 근거($3 이후)에 '|' 가 더 있어도 잘리지 않게 3번째 칸부터 다시 잇는다. awk 가 바로 쓰므로
+        # 근거 안의 백슬래시가 이스케이프로 해석되지 않는다(예전 printf '%b' 는 \c 에서 출력이 끊겼다, Y2)
+        grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ r=$3; for (i=4; i<=NF; i++) r=r "|" $i; gsub(/\|/, "\\|", r); printf "| 🔴 | %s | %s |\n", $2, r }'
       } > "$COMMENT_FILE"
       if [ -n "${OPEN_NUM:-}" ] && ERR=$(gh issue comment "$OPEN_NUM" --body-file "$COMMENT_FILE" 2>&1); then
         echo "✅ 열린 이슈 #${OPEN_NUM} 에 🔴 ${CRIT}건을 댓글로 남겼어요."
@@ -118,7 +120,7 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
 
 | 등급 | 항목 | 근거 |
 |------|------|------|
-$(echo -e "$ISSUE_ROWS")
+$(printf '%s' "$ISSUE_ROWS")
 
 ### 이 이슈는 왜 자동으로 생겼나
 

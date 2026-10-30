@@ -77,15 +77,33 @@ describe("PageViewTracker — 제목이 빈 순간에 보내지 않는다", () =
     expect(pageViews()).toEqual([{ page_path: "/regions/gyeonggi", page_location: window.location.href, page_title: "" }]);
   });
 
-  it("기다리는 중에 또 이동하면 앞 페이지도 한 번은 보내고, 뒤 페이지는 새로 센다", () => {
+  it("기다리는 중에 또 이동하면 앞 페이지는 잡아 둔 주소·빈 제목으로 보내고, 뒤 페이지는 새로 센다 (Y1)", () => {
     const { rerender } = render(<PageViewTracker />);
+    window.history.pushState(null, "", "/regions/gyeonggi");
     navigate(rerender, "/regions/gyeonggi", "");
+    window.history.pushState(null, "", "/regions/gyeonggi/yongin"); // 다음 이동 — location 은 이미 다음 페이지
     navigate(rerender, "/regions/gyeonggi/yongin", "용인 귀농 | 이랑");
-    expect(pageViews().map((p) => p.page_path)).toEqual(["/regions/gyeonggi", "/regions/gyeonggi/yongin"]);
+    expect(pageViews()).toEqual([
+      { page_path: "/regions/gyeonggi", page_location: "http://localhost:3000/regions/gyeonggi", page_title: "" },
+      { page_path: "/regions/gyeonggi/yongin", page_location: "http://localhost:3000/regions/gyeonggi/yongin", page_title: "용인 귀농 | 이랑" },
+    ]);
     act(() => {
       vi.advanceTimersByTime(PAGE_TITLE_WAIT_MS);
     });
     expect(pageViews()).toHaveLength(2); // 타이머가 남아 두 번 보내지 않는다
+  });
+
+  it("제목이 비어 있는 동안 본문만 바뀌면 보내지 않는다 — 제목이 올 때까지 기다린다 (T5)", async () => {
+    const { rerender } = render(<PageViewTracker />);
+    navigate(rerender, "/crops/eggplant", "");
+    await act(async () => {
+      document.body.appendChild(document.createElement("section")); // 스트리밍 본문이 먼저 온다
+    });
+    expect(pageViews()).toHaveLength(0);
+    await act(async () => {
+      document.title = "가지 | 이랑";
+    });
+    expect(pageViews().map((p) => p.page_title)).toEqual(["가지 | 이랑"]);
   });
 
   it("같은 경로로 다시 렌더되면 보내지 않는다", () => {

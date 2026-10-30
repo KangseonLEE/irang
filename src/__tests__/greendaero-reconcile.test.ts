@@ -8,6 +8,7 @@ import {
   fetchGreendaeroSourceState,
   gdDetailIdOf,
   planGreendaeroReconcile,
+  reconcileCap,
   type GdDbRow,
   type GdWindow,
 } from "../../supabase/functions/_shared/greendaero";
@@ -21,7 +22,8 @@ const row = (
   id: string,
   start: string,
   end: string,
-): GdDbRow => ({ table, slug: `crawl-greendaero-education-${id}`, url: url(id), application_start: start, application_end: end });
+  linkStatus: string | null = "active",
+): GdDbRow => ({ table, slug: `crawl-greendaero-education-${id}`, url: url(id), application_start: start, application_end: end, link_status: linkStatus });
 
 const state = (open: Record<string, GdWindow>, closed: Record<string, GdWindow>) => ({
   open: new Map(Object.entries(open)),
@@ -89,9 +91,52 @@ describe("planGreendaeroReconcile — 원천 상태에 맞춰 바꿀 칸", () =>
     ]);
   });
 
+  it("접수중 탭에 있는데 원천 마감일이 없으면 손대지 않는다 (G4)", () => {
+    const rows = [row("education_courses", "NOEND", "2026-10-01", "2026-11-05")];
+    expect(planGreendaeroReconcile(rows, state({ NOEND: { start: "2026-10-01" } }, {}), TODAY, YESTERDAY)).toEqual([]);
+  });
+
+  // ── 되돌림(2차 QA R1): 원천이 다시 열거나 늘린 과정 ──
+  it("어제로 닫아 둔 행이 접수중 탭에 다시 있으면 원천 날짜로 되돌린다 (c0bd5148·a5488c12)", () => {
+    const rows = [row("education_courses", "C0BD", "2026-09-28", "2026-10-25")];
+    const [c] = planGreendaeroReconcile(rows, state({ C0BD: { start: "2026-09-28", end: "2026-11-01" } }, {}), TODAY, YESTERDAY);
+    expect(c).toMatchObject({ reason: "원천 재개", patch: { application_end: "2026-11-01" } });
+  });
+
+  it("broken 으로 숨긴 교육이 접수중 탭에 다시 있으면 active 로 되돌린다", () => {
+    const rows = [row("education_courses", "BRK", "2026-10-01", "2026-11-15", "broken")];
+    const [c] = planGreendaeroReconcile(rows, state({ BRK: { start: "2026-10-01", end: "2026-11-15" } }, {}), TODAY, YESTERDAY);
+    expect(c).toMatchObject({ reason: "원천 재개", patch: { link_status: "active" } });
+    expect(c.patch.application_end).toBeUndefined(); // 날짜는 같으니 그대로
+  });
+
+  it("어제로 닫은 행사가 접수중 탭에 다시 있으면 원천 마감일로 되돌린다", () => {
+    const rows = [{ ...row("farm_events", "EV", "2026-10-09", YESTERDAY), link_status: undefined }];
+    const [c] = planGreendaeroReconcile(rows, state({ EV: { start: "2026-10-09", end: "2026-11-04" } }, {}), TODAY, YESTERDAY);
+    expect(c).toMatchObject({ table: "farm_events", reason: "원천 재개", patch: { application_end: "2026-11-04" } });
+  });
+
+  it("이미 마감·숨김인 행이 두 탭 어디에도 없으면 아무것도 하지 않는다 — 마감 쪽으로는 더 갈 데가 없다", () => {
+    const rows = [
+      row("education_courses", "OLD", "2026-09-01", "2026-10-20"),
+      row("education_courses", "BRK2", "2026-10-01", "2026-11-15", "broken"),
+    ];
+    expect(planGreendaeroReconcile(rows, state({}, { OLD: { start: "2026-09-01", end: "2026-10-20" } }), TODAY, YESTERDAY)).toEqual([]);
+  });
+
   it("접수 시작 전 행은 접수중 탭에 없어도 건드리지 않는다", () => {
     const rows = [row("education_courses", "SOON", "2026-11-10", "2026-11-20")];
     expect(planGreendaeroReconcile(rows, state({}, {}), TODAY, YESTERDAY)).toEqual([]);
+  });
+
+  it("seq2 는 퍼센트 인코딩을 풀고, 깨진 인코딩은 원문 그대로 쓴다 (G5·Y3a)", () => {
+    expect(gdDetailIdOf("https://x/y.do?seq1=A&seq2=EDUDCRSE%5F1")).toBe("EDUDCRSE_1");
+    expect(gdDetailIdOf("https://x/y.do?seq2=%E0%A4%A")).toBe("%E0%A4%A");
+    expect(gdDetailIdOf("https://x/y.do?seq2=ABC#frag")).toBe("ABC");
+  });
+
+  it("한도: 30% 에 최소 3 — 작은 대상에서도 전부 바꾸는 건 막는다 (Y4)", () => {
+    expect([0, 1, 9, 10, 33, 40, 103].map(reconcileCap)).toEqual([3, 3, 3, 3, 10, 12, 31]);
   });
 
   it("원문 주소에 seq2 가 없으면 대조하지 않는다", () => {
@@ -117,6 +162,40 @@ describe("fetchGreendaeroSourceState — 덜 읽은 원천으로 판정하지 �
     expect([...s.open.keys()]).toEqual(["A"]);
     expect([...s.closed.keys()]).toEqual(["B", "C"]);
     expect(s.closedFloor).toBe("2026-09-10");
+  });
+
+  it("접수중 탭이 여러 쪽이면 끝까지 읽는다 (G6)", async () => {
+    const page1 = Array.from({ length: 3 }, (_, i) => item(`P${i}`, "2026-11-05"));
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => {
+      if (!u.includes("ddlnYn=N")) return json({ list: [item("B", "2026-11-02")] });
+      return u.includes("page=1")
+        ? json({ page: 1, itemsPerPage: 3, totalItems: 4, list: page1 })
+        : json({ page: 2, itemsPerPage: 3, totalItems: 4, list: [item("P3", "2026-11-06")] });
+    }));
+    const s = await fetchGreendaeroSourceState(3);
+    expect(s.errors).toEqual([]);
+    expect([...s.open.keys()]).toEqual(["P0", "P1", "P2", "P3"]);
+  });
+
+  it("마감 탭에 같은 회차가 두 번이면 마감일이 늦은 쪽, 마감일 없는 행은 정렬 검사에서 뺀다 (G9·Y3b)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (u: string) =>
+      u.includes("ddlnYn=N")
+        ? json({ page: 1, itemsPerPage: 200, totalItems: 1, list: [item("A", "2026-11-05")] })
+        : json({ list: [{ eduDetailCrseId: "N", eduRcrtBgngDt: "2026-10-01", eduRcrtEndDt: null }, item("D", "2026-10-28"), item("D", "2026-10-20"), item("C", "2026-09-10")] }),
+    ));
+    const s = await fetchGreendaeroSourceState();
+    expect(s.errors).toEqual([]);
+    expect(s.closed.get("D")?.end).toBe("2026-10-28");
+    expect(s.closedFloor).toBe("2026-09-10");
+  });
+
+  it("접수중 탭 totalItems 가 해석 불가면 오류 (Y3c)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (u: string) =>
+      u.includes("ddlnYn=N")
+        ? json({ page: 1, itemsPerPage: 200, totalItems: "abc", list: [item("A", "2026-11-05")] })
+        : json({ list: [item("B", "2026-11-02")] }),
+    ));
+    expect((await fetchGreendaeroSourceState()).errors[0]).toMatch(/totalItems 해석 불가/);
   });
 
   it("접수중 탭이 0건이면 오류 — 빈 원천을 믿으면 전부 '사라짐'이 된다 (10/30 QA 🟡4)", async () => {

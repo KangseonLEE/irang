@@ -481,6 +481,7 @@ export async function fetchGreendaeroSourceState(itemsPerPage = 200): Promise<Gd
   });
 
   // 접수중 탭 — 전부 (쪽수는 총건수로 끝낸다)
+  let openRead = 0;
   for (let page = 1; page <= 5; page++) {
     let json: GdEduResponse;
     try {
@@ -500,11 +501,16 @@ export async function fetchGreendaeroSourceState(itemsPerPage = 200): Promise<Gd
     }
     for (const raw of json.list) {
       const id = (raw.eduDetailCrseId ?? "").trim();
-      if (id) open.set(id, windowOf(raw));
+      if (id && !open.has(id)) open.set(id, windowOf(raw)); // 같은 회차가 두 번 오면 첫 항목
     }
+    openRead += json.list.length;
     if (json.list.length < itemsPerPage) {
-      const total = Number(json.totalItems ?? 0);
-      if (open.size < total) errors.push(`그린대로 접수중 탭: totalItems ${total}인데 ${open.size}건만 읽음`);
+      const total = Number(json.totalItems);
+      if (!Number.isFinite(total) || total < 0) {
+        errors.push(`그린대로 접수중 탭: totalItems 해석 불가(${JSON.stringify(json.totalItems)}) — 형식 변경 의심`);
+      } else if (openRead < total) {
+        errors.push(`그린대로 접수중 탭: totalItems ${total}인데 ${openRead}건만 읽음`);
+      }
       // 접수 중 과정이 전국에 하나도 없는 날은 없다(9/29 이후 실측 최소 99건) — 빈 응답은 원천 이상으로 보고
       // 대조하지 않는다. 그냥 믿으면 마감 탭 1쪽 밖의 모든 행이 '사라짐'이 된다(T17, 10/30 QA 🟡4).
       if (open.size === 0) errors.push("그린대로 접수중 탭: 0건 — 원천 이상 의심(대조 안 함)");
@@ -524,15 +530,20 @@ export async function fetchGreendaeroSourceState(itemsPerPage = 200): Promise<Gd
     if (!Array.isArray(json.list) || json.list.length === 0) {
       errors.push("그린대로 마감 탭: 목록이 비었음 — 응답 형식 변경 의심");
     } else {
-      const ends = json.list.map((raw) => toIsoDate(raw.eduRcrtEndDt) ?? "");
+      // 마감일 없는 행은 정렬 검사에서 뺀다 — 하나 끼었다고 그날 대조 전체를 멈추지 않는다(2차 QA Y3b)
+      const ends = json.list.map((raw) => toIsoDate(raw.eduRcrtEndDt)).filter((e): e is string => !!e);
       if (ends.some((e, i) => i > 0 && e > ends[i - 1])) {
         errors.push("그린대로 마감 탭: 마감일 내림차순이 아님 — 정렬 변경 의심");
       }
       for (const raw of json.list) {
         const id = (raw.eduDetailCrseId ?? "").trim();
-        if (id) closed.set(id, windowOf(raw));
+        if (!id) continue;
+        const w = windowOf(raw);
+        const prev = closed.get(id);
+        // 같은 회차가 두 번이면 마감일이 늦은 쪽 — 이른 쪽을 믿으면 '조기 마감'을 지어낸다(2차 QA Y3d)
+        if (!prev || (w.end ?? "") > (prev.end ?? "")) closed.set(id, w);
       }
-      return { open, closed, closedFloor: ends[ends.length - 1] || undefined, errors };
+      return { open, closed, closedFloor: ends[ends.length - 1], errors };
     }
   } catch (err) {
     errors.push(`그린대로 마감 탭 요청 실패${describeGdFailure(err, true)}`);
@@ -547,14 +558,27 @@ export interface GdDbRow {
   url: string | null;
   application_start: string | null;
   application_end: string | null;
+  /** 교육만 — 'broken' 이면 화면이 숨긴다. 행사는 그 칸이 없다 */
+  link_status?: string | null;
+}
+
+/** 대조 대상에 넣는 '최근 마감' 행의 창 — 원천이 다시 열거나 늘린 과정을 되돌리기 위해(10/30 2차 QA R1) */
+export const RECONCILE_LOOKBACK_DAYS = 60;
+
+/**
+ * 한 번에 고칠 수 있는 최대 행 수 — 넘으면 원천 이상(탭 의미 변경·부분 응답)으로 보고 쓰지 않는다.
+ * 비율 30% 에 최소 3 — 최소를 10 으로 두면 대상 10행 이하에서 전부 broken 이 돼도 안 막혔다(2차 QA Y4).
+ */
+export function reconcileCap(rowCount: number): number {
+  return Math.max(3, Math.ceil(rowCount * 0.3));
 }
 
 export interface GdReconcileChange {
   table: GdDbRow["table"];
   slug: string;
   /** 바꿀 칸 — 날짜는 원천 값, 원천이 일찍 닫은 과정은 전날로 마감 */
-  patch: { application_start?: string; application_end?: string; link_status?: "broken" };
-  reason: "날짜 변경" | "원천 마감" | "원천 조기 마감" | "원천에서 사라짐";
+  patch: { application_start?: string; application_end?: string; link_status?: "broken" | "active" };
+  reason: "날짜 변경" | "원천 재개" | "원천 마감" | "원천 조기 마감" | "원천에서 사라짐";
   from: string;
   to: string;
 }
@@ -564,8 +588,13 @@ const UNKNOWN_DATE = "9999-12-31";
 
 /** 수집 URL 의 seq2 = eduDetailCrseId */
 export function gdDetailIdOf(url: string | null): string | null {
-  const m = url?.match(/[?&]seq2=([^&]+)/);
-  return m ? decodeURIComponent(m[1]) : null;
+  const m = url?.match(/[?&]seq2=([^&#]+)/);
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]);
+  } catch {
+    return m[1]; // 깨진 퍼센트 인코딩 한 행이 그날 대조 전체를 멈추지 않게(2차 QA Y3a)
+  }
 }
 
 /**
@@ -592,17 +621,25 @@ export function planGreendaeroReconcile(
     const ours = `${row.application_start ?? "?"}~${row.application_end ?? "?"}`;
     const base = { table: row.table, slug: row.slug, from: ours };
 
+    // 화면에 접수 중·예정으로 보이는 행인가 — 마감일이 없으면 모집중(deriveStatus), broken 은 숨김
+    const screenOpen = row.link_status !== "broken" && (!row.application_end || row.application_end >= today);
+
     const open = state.open.get(id);
     if (open) {
       if (!open.end) continue;
       const patch: GdReconcileChange["patch"] = {};
       if (open.start && open.start !== row.application_start) patch.application_start = open.start;
       if (open.end !== row.application_end) patch.application_end = open.end;
+      // 원천이 다시 열었거나 마감을 늘렸는데 우리가 닫아 둔 행(어제 날짜·broken)은 원천대로 되돌린다 (2차 QA R1)
+      if (row.table === "education_courses" && row.link_status === "broken") patch.link_status = "active";
       if (Object.keys(patch).length > 0) {
-        changes.push({ ...base, patch, reason: "날짜 변경", to: `${open.start ?? "?"}~${open.end}` });
+        changes.push({ ...base, patch, reason: screenOpen ? "날짜 변경" : "원천 재개", to: `${open.start ?? "?"}~${open.end}` });
       }
       continue;
     }
+
+    // 이미 화면에서 마감·숨김인 행은 접수중 탭에 다시 나타날 때만 손댄다(위) — 마감 쪽으로는 더 할 일이 없다
+    if (!screenOpen) continue;
 
     // 시작 전(모집예정) 행은 접수중 탭에 없을 수 있다. 시작일 미상(9999)은 '시작 전'이 아니라
     // 마감일까지 모집중으로 보이는 행(deriveStatus)이라 대조한다(10/30 QA 🟡3).

@@ -85,10 +85,17 @@ const realEnd = (end: string | null | undefined) => (!end || end === "9999-12-31
 
 /* ── 대상 모으기 ── */
 
-async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds: Set<string>; error?: string }> {
+/** 되돌림 감시 창 — 수집기 원천 대조(greendaero.ts RECONCILE_LOOKBACK_DAYS)와 같은 60일 */
+const GD_CLOSED_LOOKBACK_DAYS = 60;
+
+async function loadDbTargets(
+  today: string,
+): Promise<{ targets: Target[]; closedGd: Target[]; allIds: Set<string>; error?: string }> {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return { targets: [], allIds: new Set(), error: "Supabase 환경변수 없음" };
+  const empty = { targets: [], closedGd: [], allIds: new Set<string>() };
+  if (!url || !key) return { ...empty, error: "Supabase 환경변수 없음" };
+  const since = kstToday(Date.now() - GD_CLOSED_LOOKBACK_DAYS * 86_400_000);
   const sb = createClient(url, key, { auth: { persistSession: false } });
   const specs = [
     { table: "support_programs", kind: "지원사업", urlCol: "source_url", endCol: null, linkCol: "link_status" },
@@ -96,18 +103,25 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds
     { table: "farm_events", kind: "행사", urlCol: "url", endCol: "date_end", linkCol: null },
   ] as const;
   const targets: Target[] = [];
+  // 그린대로 교육 수집 행 중 화면이 마감·숨김인 최근 행 — 원천이 다시 열었는데 우리만 닫혀 있는지 본다(10/30 2차 QA R1)
+  const closedGd: Target[] = [];
   // 정적 병합 기준은 접수 중 행이 아니라 DB 의 모든 slug — 화면은 DB 에 있으면 DB 값을 쓴다(loadPrograms 병합 규칙)
   const allIds = new Set<string>();
   for (const s of specs) {
     const cols = ["slug", "title", s.urlCol, "application_start", "application_end", s.endCol, s.linkCol].filter(Boolean).join(",");
     const { data, error } = await sb.from(s.table).select(cols).limit(5000);
-    if (error) return { targets: [], allIds: new Set(), error: `${s.table} 조회 실패: ${error.message}` };
+    if (error) return { ...empty, error: `${s.table} 조회 실패: ${error.message}` };
     for (const r of (data ?? []) as unknown as Record<string, string | null>[]) {
       if (r.slug) allIds.add(r.slug);
       const end = r.application_end ?? (s.endCol ? r[s.endCol] : null);
-      if (!isOpen(r.application_start, end, today)) continue;
+      const broken = !!s.linkCol && r[s.linkCol] === "broken";
+      const open = isOpen(r.application_start, end, today);
+      if (r.slug?.startsWith("crawl-greendaero-education-") && (broken || (!open && (r.application_end ?? "") >= since))) {
+        closedGd.push({ id: r.slug, title: r.title ?? "", kind: s.kind, url: r[s.urlCol] ?? "", start: realEnd(r.application_start), end: realEnd(end), origin: "DB" });
+      }
+      if (!open) continue;
       // 목록·상세가 숨기는 행(원문 깨짐)은 화면에 접수 중으로 안 보인다 — 화면과 같게 뺀다 (10/28)
-      if (s.linkCol && r[s.linkCol] === "broken") continue;
+      if (broken) continue;
       targets.push({
         id: r.slug ?? "",
         title: r.title ?? "",
@@ -119,7 +133,7 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds
       });
     }
   }
-  return { targets, allIds };
+  return { targets, closedGd, allIds };
 }
 
 function staticTargets(today: string, dbIds: Set<string>): Target[] {
@@ -266,10 +280,17 @@ async function main() {
   let checked = 0;
 
   // 그린대로 교육
-  if (gdEdu.length) {
+  if (gdEdu.length || db.closedGd.length) {
     try {
       // 수집기가 매일 원천에 맞춘다(10/30) — 여기서 남는 어긋남은 그 대조가 실패했다는 뜻이다
-      const { found } = await greendaeroEducation(new Set(gdEdu.map((t) => t.id)));
+      const { found } = await greendaeroEducation(new Set([...gdEdu, ...db.closedGd].map((t) => t.id)));
+      // 반대 방향: 우리는 마감·숨김인데 원천 접수중 탭에 있다 — 되돌림이 안 됐다
+      for (const t of db.closedGd) {
+        const src = found.get(t.id);
+        if (src?.open) {
+          findings.push({ grade: "🟡", item: "원천은 접수 중인데 화면은 마감·숨김", detail: `${t.id} ${src.name} — 우리 ${t.end ?? "숨김"} · 그린대로 ${src.start ?? "?"}~${src.end ?? "?"}` });
+        }
+      }
       for (const t of gdEdu) {
         const src = found.get(t.id);
         if (!src) {

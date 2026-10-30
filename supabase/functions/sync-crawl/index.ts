@@ -43,6 +43,8 @@ import {
   fetchGreendaeroLive,
   fetchGreendaeroSourceState,
   planGreendaeroReconcile,
+  reconcileCap,
+  RECONCILE_LOOKBACK_DAYS,
   type GdDbRow,
   type GdReconcileChange,
 } from "../_shared/greendaero.ts";
@@ -86,12 +88,7 @@ interface CrawlResult {
   errors: string[];
 }
 
-/**
- * 원천 대조 한 번에 고칠 수 있는 최대 비율 — 넘으면 원천 이상(탭 의미 변경·부분 응답)으로 보고 쓰지 않는다.
- * 10/27~30 실측: 접수 중 103행 중 하루 1~5행이 어긋났다.
- */
-const RECONCILE_MAX_RATIO = 0.3;
-const RECONCILE_MIN_CAP = 10;
+// 원천 대조 한도는 greendaero.ts `reconcileCap` (10/27~30 실측: 접수 중 103행 중 하루 1~5행이 어긋났다)
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
@@ -535,18 +532,21 @@ async function reconcileGreendaero(supabase: any, today: string, errors: string[
     return [];
   }
 
+  // 대상 = 접수 중 행 + 최근 60일 안에 마감된 행 + broken 행 — 뒤 둘은 원천 접수중 탭에 다시 나타나면 되돌린다(R1)
+  const since = kstToday(Date.now() - RECONCILE_LOOKBACK_DAYS * 86_400_000);
   const rows: GdDbRow[] = [];
   const edu = await supabase
     .from("education_courses")
-    .select("slug, url, application_start, application_end")
+    .select("slug, url, application_start, application_end, link_status")
     .like("slug", "crawl-greendaero-education-%")
-    .gte("application_end", today)
-    .or("link_status.is.null,link_status.neq.broken");
+    .or(`application_end.gte.${since},link_status.eq.broken`)
+    .limit(2000);
   const evt = await supabase
     .from("farm_events")
     .select("slug, url, application_start, application_end")
     .like("slug", "crawl-greendaero-education-%")
-    .gte("application_end", today);
+    .gte("application_end", since)
+    .limit(2000);
   for (const [table, res] of [["education_courses", edu], ["farm_events", evt]] as const) {
     if (res.error) {
       errors.push(`원천 대조 건너뜀: ${table} 조회 실패 — ${res.error.message}`);
@@ -557,7 +557,7 @@ async function reconcileGreendaero(supabase: any, today: string, errors: string[
 
   const yesterday = kstToday(Date.now() - 86_400_000);
   const changes = planGreendaeroReconcile(rows, state, today, yesterday);
-  const cap = Math.max(RECONCILE_MIN_CAP, Math.ceil(rows.length * RECONCILE_MAX_RATIO));
+  const cap = reconcileCap(rows.length);
   if (changes.length > cap) {
     errors.push(`원천 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
     return [];

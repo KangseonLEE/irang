@@ -44,10 +44,12 @@ export function PageViewTracker() {
     lastSent.current = pathname;
     if (typeof window === "undefined" || typeof window.gtag !== "function") return;
 
+    // 주소는 지금 잡아 둔다 — 기다리는 중에 또 이동하면 그때의 location 은 다음 페이지다(10/30 2차 QA Y1)
+    const href = window.location.href;
     const send = (title: string) => {
       window.gtag("event", "page_view", {
         page_path: pathname,
-        page_location: window.location.href,
+        page_location: href,
         page_title: title,
       });
     };
@@ -57,20 +59,21 @@ export function PageViewTracker() {
     }
 
     let done = false;
-    const finish = () => {
+    const finish = (title: string) => {
       if (done) return;
       done = true;
       observer.disconnect();
       window.clearTimeout(timer);
-      send(document.title);
+      send(title);
     };
     const observer = new MutationObserver(() => {
-      if (document.title) finish();
+      if (document.title) finish(document.title);
     });
     // 새 <title> 은 React 가 <head> 로 올리지만, 스트리밍 중엔 본문에 먼저 올 수 있어 문서 전체를 본다
     observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
-    const timer = window.setTimeout(finish, PAGE_TITLE_WAIT_MS);
-    return finish;
+    const timer = window.setTimeout(() => finish(document.title), PAGE_TITLE_WAIT_MS);
+    // 제목을 못 받은 채 다음 이동이 오면 빈 제목으로 보낸다 — 그 순간의 document.title 은 다음 페이지 것일 수 있다
+    return () => finish("");
   }, [pathname]);
 
   return null;
