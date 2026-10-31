@@ -5,11 +5,14 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  fetchGreendaeroLiveState,
   fetchGreendaeroSourceState,
   gdDetailIdOf,
+  planGreendaeroLiveReconcile,
   planGreendaeroReconcile,
   reconcileCap,
   type GdDbRow,
+  type GdLiveSourceRow,
   type GdWindow,
 } from "../../supabase/functions/_shared/greendaero";
 
@@ -223,5 +226,98 @@ describe("fetchGreendaeroSourceState — 덜 읽은 원천으로 판정하지 �
         : json({ list: [item("C", "2026-09-10"), item("B", "2026-11-02")] }),
     ));
     expect((await fetchGreendaeroSourceState()).errors).toContain("그린대로 마감 탭: 마감일 내림차순이 아님 — 정렬 변경 의심");
+  });
+});
+
+// ── 살아보기 (10/31 watchman #193 내포긴들마을 267c8b55) ──
+describe("planGreendaeroLiveReconcile — 살아보기 행 ↔ 원천 목록·vlg_state", () => {
+  const T = "2026-10-31";
+  const Y = "2026-10-30";
+  const live = (id: string, start: string | null, end: string | null) =>
+    ({ slug: `crawl-greendaero-live-${id}`, application_start: start, application_end: end });
+  const src = (o: Record<string, GdLiveSourceRow>) =>
+    new Map(Object.entries(o).map(([id, v]) => [`crawl-greendaero-live-${id}`, v]));
+
+  it("원문이 마감일을 당기고 모집완료 — 지난 원천 마감일로 (267c8b55: 우리 ~11/01, 원문 10/28~10/30 state 3)", () => {
+    const rows = [live("267c8b55", "2026-10-28", "2026-11-01")];
+    const changes = planGreendaeroLiveReconcile(rows, src({ "267c8b55": { state: 3, start: "2026-10-28", end: "2026-10-30" } }), T, Y);
+    expect(changes).toEqual([
+      { table: "farm_events", slug: "crawl-greendaero-live-267c8b55", from: "2026-10-28~2026-11-01", patch: { application_end: "2026-10-30" }, reason: "원천 마감", to: "~2026-10-30" },
+    ]);
+  });
+
+  it("모집완료인데 원천 마감일이 아직이면 조기 마감(정원 마감) — 어제로", () => {
+    const rows = [live("A", "2026-10-20", "2026-11-05")];
+    const [c] = planGreendaeroLiveReconcile(rows, src({ A: { state: 3, start: "2026-10-20", end: "2026-11-05" } }), T, Y);
+    expect(c).toMatchObject({ reason: "원천 조기 마감", patch: { application_end: Y } });
+  });
+
+  it("모집 중(state ≠ 3)이고 날짜가 다르면 원천 날짜로", () => {
+    const rows = [live("B", "2026-10-28", "2026-11-01"), live("C", "2026-11-01", "2026-11-10")];
+    const changes = planGreendaeroLiveReconcile(
+      rows,
+      src({ B: { state: 1, start: "2026-10-28", end: "2026-11-09" }, C: { state: 2, start: "2026-11-03", end: "2026-11-10" } }),
+      T,
+      Y,
+    );
+    expect(changes.map((c) => [c.slug.slice(-1), c.reason, c.patch])).toEqual([
+      ["B", "날짜 변경", { application_end: "2026-11-09" }],
+      ["C", "날짜 변경", { application_start: "2026-11-03" }],
+    ]);
+  });
+
+  it("원천 목록에 없으면 어제로 마감 (행사는 link_status 가 없다)", () => {
+    const [c] = planGreendaeroLiveReconcile([live("GONE", "2026-10-20", "2026-11-15")], src({}), T, Y);
+    expect(c).toMatchObject({ table: "farm_events", reason: "원천에서 사라짐", patch: { application_end: Y } });
+  });
+
+  it("일치하는 행·이미 마감인 행·접수 시작 전 행은 건드리지 않는다", () => {
+    const rows = [
+      live("SAME", "2026-10-28", "2026-11-09"),
+      live("OLD", "2026-09-01", "2026-09-17"),
+      live("SOON", "2026-11-10", "2026-11-20"),
+    ];
+    const s = src({
+      SAME: { state: 1, start: "2026-10-28", end: "2026-11-09" },
+      OLD: { state: 3, start: "2026-09-01", end: "2026-09-17" },
+    });
+    expect(planGreendaeroLiveReconcile(rows, s, T, Y)).toEqual([]);
+  });
+
+  it("어제로 닫아 둔 행이 원천에서 다시 모집 중이면 원천 날짜로 되돌린다", () => {
+    const [c] = planGreendaeroLiveReconcile([live("RE", "2026-10-01", Y)], src({ RE: { state: 1, start: "2026-10-01", end: "2026-11-15" } }), T, Y);
+    expect(c).toMatchObject({ reason: "원천 재개", patch: { application_end: "2026-11-15" } });
+  });
+
+  it("모집 중인데 원천 마감일이 없으면 손대지 않는다", () => {
+    expect(planGreendaeroLiveReconcile([live("NOEND", "2026-10-01", "2026-11-05")], src({ NOEND: { state: 1, start: "2026-10-01" } }), T, Y)).toEqual([]);
+  });
+});
+
+describe("fetchGreendaeroLiveState — 목록 하나를 운영번호별 상태로", () => {
+  const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
+  const item = (no: string, state: number, end: string) => ({ vlg_oper_mngno: no, vlg_state: state, aply_bgng_ymd: "20261028", aply_end_ymd: end });
+
+  it("운영번호 → 상태·접수 기간 (10/31 실측 RRO_111450)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json({ cnt: 2, list: [item("RRO_111450", 3, "20261030"), item("RRO_1", 1, "20261109")] })));
+    const s = await fetchGreendaeroLiveState();
+    expect(s.errors).toEqual([]);
+    expect(s.byOperNo.get("RRO_111450")).toEqual({ state: 3, start: "2026-10-28", end: "2026-10-30" });
+    expect(s.byOperNo.get("RRO_1")?.state).toBe(1);
+  });
+
+  it("0건이면 오류 — 빈 원천을 믿으면 전부 '사라짐'이 된다", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json({ cnt: 0, list: [] })));
+    expect((await fetchGreendaeroLiveState()).errors[0]).toMatch(/0건/);
+  });
+
+  it("한 쪽 한도에 닿으면 오류 — 뒤가 잘렸을 수 있다 (T8)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json({ cnt: 5, list: [item("A", 3, "20261001"), item("B", 3, "20261002")] })));
+    expect((await fetchGreendaeroLiveState(2)).errors[0]).toMatch(/한 쪽 한도 2/);
+  });
+
+  it("list 가 없으면 오류", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json({ cnt: 0 })));
+    expect((await fetchGreendaeroLiveState()).errors[0]).toMatch(/list 가 없음/);
   });
 });

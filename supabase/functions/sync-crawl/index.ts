@@ -43,10 +43,14 @@ import {
   fetchGreendaeroLive,
   fetchGreendaeroSourceState,
   planGreendaeroReconcile,
+  fetchGreendaeroLiveState,
+  planGreendaeroLiveReconcile,
   reconcileCap,
   RECONCILE_LOOKBACK_DAYS,
   type GdDbRow,
   type GdReconcileChange,
+  type GdLiveDbRow,
+  type GdLiveSourceRow,
 } from "../_shared/greendaero.ts";
 
 /** 타겟당 적재 상한 (Edge Function wall-clock 보호) */
@@ -496,8 +500,9 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
       `[sync-crawl] ${target.name} 완료: ${newItems}건 적재(${JSON.stringify(byTable)}), ${skipped}건 스킵, URL 체크 ${checks}회`
     );
 
-    // ── 5. 원천 상태 대조 (그린대로 교육) ──
+    // ── 5. 원천 상태 대조 (그린대로 교육 + 살아보기) ──
     // 검증된 행은 위 upsert 에서 빠지므로, 원천이 마감일을 바꾸거나 일찍 닫은 것은 여기서만 따라간다.
+    // 살아보기도 같은 호출에서 본다 — greendaero-reconcile 워크플로가 이 타깃 하나만 부른다(10/31 #193).
     if (target.id === "greendaero-education") {
       reconciled = await reconcileGreendaero(supabase, today, errors);
     }
@@ -520,20 +525,65 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
 }
 
 /**
- * 그린대로 교육 수집 행(교육·행사 두 테이블)을 원천 접수 상태에 맞춘다.
- * 원천 두 탭 중 하나라도 덜 읽었거나, 고칠 행이 비정상으로 많으면 아무것도 쓰지 않고 오류로 남긴다(T17).
+ * 그린대로 수집 행을 원천 접수 상태에 맞춘다 — 교육(교육·행사 두 테이블)과 살아보기(행사)를 따로 읽고 따로 한도를 건다.
+ * 한쪽 원천을 못 읽어도 다른 쪽은 진행한다. 원천을 덜 읽었거나 고칠 행이 비정상으로 많으면 그쪽은 아무것도 쓰지 않고 오류로 남긴다(T17).
  */
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function reconcileGreendaero(supabase: any, today: string, errors: string[]): Promise<GdReconcileChange[]> {
+  // 대상 = 접수 중 행 + 최근 60일 안에 마감된 행(+ 교육은 broken 행) — 뒤 둘은 원천이 다시 열면 되돌린다(R1)
+  const since = kstToday(Date.now() - RECONCILE_LOOKBACK_DAYS * 86_400_000);
+  const yesterday = kstToday(Date.now() - 86_400_000);
+  const applied = await reconcileGreendaeroEducation(supabase, today, yesterday, since, errors);
+  applied.push(...(await reconcileGreendaeroLive(supabase, today, yesterday, since, errors)));
+  return applied;
+}
+
+/** 살아보기(farm_events `crawl-greendaero-live-*`) — 원천 목록 하나(state 포함)와 대조. 10/31 #193 내포긴들마을 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaeroLive(supabase: any, today: string, yesterday: string, since: string, errors: string[]): Promise<GdReconcileChange[]> {
+  const state = await fetchGreendaeroLiveState();
+  if (state.errors.length > 0) {
+    errors.push(...state.errors.map((m) => `살아보기 대조 건너뜀: ${m}`));
+    return [];
+  }
+  const res = await supabase
+    .from("farm_events")
+    .select("slug, application_start, application_end")
+    .like("slug", "crawl-greendaero-live-%")
+    .gte("application_end", since)
+    .limit(2000);
+  if (res.error) {
+    errors.push(`살아보기 대조 건너뜀: farm_events 조회 실패 — ${res.error.message}`);
+    return [];
+  }
+  const rows: GdLiveDbRow[] = res.data ?? [];
+  // 수집 때 slug = crawlSlug(타깃 id, 운영번호) — 같은 함수로 키를 맞춘다
+  const bySlug = new Map<string, GdLiveSourceRow>();
+  for (const [no, src] of state.byOperNo) bySlug.set(crawlSlug("greendaero-live", no), src);
+
+  const changes = planGreendaeroLiveReconcile(rows, bySlug, today, yesterday);
+  const cap = reconcileCap(rows.length);
+  if (changes.length > cap) {
+    errors.push(`살아보기 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
+    return [];
+  }
+  const applied = await applyReconcileChanges(supabase, changes, "살아보기 대조", errors);
+  console.log(`[sync-crawl] 살아보기 대조: 원천 ${state.byOperNo.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`);
+  return applied;
+}
+
+/** 교육 과정 — 원천 두 탭(접수중 전부 + 마감 1쪽)과 대조 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaeroEducation(supabase: any, today: string, yesterday: string, since: string, errors: string[]): Promise<GdReconcileChange[]> {
   const state = await fetchGreendaeroSourceState();
   if (state.errors.length > 0) {
     errors.push(...state.errors.map((m) => `원천 대조 건너뜀: ${m}`));
     return [];
   }
 
-  // 대상 = 접수 중 행 + 최근 60일 안에 마감된 행 + broken 행 — 뒤 둘은 원천 접수중 탭에 다시 나타나면 되돌린다(R1)
-  const since = kstToday(Date.now() - RECONCILE_LOOKBACK_DAYS * 86_400_000);
   const rows: GdDbRow[] = [];
   const edu = await supabase
     .from("education_courses")
@@ -555,14 +605,21 @@ async function reconcileGreendaero(supabase: any, today: string, errors: string[
     for (const r of res.data ?? []) rows.push({ table, ...r });
   }
 
-  const yesterday = kstToday(Date.now() - 86_400_000);
   const changes = planGreendaeroReconcile(rows, state, today, yesterday);
   const cap = reconcileCap(rows.length);
   if (changes.length > cap) {
     errors.push(`원천 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
     return [];
   }
+  const applied = await applyReconcileChanges(supabase, changes, "원천 대조", errors);
+  console.log(`[sync-crawl] 원천 대조: 대상 ${rows.length}행 · 고침 ${applied.length}건`);
+  return applied;
+}
 
+/** 대조 결과를 한 행씩 쓴다 — 한 행이 실패해도 나머지는 쓰고, 실패는 오류로 남긴다 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function applyReconcileChanges(supabase: any, changes: GdReconcileChange[], label: string, errors: string[]): Promise<GdReconcileChange[]> {
   const applied: GdReconcileChange[] = [];
   for (const c of changes) {
     const { error } = await supabase
@@ -570,12 +627,11 @@ async function reconcileGreendaero(supabase: any, today: string, errors: string[
       .update({ ...c.patch, updated_at: new Date().toISOString() })
       .eq("slug", c.slug);
     if (error) {
-      errors.push(`원천 대조 ${c.table}:${c.slug} 쓰기 실패 — ${error.message}`);
+      errors.push(`${label} ${c.table}:${c.slug} 쓰기 실패 — ${error.message}`);
       continue;
     }
     applied.push(c);
-    console.log(`[sync-crawl] 원천 대조 ${c.reason}: ${c.table}:${c.slug} ${c.from} → ${c.to}`);
+    console.log(`[sync-crawl] ${label} ${c.reason}: ${c.table}:${c.slug} ${c.from} → ${c.to}`);
   }
-  console.log(`[sync-crawl] 원천 대조: 대상 ${rows.length}행 · 고침 ${applied.length}건`);
   return applied;
 }

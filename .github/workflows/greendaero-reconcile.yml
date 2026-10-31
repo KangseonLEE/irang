@@ -5,6 +5,7 @@
 # 바뀐 것, 15:10 dispatch 로 해소). 사람이 dispatch 하던 그 일을 스케줄로 옮긴다.
 #
 # - 타깃은 greendaero-education 하나 — upsert 는 검증된 행을 건너뛰고(skipped), 원천 대조(reconcile)만 실질 동작
+#   (10/31 부터 같은 호출이 살아보기 farm_events 행도 원천 목록·vlg_state 와 대조한다 — #193 내포긴들마을)
 # - Vercel 은 건드리지 않는다: Supabase Edge Function 1회 + DB 쓰기뿐. 교육 목록은 요청 때 DB 를 읽고 상세는 ISR 1시간
 # - 실패 판정·로그는 sync-data.yml 과 같은 scripts/sync/crawl-target.sh
 # - watchman §15(check-schedule-health.sh) 가 이 워크플로의 스케줄 실패도 본다

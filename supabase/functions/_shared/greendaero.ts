@@ -750,3 +750,120 @@ export async function fetchGreendaeroLive(today: string, itemsPerPage = 400): Pr
   );
   return { items: collected, errors: [] };
 }
+
+// ═══════════════════════════════════════
+// 3. 살아보기 원천 대조 (2026-10-31)
+// ═══════════════════════════════════════
+
+/** 살아보기 원천 한 줄 — `vlg_state` 3 = 모집완료, 그 밖은 접수 기간으로 판정 */
+export interface GdLiveSourceRow {
+  state: number | null;
+  start?: string;
+  end?: string;
+}
+
+export interface GdLiveSourceState {
+  /** vlg_oper_mngno → 상태·접수 기간. slug 는 호출부가 `crawlSlug("greendaero-live", 운영번호)` 로 만든다(수집 때와 같은 키) */
+  byOperNo: Map<string, GdLiveSourceRow>;
+  /** 하나라도 있으면 대조하지 않는다 (T17 — 덜 읽은 원천으로 '사라짐'을 판정하지 않는다) */
+  errors: string[];
+}
+
+/** 원천 모집완료 상태 코드 */
+export const GD_LIVE_CLOSED_STATE = 3;
+
+/**
+ * 살아보기 목록을 한 번 읽어 운영번호별 상태를 돌려준다.
+ * 교육과 달리 탭이 없고 목록 하나에 모집완료(vlg_state 3)까지 다 실린다(10/31 실측 314건, 전부 state 3).
+ * 수집기(fetchGreendaeroLive)는 마감을 걸러 적재만 하므로, 원천이 마감일을 당기거나 일찍 닫은 것은 여기서만 따라간다
+ * — 267c8b55 내포긴들마을: 10/29 수집 때 ~11/01 → 10/31 원문 ~10/30·모집완료인데 화면은 '접수중 D-1'(watchman #193).
+ */
+export async function fetchGreendaeroLiveState(itemsPerPage = 400): Promise<GdLiveSourceState> {
+  const byOperNo = new Map<string, GdLiveSourceRow>();
+  const errors: string[] = [];
+  let json: GdLiveResponse;
+  try {
+    json = await getJson<GdLiveResponse>(
+      `${LIVE_LIST_URL}?search_mode=1&page=1&items_per_page=${itemsPerPage}&searchText=`,
+      LIVE_PAGE_URL,
+      20000,
+      true,
+    );
+  } catch (err) {
+    return { byOperNo, errors: [`그린대로 살아보기 목록 요청 실패${describeGdFailure(err, true)}`] };
+  }
+  if (!Array.isArray(json.list)) {
+    errors.push("그린대로 살아보기: list 가 없음 — 응답 형식 변경 의심(대조 안 함)");
+  } else if (json.list.length === 0) {
+    errors.push(`그린대로 살아보기: 0건(cnt ${json.cnt ?? "?"}) — 빈 원천을 믿으면 전부 '사라짐'이 된다(대조 안 함)`);
+  } else if (json.list.length >= itemsPerPage) {
+    // 한 쪽 한도에 닿으면 뒤가 잘렸을 수 있다 — 없는 행을 '사라짐'으로 닫게 된다(T8)
+    errors.push(`그린대로 살아보기: ${json.list.length}건 = 한 쪽 한도 ${itemsPerPage} — 덜 읽었을 수 있어 대조 안 함`);
+  } else {
+    for (const raw of json.list) {
+      const no = (raw.vlg_oper_mngno ?? "").trim();
+      if (!no) continue;
+      byOperNo.set(no, {
+        state: raw.vlg_state == null ? null : Number(raw.vlg_state),
+        start: toIsoDate(raw.aply_bgng_ymd),
+        end: toIsoDate(raw.aply_end_ymd),
+      });
+    }
+  }
+  return { byOperNo, errors };
+}
+
+/** 대조 대상 — 우리 DB 의 살아보기 수집 행(farm_events, slug `crawl-greendaero-live-*`) */
+export interface GdLiveDbRow {
+  slug: string;
+  application_start: string | null;
+  application_end: string | null;
+}
+
+/**
+ * 살아보기 수집 행 ↔ 원천 상태 (순수 함수 — 쓰기는 호출부). 규칙은 교육(planGreendaeroReconcile)과 같다.
+ * - 원천이 모집 중(state ≠ 3)이고 날짜가 다름 → 원천 날짜로 (우리가 닫아 둔 행이면 '원천 재개')
+ * - 원천이 모집완료(state 3): 원천 마감일이 지났으면 그 날짜, 아직이면(정원 마감) 어제로
+ * - 원천 목록에 없음 → 어제로 마감 (행사는 link_status 가 없다)
+ * - 이미 화면에서 마감인 행은 원천이 다시 열 때만, 접수 시작 전 행은 건드리지 않는다
+ */
+export function planGreendaeroLiveReconcile(
+  rows: GdLiveDbRow[],
+  bySlug: Map<string, GdLiveSourceRow>,
+  today: string,
+  yesterday: string,
+): GdReconcileChange[] {
+  const changes: GdReconcileChange[] = [];
+  for (const row of rows) {
+    const ours = `${row.application_start ?? "?"}~${row.application_end ?? "?"}`;
+    const base = { table: "farm_events" as const, slug: row.slug, from: ours };
+    const screenOpen = !row.application_end || row.application_end >= today;
+    const src = bySlug.get(row.slug);
+
+    if (src && src.state !== GD_LIVE_CLOSED_STATE) {
+      if (!src.end) continue;
+      const patch: GdReconcileChange["patch"] = {};
+      if (src.start && src.start !== row.application_start) patch.application_start = src.start;
+      if (src.end !== row.application_end) patch.application_end = src.end;
+      if (Object.keys(patch).length > 0) {
+        changes.push({ ...base, patch, reason: screenOpen ? "날짜 변경" : "원천 재개", to: `${src.start ?? "?"}~${src.end}` });
+      }
+      continue;
+    }
+
+    if (!screenOpen) continue;
+    if (row.application_start && row.application_start !== UNKNOWN_DATE && row.application_start > today) continue;
+
+    if (src) {
+      if (src.end && src.end < today) {
+        changes.push({ ...base, patch: { application_end: src.end }, reason: "원천 마감", to: `~${src.end}` });
+      } else {
+        changes.push({ ...base, patch: { application_end: yesterday }, reason: "원천 조기 마감", to: `~${yesterday}` });
+      }
+      continue;
+    }
+
+    changes.push({ ...base, patch: { application_end: yesterday }, reason: "원천에서 사라짐", to: `~${yesterday}` });
+  }
+  return changes;
+}
