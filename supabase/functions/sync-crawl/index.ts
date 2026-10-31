@@ -87,8 +87,10 @@ interface CrawlResult {
   skipped: number;
   /** 항목 단위 분류로 실제 적재된 테이블별 건수 */
   byTable: Record<string, number>;
-  /** 이미 적재한 행을 원천 상태에 맞춰 고친 내역 (그린대로 교육만, 10/30) */
+  /** 이미 적재한 행을 원천 상태에 맞춰 고친 내역 (그린대로 교육 10/30 · 살아보기 10/31) */
   reconciled?: GdReconcileChange[];
+  /** 원천 대조 요약 — 교육·살아보기 각각 '대상 N행 · 고침 M건'. Actions 로그에 Response 만 찍히므로 실행 여부를 여기서 본다(C5) */
+  reconcileLog?: string[];
   errors: string[];
 }
 
@@ -257,6 +259,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
   let skipped = 0;
   let items: CrawledItem[] = [];
   let reconciled: GdReconcileChange[] | undefined;
+  let reconcileLog: string[] | undefined;
 
   const deadline = Date.now() + CRAWL_DEADLINE_MS;
 
@@ -504,7 +507,8 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     // 검증된 행은 위 upsert 에서 빠지므로, 원천이 마감일을 바꾸거나 일찍 닫은 것은 여기서만 따라간다.
     // 살아보기도 같은 호출에서 본다 — greendaero-reconcile 워크플로가 이 타깃 하나만 부른다(10/31 #193).
     if (target.id === "greendaero-education") {
-      reconciled = await reconcileGreendaero(supabase, today, errors);
+      reconcileLog = [];
+      reconciled = await reconcileGreendaero(supabase, today, errors, reconcileLog);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -520,6 +524,7 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     skipped,
     byTable,
     ...(reconciled ? { reconciled } : {}),
+    ...(reconcileLog ? { reconcileLog } : {}),
     errors,
   };
 }
@@ -530,19 +535,19 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
  */
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function reconcileGreendaero(supabase: any, today: string, errors: string[]): Promise<GdReconcileChange[]> {
+async function reconcileGreendaero(supabase: any, today: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
   // 대상 = 접수 중 행 + 최근 60일 안에 마감된 행(+ 교육은 broken 행) — 뒤 둘은 원천이 다시 열면 되돌린다(R1)
   const since = kstToday(Date.now() - RECONCILE_LOOKBACK_DAYS * 86_400_000);
   const yesterday = kstToday(Date.now() - 86_400_000);
-  const applied = await reconcileGreendaeroEducation(supabase, today, yesterday, since, errors);
-  applied.push(...(await reconcileGreendaeroLive(supabase, today, yesterday, since, errors)));
+  const applied = await reconcileGreendaeroEducation(supabase, today, yesterday, since, errors, log);
+  applied.push(...(await reconcileGreendaeroLive(supabase, today, yesterday, since, errors, log)));
   return applied;
 }
 
 /** 살아보기(farm_events `crawl-greendaero-live-*`) — 원천 목록 하나(state 포함)와 대조. 10/31 #193 내포긴들마을 */
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function reconcileGreendaeroLive(supabase: any, today: string, yesterday: string, since: string, errors: string[]): Promise<GdReconcileChange[]> {
+async function reconcileGreendaeroLive(supabase: any, today: string, yesterday: string, since: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
   const state = await fetchGreendaeroLiveState();
   if (state.errors.length > 0) {
     errors.push(...state.errors.map((m) => `살아보기 대조 건너뜀: ${m}`));
@@ -570,14 +575,16 @@ async function reconcileGreendaeroLive(supabase: any, today: string, yesterday: 
     return [];
   }
   const applied = await applyReconcileChanges(supabase, changes, "살아보기 대조", errors);
-  console.log(`[sync-crawl] 살아보기 대조: 원천 ${state.byOperNo.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`);
+  const line = `살아보기 대조: 원천 ${state.byOperNo.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`;
+  console.log(`[sync-crawl] ${line}`);
+  log.push(line);
   return applied;
 }
 
 /** 교육 과정 — 원천 두 탭(접수중 전부 + 마감 1쪽)과 대조 */
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function reconcileGreendaeroEducation(supabase: any, today: string, yesterday: string, since: string, errors: string[]): Promise<GdReconcileChange[]> {
+async function reconcileGreendaeroEducation(supabase: any, today: string, yesterday: string, since: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
   const state = await fetchGreendaeroSourceState();
   if (state.errors.length > 0) {
     errors.push(...state.errors.map((m) => `원천 대조 건너뜀: ${m}`));
@@ -612,7 +619,9 @@ async function reconcileGreendaeroEducation(supabase: any, today: string, yester
     return [];
   }
   const applied = await applyReconcileChanges(supabase, changes, "원천 대조", errors);
-  console.log(`[sync-crawl] 원천 대조: 대상 ${rows.length}행 · 고침 ${applied.length}건`);
+  const line = `교육 대조: 접수중 ${state.open.size}·마감 ${state.closed.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`;
+  console.log(`[sync-crawl] ${line}`);
+  log.push(line);
   return applied;
 }
 
