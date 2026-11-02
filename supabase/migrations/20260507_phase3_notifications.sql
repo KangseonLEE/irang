@@ -1,6 +1,6 @@
 -- Phase 3: D-day 알림 + 사용자 설정 테이블
 -- 작성: 2026-05-07
--- spec: ~/David_agit/specs/PHASE3_NOTIFICATION_BOOKMARK_SPEC.md
+-- spec: ~/Desktop/David_agit/10.projects/이랑/_archive/2026-05-볼트루트/specs/PHASE3_NOTIFICATION_BOOKMARK_SPEC.md (2026-11-02 볼트 정리로 이동, 미적용 마이그레이션)
 -- apply 시점: 5/13 Pro vs Hobby 결정 후 + Resend 도메인 인증 완료 후
 --
 -- ⚠️ APPLY 절차:
