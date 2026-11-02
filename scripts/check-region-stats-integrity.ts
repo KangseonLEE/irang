@@ -522,7 +522,9 @@ function readCards(html: string) {
   const s = html.replace(/<!-- -->/g, "");
   const out: Record<string, { value: string; sub: string }> = {};
   const re =
-    /__statLabel[^"]*">([^<]+)<\/span><span class="[^"]*__statValue[^"]*">([^<]*)<\/span><span class="[^"]*__statSub[^"]*">([\s\S]*?)<\/span>/g;
+    // CSS Modules 클래스 이름은 Next 버전에 따라 `모듈__statLabel___해시`(≤16.3) 또는 `해시_statLabel`(16.4+, 11/2 #197 286쪽 전부 '카드 없음')
+    // 이라 `_statLabel` 로만 잡는다. 형식이 또 바뀌면 사전 검사(통계 카드 N개)가 0 으로 떨어져 바로 보인다.
+    /_statLabel[^"]*">([^<]+)<\/span><span class="[^"]*_statValue[^"]*">([^<]*)<\/span><span class="[^"]*_statSub[^"]*">([\s\S]*?)<\/span>/g;
   for (const m of s.matchAll(re)) out[m[1].trim()] = { value: m[2].trim(), sub: m[3].replace(/<[^>]+>/g, "").trim() };
   return out;
 }
