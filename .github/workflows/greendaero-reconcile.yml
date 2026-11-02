@@ -15,7 +15,7 @@ name: "그린대로 원천 대조"
 on:
   schedule:
     - cron: "30 2 * * *" # 11:30 KST
-    - cron: "30 5 * * *" # 14:30 KST — watchman §20(요즘 14:50 KST 실행) 직전
+    - cron: "30 5 * * *" # 14:30 KST — 실제론 5~7시간 늦게 돈다(11/2 실측). watchman §20 직전 대조는 watchman-ci.yml 안의 사전 스텝이 맡는다
     - cron: "30 9 * * *" # 18:30 KST
   workflow_dispatch:
 

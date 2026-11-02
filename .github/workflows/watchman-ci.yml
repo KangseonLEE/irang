@@ -138,6 +138,17 @@ jobs:
         continue-on-error: true
         run: npx tsx scripts/watchman/check-program-verified.ts --ci
 
+      # §20 직전에 그린대로 원천 대조를 한 번 돌린다 (2026-11-02 #196).
+      # greendaero-reconcile.yml 의 cron(11:30·14:30 KST)은 이 리포에서 5~7시간 늦게 돌아
+      # '§20 직전' 순서가 시계로는 보장되지 않았다 — 순서는 같은 job 의 앞 스텝으로 묶는다(W2).
+      # 실패해도 §20 은 그대로 돈다(대조가 못 고친 것을 §20 이 올린다).
+      - name: "§20 사전 — 그린대로 원천 대조(sync-crawl greendaero-education)"
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: bash scripts/sync/crawl-target.sh greendaero-education false
+
       - name: "§20 접수 중 지원사업·교육·행사 원문 모집 끝남"
         continue-on-error: true
         run: npx tsx scripts/watchman/check-program-closure.ts --ci
