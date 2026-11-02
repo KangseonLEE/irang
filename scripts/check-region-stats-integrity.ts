@@ -389,7 +389,9 @@ async function buildExpected() {
       const parts = await Promise.all(codes.map((c) => hira(toHiraSidoCd(p.hiraSidoCd), c)));
       Object.assign(sigungu[`${p.id}/${sg.id}`], {
         medical: parts.reduce((a, b) => a + (Number.isFinite(b.total) ? b.total : 0), 0),
-        hiraNames: parts.map((x) => x.name),
+        // 구가 생긴 시의 시 단위 코드(화성 312500)는 기관이 구 코드로 다 옮겨 가면 0건이 되는 게 정상 종착(T18, 11/2 #197
+        // '화성시 → 결과 없음') — 코드가 여럿일 때 0건 코드엔 이름을 묻지 않는다. 전부 0건이면 medical 0 이 화면 대조에서 걸린다
+        hiraNames: parts.filter((x) => codes.length === 1 || x.total !== 0).map((x) => x.name),
       });
     },
   );
