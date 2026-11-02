@@ -800,7 +800,10 @@ async function preflight() {
       async () => {
         const html = await fetchPage(p.id);
         if (!html) throw new Error(pageFailures.get(p.id) ?? "응답 없음");
-        return `/regions/${p.id} 통계 카드 ${Object.keys(readCards(html)).length}개`;
+        const n = Object.keys(readCards(html)).length;
+        // 0개 = 페이지가 아니라 검사기가 깨진 것(클래스 형식 변경 등) — 여기서 끊어야 286쪽 '카드 없음' 오경보가 안 난다 (11/2 #197)
+        if (n === 0) throw new Error(`/regions/${p.id} 통계 카드 0개 — 화면 형식이 바뀌었나 (readCards 정규식 확인)`);
+        return `/regions/${p.id} 통계 카드 ${n}개`;
       },
     ],
   };
