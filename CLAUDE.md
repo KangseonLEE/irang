@@ -42,7 +42,7 @@
 ### 0-3. 세션 시작 자동 체크
 
 - `.reminder-flag.md` 존재 시 reminder-watchman 자동 호출 → 결과 출력 후 flag 삭제
-- **매일 17:30 KST 클라우드 루틴 '이랑 자동 이슈 분류'** (2026-11-03 회장 A안, routine `trig_01FWWaJPcjoU3upTNnqWQtR8`, https://claude.ai/code/routines/trig_01FWWaJPcjoU3upTNnqWQtR8)가 열린 자동 이슈를 읽기 전용으로 분류한다 — 오경보·자동 해소는 근거 댓글 + 닫기, 기존 워크플로 재실행은 각 1회, 코드·데이터·배포가 필요한 건 '결재 필요' 댓글. 커밋·DB 쓰기·배포·새 이슈 금지. 세션은 그 댓글을 먼저 읽고 '결재 필요' 만 처리하면 된다. 루틴 수정은 `/schedule`(RemoteTrigger update)로.
+- **매일 17:30 KST 클라우드 루틴 '이랑 자동 이슈 분류'** (2026-11-03 회장 A안, routine `trig_01FWWaJPcjoU3upTNnqWQtR8`, https://claude.ai/code/routines/trig_01FWWaJPcjoU3upTNnqWQtR8)가 열린 자동 이슈를 읽기 전용으로 분류한다 — 오경보·자동 해소는 근거 댓글 + 닫기, 기존 워크플로 재실행은 각 1회, 코드·데이터·배포가 필요한 건 '결재 필요' 댓글. 커밋·DB 쓰기·배포·새 이슈 금지. 세션은 그 댓글을 먼저 읽고 '결재 필요' 만 처리하면 된다. 루틴 수정은 `/schedule`(RemoteTrigger update)로. **루틴은 만든 claude.ai 계정·조직에 묶인다** — 이 루틴은 prompt2 계정 소유라, 다른 계정으로 로그인하면 목록이 비고 404 가 난다(삭제가 아님, 11/5). 다시 만들기 전에 소유 계정에서 살아 있는지 먼저 본다(중복 실행 방지).
 - **열린 자동 감시 이슈 확인** (2026-08-29 추가): `gh issue list --state open` — 자동 이슈 라벨 8종(watchman·policy-check·cert-expiry·link-check·api-health·data-freshness·community-pending·region-integrity). CI 취합기(`report.sh`·`check-policy-sources.ts`)는 **열린 이슈가 있으면 새 이슈를 만들지 않으므로**, 해소된 이슈를 닫지 않으면 이후 finding이 로그에만 남는다(8/17 #115가 11일간 그랬음). 해소 확인 → 닫기 → 남은 항목만 보고
 
 ### 0-4. David_agit(기획 볼트) 연동 — 역할 분리 (2026-09-07 개정)
