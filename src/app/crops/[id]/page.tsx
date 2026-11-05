@@ -61,6 +61,8 @@ import { kstToday } from "@/lib/program-status";
 import { GlossaryTerm } from "@/components/ui/term-tooltip";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { DataSource } from "@/components/ui/data-source";
+import { CropUpdateNotice } from "@/components/crops/crop-update-notice";
+import { getCropAreaUpdate, type CropAreaUpdate } from "@/lib/crops/area-update";
 import { Icon } from "@/components/ui/icon";
 import { ReferenceNotice } from "@/components/ui/reference-notice";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
@@ -622,6 +624,7 @@ export default async function CropDetailPage({
             cropName={data.name}
             majorSidoIds={majorSidoIds}
             regionBasis={regionBasis}
+            areaUpdate={getCropAreaUpdate(id)}
           />
 
           {/* 청년농 재배 사례 */}
@@ -1022,6 +1025,7 @@ function RegionSection({
   cropName,
   majorSidoIds,
   regionBasis,
+  areaUpdate,
 }: {
   majorRegions: string[];
   cropArea: CropAreaStat | null;
@@ -1029,6 +1033,7 @@ function RegionSection({
   cropName: string;
   majorSidoIds: string[];
   regionBasis: MajorRegionBasis;
+  areaUpdate: CropAreaUpdate | null;
 }) {
   const top5 = (cropArea?.provinces ?? [])
     .filter((p) => p.areaHa > 0)
@@ -1062,6 +1067,7 @@ function RegionSection({
         )}
       </h2>
       <div className={s.sectionBody}>
+        {areaUpdate && <CropUpdateNotice update={areaUpdate} asOf={kstToday()} />}
         {top5.length > 0 ? (
           <div className={s.regionRanking}>
             <p className={s.regionRankingTitle}>재배면적 상위 (시·도)</p>
