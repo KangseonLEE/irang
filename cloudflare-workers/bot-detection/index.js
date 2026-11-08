@@ -113,14 +113,16 @@ function block503() {
   });
 }
 
-export default {
-  async fetch(request, env) {
+const worker = {
+  async fetch(request) {
     const decision = decide(request);
     if (decision === "block-403") return block403();
     if (decision === "block-503") return block503();
     return fetch(request);
   },
 };
+
+export default worker;
 
 // Export for local sim testing (D1).
 export const __test = { decide, isBlockedBot, isVerifiedBot, isGeoExemptPath };

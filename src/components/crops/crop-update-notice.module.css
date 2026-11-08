@@ -1,0 +1,68 @@
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 7%, white);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--primary);
+}
+
+.title {
+  margin: 6px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #0d2e27;
+  text-wrap: balance;
+}
+
+.body {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3f4a46;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* 모바일: 손가락으로 누르는 높이 */
+@media (max-width: 639px) {
+  .link {
+    min-height: 44px;
+    margin-top: 0;
+    margin-bottom: -8px;
+  }
+}

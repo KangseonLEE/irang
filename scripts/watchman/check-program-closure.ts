@@ -85,10 +85,17 @@ const realEnd = (end: string | null | undefined) => (!end || end === "9999-12-31
 
 /* ── 대상 모으기 ── */
 
-async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds: Set<string>; error?: string }> {
+/** 되돌림 감시 창 — 수집기 원천 대조(greendaero.ts RECONCILE_LOOKBACK_DAYS)와 같은 60일 */
+const GD_CLOSED_LOOKBACK_DAYS = 60;
+
+async function loadDbTargets(
+  today: string,
+): Promise<{ targets: Target[]; closedGd: Target[]; allIds: Set<string>; error?: string }> {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return { targets: [], allIds: new Set(), error: "Supabase 환경변수 없음" };
+  const empty = { targets: [], closedGd: [], allIds: new Set<string>() };
+  if (!url || !key) return { ...empty, error: "Supabase 환경변수 없음" };
+  const since = kstToday(Date.now() - GD_CLOSED_LOOKBACK_DAYS * 86_400_000);
   const sb = createClient(url, key, { auth: { persistSession: false } });
   const specs = [
     { table: "support_programs", kind: "지원사업", urlCol: "source_url", endCol: null, linkCol: "link_status" },
@@ -96,18 +103,25 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds
     { table: "farm_events", kind: "행사", urlCol: "url", endCol: "date_end", linkCol: null },
   ] as const;
   const targets: Target[] = [];
+  // 그린대로 교육 수집 행 중 화면이 마감·숨김인 최근 행 — 원천이 다시 열었는데 우리만 닫혀 있는지 본다(10/30 2차 QA R1)
+  const closedGd: Target[] = [];
   // 정적 병합 기준은 접수 중 행이 아니라 DB 의 모든 slug — 화면은 DB 에 있으면 DB 값을 쓴다(loadPrograms 병합 규칙)
   const allIds = new Set<string>();
   for (const s of specs) {
     const cols = ["slug", "title", s.urlCol, "application_start", "application_end", s.endCol, s.linkCol].filter(Boolean).join(",");
     const { data, error } = await sb.from(s.table).select(cols).limit(5000);
-    if (error) return { targets: [], allIds: new Set(), error: `${s.table} 조회 실패: ${error.message}` };
+    if (error) return { ...empty, error: `${s.table} 조회 실패: ${error.message}` };
     for (const r of (data ?? []) as unknown as Record<string, string | null>[]) {
       if (r.slug) allIds.add(r.slug);
       const end = r.application_end ?? (s.endCol ? r[s.endCol] : null);
-      if (!isOpen(r.application_start, end, today)) continue;
+      const broken = !!s.linkCol && r[s.linkCol] === "broken";
+      const open = isOpen(r.application_start, end, today);
+      if (r.slug?.startsWith("crawl-greendaero-education-") && (broken || (!open && (r.application_end ?? "") >= since))) {
+        closedGd.push({ id: r.slug, title: r.title ?? "", kind: s.kind, url: r[s.urlCol] ?? "", start: realEnd(r.application_start), end: realEnd(end), origin: "DB" });
+      }
+      if (!open) continue;
       // 목록·상세가 숨기는 행(원문 깨짐)은 화면에 접수 중으로 안 보인다 — 화면과 같게 뺀다 (10/28)
-      if (s.linkCol && r[s.linkCol] === "broken") continue;
+      if (broken) continue;
       targets.push({
         id: r.slug ?? "",
         title: r.title ?? "",
@@ -119,7 +133,7 @@ async function loadDbTargets(today: string): Promise<{ targets: Target[]; allIds
       });
     }
   }
-  return { targets, allIds };
+  return { targets, closedGd, allIds };
 }
 
 function staticTargets(today: string, dbIds: Set<string>): Target[] {
@@ -149,31 +163,37 @@ async function getText(url: string, headers: Record<string, string> = {}): Promi
   return res.text();
 }
 
-/** 그린대로 교육 JSON — 우리 slug 가 다 나오거나 목록이 끝날 때까지(최대 GD_MAX_PAGES 쪽)
- *  목록 순서가 날마다 바뀌어 6쪽(1,200건) 한도에선 있는 행도 '못 찾음'이 됐다(10/28, 전체 2,779건) — 전체를 덮게 둔다. */
-const GD_MAX_PAGES = 25;
+/** 그린대로 교육 JSON — 사이트 '접수중'(ddlnYn=N) 탭 전부 + '마감'(ddlnYn=Y) 탭 1쪽 (10/30).
+ *  수집기(sync-crawl reconcileGreendaero)와 같은 원천 보기다. 예전엔 전체 목록(2,780건)을 쪽수로 훑었는데
+ *  순서가 날마다 바뀌어 25쪽을 다 읽고도 접수중 행(b2f16d34)을 '못 찾음'으로 냈다. 마감 탭은 마감일 내림차순이라
+ *  1쪽(200건)에 최근 약 7주 마감분이 다 있다 — 우리가 접수 중으로 두는 행이 원천에서 닫혔다면 여기에 있다. */
 async function greendaeroEducation(wanted: Set<string>) {
-  const found = new Map<string, { start?: string; end?: string; name: string }>();
-  let exhausted = false;
-  for (let page = 1; page <= GD_MAX_PAGES && found.size < wanted.size; page++) {
-    const body = await getText(`${GD}/svc/rfph/edc/offline/getEdcList.do?page=${page}&itemsPerPage=200`, {
-      Accept: "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-      Referer: `${GD}/svc/rfph/edc/offline/front/applicationList.do`,
-    });
+  const found = new Map<string, { start?: string; end?: string; name: string; open: boolean }>();
+  const headers = {
+    Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+    Referer: `${GD}/svc/rfph/edc/offline/front/applicationList.do`,
+  };
+  for (const [tab, open] of [["N", true], ["Y", false]] as const) {
+    const body = await getText(`${GD}/svc/rfph/edc/offline/getEdcList.do?page=1&itemsPerPage=200&ddlnYn=${tab}`, headers);
     if (!body.trimStart().startsWith("{")) throw new Error(`JSON 아님(${body.length}바이트) — 경로 변경 의심`);
-    const list = (JSON.parse(body) as { list?: Record<string, string | null>[] }).list;
-    if (!Array.isArray(list)) throw new Error("list 없음 — 형식 변경 의심");
-    for (const raw of list) {
+    const json = JSON.parse(body) as { totalItems?: number; list?: Record<string, string | null>[] };
+    if (!Array.isArray(json.list)) throw new Error("list 없음 — 형식 변경 의심");
+    if (open && json.list.length < Number(json.totalItems ?? 0)) {
+      throw new Error(`접수중 탭 ${json.totalItems}건 중 ${json.list.length}건만 받음 — 쪽수 늘릴 것`);
+    }
+    if (!open) {
+      const ends = json.list.map((raw) => toIsoDate(raw.eduRcrtEndDt) ?? "");
+      if (ends.some((e, i) => i > 0 && e > ends[i - 1])) throw new Error("마감 탭이 마감일 내림차순이 아님 — 정렬 변경 의심");
+    }
+    for (const raw of json.list) {
       const slug = crawlSlug("greendaero-education", (raw.eduDetailCrseId ?? "").trim());
-      if (wanted.has(slug)) {
-        found.set(slug, { start: toIsoDate(raw.eduRcrtBgngDt), end: toIsoDate(raw.eduRcrtEndDt), name: raw.eduDetailCrseNm ?? "" });
+      if (wanted.has(slug) && !found.has(slug)) {
+        found.set(slug, { start: toIsoDate(raw.eduRcrtBgngDt), end: toIsoDate(raw.eduRcrtEndDt), name: raw.eduDetailCrseNm ?? "", open });
       }
     }
-    if (list.length < 200) exhausted = true;
-    if (exhausted) break;
   }
-  return { found, exhausted };
+  return { found };
 }
 
 async function greendaeroLive() {
@@ -260,16 +280,28 @@ async function main() {
   let checked = 0;
 
   // 그린대로 교육
-  if (gdEdu.length) {
+  if (gdEdu.length || db.closedGd.length) {
     try {
-      const { found, exhausted } = await greendaeroEducation(new Set(gdEdu.map((t) => t.id)));
+      // 수집기가 매일 원천에 맞춘다(10/30) — 여기서 남는 어긋남은 그 대조가 실패했다는 뜻이다
+      const { found } = await greendaeroEducation(new Set([...gdEdu, ...db.closedGd].map((t) => t.id)));
+      // 반대 방향: 우리는 마감·숨김인데 원천 접수중 탭에 있다 — 되돌림이 안 됐다
+      for (const t of db.closedGd) {
+        const src = found.get(t.id);
+        if (src?.open) {
+          findings.push({ grade: "🟡", item: "원천은 접수 중인데 화면은 마감·숨김", detail: `${t.id} ${src.name} — 우리 ${t.end ?? "숨김"} · 그린대로 ${src.start ?? "?"}~${src.end ?? "?"}` });
+        }
+      }
       for (const t of gdEdu) {
         const src = found.get(t.id);
         if (!src) {
-          findings.push({ grade: "🟡", item: `그린대로 목록에서 못 찾음${exhausted ? "" : `(${GD_MAX_PAGES}쪽 안)`}`, detail: t.id });
+          findings.push({ grade: "🟡", item: "그린대로 접수중·최근 마감 어디에도 없음", detail: t.id });
           continue;
         }
         checked++;
+        if (!src.open && !(src.end && src.end < today)) {
+          findings.push({ grade: "🔴", item: "원천은 마감인데 화면은 접수 중", detail: `${t.id} ${src.name} — 우리 ${t.end} · 그린대로 마감 탭(마감일 ${src.end ?? "?"})` });
+          continue;
+        }
         if (src.end && src.end !== t.end) {
           findings.push(
             src.end < today

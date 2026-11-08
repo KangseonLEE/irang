@@ -69,40 +69,11 @@ jobs:
           - greendaero-education
           - greendaero-live
     steps:
+      - uses: actions/checkout@v5
+      # 호출·판정은 scripts/sync/crawl-target.sh (greendaero-reconcile.yml 과 공용, 10/30).
+      # 2xx 아니면 실패, 400 은 배포본 타깃 누락 신호, 2xx 여도 본문 ok:false 면 실패.
       - name: "Crawl: ${{ matrix.target }}"
-        run: |
-          # 그린대로는 200건 페이지를 최대 3회 받아오므로 여유를 둔다
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/sync-crawl" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json" \
-            -d '{"target": "${{ matrix.target }}", "refresh": ${{ github.event.inputs.refresh == 'true' }}}' \
-            --max-time 150) || true
-
-          http_code=$(echo "$response" | tail -1)
-          body=$(echo "$response" | head -n -1)
-
-          echo "HTTP Status: $http_code"
-          echo "Response: $body"
-
-          # 1) 응답이 없거나 2xx가 아니면 실패.
-          #    특히 400 "Unknown target"은 Edge Function 재배포 누락 신호다.
-          case "$http_code" in
-            2*) ;;
-            "") echo "::error::${{ matrix.target }}: 응답 없음 (타임아웃 추정)"; exit 1 ;;
-            400)
-              echo "::error::${{ matrix.target }}: HTTP 400 — 배포본에 타겟이 없을 수 있습니다. 'supabase functions deploy sync-crawl' 확인"
-              exit 1
-              ;;
-            *) echo "::error::${{ matrix.target }}: HTTP $http_code"; exit 1 ;;
-          esac
-
-          # 2) 2xx여도 본문 ok:false 면 실패다.
-          #    `errors`에는 원천 수집 실패(목록 요청 실패·총건수>0 인데 0건·응답 형식 변경, 10/3)와
-          #    DB upsert 실패가 담긴다(개별 링크 불량은 담기지 않음).
-          #    대표 사례: `sigungu` 컬럼 마이그레이션을 apply하기 전에 함수를 배포하면
-          #    모든 upsert가 "column does not exist"로 실패하면서 응답은 200이다.
-          if echo "$body" | grep -q '"ok":false'; then
-            echo "::error::${{ matrix.target }}: 수집/적재 실패 — $body"
-            exit 1
-          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: bash scripts/sync/crawl-target.sh "${{ matrix.target }}" "${{ github.event.inputs.refresh == 'true' }}"

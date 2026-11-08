@@ -3,6 +3,9 @@ import Link from "@/components/ui/app-link";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { DifficultyBadge } from "@/components/ui/difficulty-badge";
 import { PersonaScoreExplain } from "@/components/persona/persona-score-explain";
+import { CropUpdateBadge } from "@/components/crops/crop-update-badge";
+import { getCropAreaUpdate } from "@/lib/crops/area-update";
+import { kstToday } from "@/lib/program-status";
 import type { CropInfo } from "@/lib/data/crops";
 import type { FitTrace } from "@/lib/data/persona-fit";
 import { getCropImageSrc } from "@/lib/crop-image";
@@ -23,6 +26,7 @@ interface CropPageCardProps {
 }
 
 export function CropPageCard({ crop, trace, autoGlossary = true }: CropPageCardProps) {
+  const updateBadge = getCropAreaUpdate(crop.id)?.badge;
   const cardLink = (
     <Link href={`/crops/${crop.id}`} className={s.cropCard}>
       <div className={s.cropCardImageWrap}>
@@ -35,6 +39,7 @@ export function CropPageCard({ crop, trace, autoGlossary = true }: CropPageCardP
           style={{ objectFit: "cover" }}
         />
         <span className={s.cropCardCategory}>{crop.category}</span>
+        {updateBadge && <CropUpdateBadge label={updateBadge} asOf={kstToday()} />}
       </div>
 
       <div className={s.cropCardContent}>

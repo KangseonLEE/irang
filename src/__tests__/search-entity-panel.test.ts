@@ -1,4 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// 정적 교육·행사는 날짜가 지나면 전부 마감돼 '마감 안 된 픽스처'가 사라진다 — 10/29 evt-004(10/28 접수 마감)를
+// 끝으로 행사 픽스처가 없어져 이 파일이 깨졌다. 판정은 오늘 날짜와 무관해야 하므로 기준일을 고정한다.
+// EVENTS 등은 import 시점에 상태를 계산하므로 import 보다 먼저(hoisted) 시계를 맞춘다.
+vi.hoisted(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-20T03:00:00Z"), toFake: ["Date"] });
+});
 
 import { buildEntityPanel } from "@/lib/data/entity-panel";
 import {

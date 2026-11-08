@@ -129,7 +129,9 @@ async function fetchHiraTotal(sidoCd: string, sgguCd?: string): Promise<number |
 async function sumHiraTotals(sidoCd: string, sgguCds: readonly string[]): Promise<number | null> {
   const parts = await Promise.all(sgguCds.map((c) => fetchHiraTotal(sidoCd, c)));
   if (parts.some((p) => p === null)) return null;
-  return (parts as number[]).reduce((a, b) => a + b, 0);
+  const sum = (parts as number[]).reduce((a, b) => a + b, 0);
+  // 구 하나(화성 시 단위 코드 312500 등)는 0 일 수 있어도 시 전체가 0 일 수는 없다 — 0 은 실패(T17, 11/2 #197)
+  return sum === 0 ? null : sum;
 }
 
 /**
@@ -196,7 +198,9 @@ async function fetchSigunguMedicalCount(
   sgguCd: string
 ): Promise<MedicalFacilityData | null> {
   const total = await fetchHiraTotal(sidoCd, sgguCd);
-  if (total === null) return null;
+  // 시·군·구(구 포함)는 보건소가 있어 0 곳일 수 없다 — 심평원이 간헐적으로 resultCode 00 + totalCount 0 을 주면
+  // 그 0 이 하루 캐시(ISR)로 굳는다(11/2 안양 만안구 '0개' 22시간, #197). 0 은 실패로 보고 상위 대체값으로 넘긴다(T17)
+  if (total === null || total === 0) return null;
   return {
     sidoCd: `${sidoCd}_${sgguCd}`,
     sidoName: sgguCd,

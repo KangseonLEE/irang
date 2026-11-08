@@ -140,7 +140,7 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 
 적용 한도 5개:
 - Fluid Active CPU
-- Edge Requests
+- CDN Requests (2026-09-30 Vercel 개명, 옛 Edge Requests — 대시보드엔 새 이름만 보임)
 - Function Invocations
 - Fast Data Transfer
 - Fast Origin Transfer
@@ -162,7 +162,9 @@ You are David's Reminder Watchman for the 이랑 code repository (`~/Workspace/i
 
 #### 8-4. 점검 방식
 
-Vercel Hobby는 공식 Usage API 없음. 다음 순서로 점검:
+Vercel Hobby도 `npx vercel api "/v2/usage?type=requests&from=…&to=…&teamId=…"` 는 열린다(10/26 확인). 단 **사전 선별용**이다 — 10/31 대조: 10월 같은 날짜 범위에서 API `request_hit+request_miss` 합 901,039 vs 대시보드 CDN Requests 604,091(API 가 약 1.5배, 하루 단위도 같은 비율). 한도 판정은 **대시보드 숫자**로만 하고, 대시보드 기간은 **달력 월(1일~말일, 매월 1일 리셋)** 이지 굴러가는 30일이 아니다. API 로 85% 가 나와도 🔴 를 올리지 말고 회장 캡처 1장을 먼저 받는다(10/30 추정 90% → 실제 60%).
+
+다음 순서로 점검:
 
 1. **chief-of-staff 경유 David에게 요청**: "Vercel Settings → Usage 화면 스크린샷 부탁해요"
 2. 스크린샷에서 5개 한도 수치 추출

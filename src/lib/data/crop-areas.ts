@@ -2,7 +2,7 @@
  * 작물별 시·도 재배면적 — 국가데이터처 KOSIS 농작물생산조사 (scripts/collect-crop-areas.ts 가 생성, 손으로 고치지 않는다)
  *
  * 작물마다 표 하나·면적 항목 하나(crop-area-tables.ts), 수집 때 항목 이름·단위(ha)·시·도 코드↔이름·시·도 합 = 전국을 확인했다.
- * 수집일: 2026-10-09
+ * 수집일: 2026-11-05
  */
 
 export interface CropAreaStat {
@@ -176,305 +176,305 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "sweet-potato": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0026",
     "tableName": "서류생산량(생서)",
     "itemName": "고구마:면적",
-    "totalHa": 17732,
+    "totalHa": 17434.5,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "areaHa": 5373.8
+        "areaHa": 5099.8
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 3291.7
+        "areaHa": 3394.6
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 2279.3
+        "areaHa": 2490.1
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 2110.1
+        "areaHa": 2027
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 1182.8
+        "areaHa": 1100
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 1173.6
+        "areaHa": 1083.4
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 896.2
+        "areaHa": 924.4
       },
       {
         "provinceId": "incheon",
-        "areaHa": 530.6
+        "areaHa": 478.1
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 450.8
+        "areaHa": 405.9
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 102.2
+        "areaHa": 113.5
       },
       {
         "provinceId": "daegu",
-        "areaHa": 70.9
+        "areaHa": 78.4
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 70.3
+        "areaHa": 68.3
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 54.4
+        "areaHa": 64.5
       },
       {
         "provinceId": "sejong",
-        "areaHa": 51.8
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 45.3
+        "areaHa": 40.3
       },
       {
         "provinceId": "busan",
-        "areaHa": 36.2
+        "areaHa": 30.5
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 24.4
       },
       {
         "provinceId": "seoul",
-        "areaHa": 12.1
+        "areaHa": 11.3
       }
     ]
   },
   "potato": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0026",
     "tableName": "서류생산량(생서)",
     "itemName": "감자:면적",
-    "totalHa": 23968.9,
+    "totalHa": 21528.4,
     "provinces": [
       {
         "provinceId": "gangwon",
-        "areaHa": 5709
-      },
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 3148.6
+        "areaHa": 5384.3
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 2909.5
+        "areaHa": 2796.4
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 2819.5
+        "areaHa": 2606.6
+      },
+      {
+        "provinceId": "jeonnam",
+        "areaHa": 2265.6
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 2198.9
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 1802.9
+        "areaHa": 2066.1
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 1778.5
+        "areaHa": 1769.1
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 1496.3
+        "areaHa": 1425.1
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 1364.1
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 1335.3
+        "areaHa": 1147.5
       },
       {
         "provinceId": "daegu",
-        "areaHa": 303.5
+        "areaHa": 261.8
       },
       {
         "provinceId": "incheon",
-        "areaHa": 183.6
+        "areaHa": 151.9
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 83
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 59.8
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 47.9
-      },
-      {
-        "provinceId": "busan",
-        "areaHa": 45.8
+        "areaHa": 98.9
       },
       {
         "provinceId": "sejong",
-        "areaHa": 30.4
+        "areaHa": 70.7
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 47.2
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 43.7
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 21.4
       },
       {
         "provinceId": "seoul",
-        "areaHa": 16.3
+        "areaHa": 8.2
       }
     ]
   },
   "corn": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0024",
     "tableName": "잡곡생산량",
     "itemName": "옥수수:면적",
-    "totalHa": 15566.8,
+    "totalHa": 15020.2,
     "provinces": [
       {
         "provinceId": "gangwon",
-        "areaHa": 5364.5
+        "areaHa": 5171.1
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 2760.2
+        "areaHa": 2764.3
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 1798.4
+        "areaHa": 1708
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 1450.9
+        "areaHa": 1307.2
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 1125.3
-      },
-      {
-        "provinceId": "jeonbuk",
-        "areaHa": 851.1
+        "areaHa": 1184.5
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 841
+        "areaHa": 879
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 651.6
+        "areaHa": 683.1
+      },
+      {
+        "provinceId": "jeonbuk",
+        "areaHa": 658.6
       },
       {
         "provinceId": "jeju",
-        "areaHa": 276.4
+        "areaHa": 197.2
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 100
+        "areaHa": 106.3
       },
       {
         "provinceId": "incheon",
-        "areaHa": 84.2
-      },
-      {
-        "provinceId": "daegu",
-        "areaHa": 64.9
+        "areaHa": 98.2
       },
       {
         "provinceId": "busan",
-        "areaHa": 64.6
+        "areaHa": 69.7
+      },
+      {
+        "provinceId": "daegu",
+        "areaHa": 69.2
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 48.1
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 43.8
+        "areaHa": 50.7
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 38.2
+        "areaHa": 39
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 27.8
       },
       {
         "provinceId": "seoul",
-        "areaHa": 3.7
+        "areaHa": 6.5
       }
     ]
   },
   "buckwheat": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0024",
     "tableName": "잡곡생산량",
     "itemName": "메밀:면적",
-    "totalHa": 3721.2,
+    "totalHa": 3353.9,
     "provinces": [
       {
         "provinceId": "jeju",
-        "areaHa": 3236.3
-      },
-      {
-        "provinceId": "gangwon",
-        "areaHa": 186.5
+        "areaHa": 2791
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 173.6
+        "areaHa": 176.4
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 43.3
+        "areaHa": 167.7
       },
       {
-        "provinceId": "gyeongnam",
-        "areaHa": 25.6
-      },
-      {
-        "provinceId": "chungbuk",
-        "areaHa": 16.8
-      },
-      {
-        "provinceId": "chungnam",
-        "areaHa": 15.8
+        "provinceId": "gangwon",
+        "areaHa": 103.8
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 10.7
+        "areaHa": 34.5
+      },
+      {
+        "provinceId": "chungnam",
+        "areaHa": 23.4
+      },
+      {
+        "provinceId": "gyeongnam",
+        "areaHa": 21.2
+      },
+      {
+        "provinceId": "chungbuk",
+        "areaHa": 18.6
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 8
-      },
-      {
-        "provinceId": "ulsan",
-        "areaHa": 3.1
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 1.1
+        "areaHa": 4.1
       },
       {
         "provinceId": "daegu",
-        "areaHa": 0.3
+        "areaHa": 3.7
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 3.6
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 3.1
+      },
+      {
+        "provinceId": "ulsan",
+        "areaHa": 2.4
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 0.4
       },
       {
         "provinceId": "seoul",
         "areaHa": 0
       },
       {
-        "provinceId": "incheon",
-        "areaHa": 0
-      },
-      {
         "provinceId": "sejong",
-        "areaHa": 0
-      },
-      {
-        "provinceId": "daejeon",
         "areaHa": 0
       },
       {
@@ -561,233 +561,233 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "perilla-seed": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0293",
     "tableName": "특용작물생산량",
     "itemName": "들깨:면적",
-    "totalHa": 38389.6,
+    "totalHa": 35170.4,
     "provinces": [
       {
         "provinceId": "gyeonggi",
-        "areaHa": 6670.5
+        "areaHa": 6486.7
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 6614.5
+        "areaHa": 6293.9
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 5424.5
+        "areaHa": 5101.9
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 4896.6
+        "areaHa": 4658.6
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 4490.7
+        "areaHa": 3998.9
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 3374.4
+        "areaHa": 2875.2
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 2652.7
+        "areaHa": 2348.3
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 2598.6
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 378.8
+        "areaHa": 2050.4
       },
       {
         "provinceId": "sejong",
-        "areaHa": 352.4
+        "areaHa": 292.4
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 248.9
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 284.8
-      },
-      {
-        "provinceId": "daegu",
-        "areaHa": 273.7
+        "areaHa": 234.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 241
+        "areaHa": 226.7
+      },
+      {
+        "provinceId": "daegu",
+        "areaHa": 221.7
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 98.3
+        "areaHa": 96.5
       },
       {
         "provinceId": "busan",
-        "areaHa": 26.1
+        "areaHa": 23.3
       },
       {
         "provinceId": "seoul",
-        "areaHa": 10.2
+        "areaHa": 11.7
       },
       {
         "provinceId": "jeju",
-        "areaHa": 1.7
+        "areaHa": 0.8
       }
     ]
   },
   "chili-pepper": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0291",
     "tableName": "채소생산량(조미채소)",
     "itemName": "고추:면적",
-    "totalHa": 30147.3,
+    "totalHa": 29371.8,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 7431
+        "areaHa": 7483.8
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 4608
+        "areaHa": 4318
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 3200.2
-      },
-      {
-        "provinceId": "jeonbuk",
-        "areaHa": 3130.2
+        "areaHa": 3146.6
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 3028.6
+        "areaHa": 3064.4
+      },
+      {
+        "provinceId": "jeonbuk",
+        "areaHa": 2878.2
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 2781.7
+        "areaHa": 2714.3
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 2506.1
+        "areaHa": 2429.6
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 2125.6
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 358.7
+        "areaHa": 1999.8
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 290.2
+        "areaHa": 339.5
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 322.6
       },
       {
         "provinceId": "daegu",
-        "areaHa": 190.6
+        "areaHa": 198.5
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 159.6
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 101.4
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 80.5
+        "areaHa": 159.2
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 78.4
+        "areaHa": 91.4
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 91.2
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 67.1
       },
       {
         "provinceId": "busan",
-        "areaHa": 64.1
+        "areaHa": 52.8
       },
       {
         "provinceId": "seoul",
-        "areaHa": 12.1
+        "areaHa": 14.8
       }
     ]
   },
   "green-onion": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0291",
     "tableName": "채소생산량(조미채소)",
     "itemName": "대파:면적",
-    "totalHa": 13516.8,
+    "totalHa": 14366.7,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "areaHa": 4393.1
+        "areaHa": 4530.7
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 1983.6
+        "areaHa": 2196.2
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 1569.6
+        "areaHa": 1948.3
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 1188.2
-      },
-      {
-        "provinceId": "gyeongbuk",
-        "areaHa": 1017.9
+        "areaHa": 1214.6
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 955.8
+        "areaHa": 1117.3
+      },
+      {
+        "provinceId": "gyeongbuk",
+        "areaHa": 1080.9
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 645.7
-      },
-      {
-        "provinceId": "busan",
-        "areaHa": 543.7
+        "areaHa": 571.3
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 467.7
+        "areaHa": 482.5
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 464.8
       },
       {
         "provinceId": "jeju",
-        "areaHa": 260.5
+        "areaHa": 305.3
       },
       {
         "provinceId": "daegu",
-        "areaHa": 247.3
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 77
+        "areaHa": 215.8
       },
       {
         "provinceId": "sejong",
-        "areaHa": 75.7
+        "areaHa": 119.7
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 44.2
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 41.8
+        "areaHa": 43
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 24.7
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 15.8
+        "areaHa": 15.3
       },
       {
         "provinceId": "seoul",
-        "areaHa": 8.9
+        "areaHa": 11.2
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 5.6
       }
     ]
   },
@@ -869,75 +869,75 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "ginger": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0291",
     "tableName": "채소생산량(조미채소)",
     "itemName": "생강:면적",
-    "totalHa": 2491,
+    "totalHa": 2301.8,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 975.5
+        "areaHa": 1032.8
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 716.8
+        "areaHa": 497.1
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 359.2
+        "areaHa": 381.1
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 139.1
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 112.6
+        "areaHa": 120.1
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 57.1
-      },
-      {
-        "provinceId": "gyeongnam",
-        "areaHa": 47.6
+        "areaHa": 106.3
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 47.2
+        "areaHa": 53.1
+      },
+      {
+        "provinceId": "gyeonggi",
+        "areaHa": 52
+      },
+      {
+        "provinceId": "gyeongnam",
+        "areaHa": 27
       },
       {
         "provinceId": "daegu",
-        "areaHa": 10.4
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 10.3
+        "areaHa": 13.3
       },
       {
         "provinceId": "sejong",
-        "areaHa": 5
+        "areaHa": 6.4
       },
       {
         "provinceId": "incheon",
-        "areaHa": 3.7
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 2.2
+        "areaHa": 5.7
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 2
+        "areaHa": 2.5
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 1.7
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 1
+        "areaHa": 1.3
       },
       {
         "provinceId": "busan",
-        "areaHa": 0.9
+        "areaHa": 0.6
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 0.4
       },
       {
         "provinceId": "seoul",
@@ -1023,371 +1023,371 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "napa-cabbage": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0028",
     "tableName": "채소생산량(엽채류)",
     "itemName": "배추:면적",
-    "totalHa": 28637.4,
+    "totalHa": 32622.3,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "areaHa": 7888.1
+        "areaHa": 10369
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 6555.3
+        "areaHa": 6693.2
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 4128.3
+        "areaHa": 4435.9
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 2581.8
+        "areaHa": 3099.6
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 2478.4
-      },
-      {
-        "provinceId": "jeonbuk",
-        "areaHa": 1735.3
+        "areaHa": 2635.4
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 1574.1
+        "areaHa": 1777.3
+      },
+      {
+        "provinceId": "jeonbuk",
+        "areaHa": 1727.2
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 625.4
+        "areaHa": 669.7
       },
       {
         "provinceId": "daegu",
-        "areaHa": 384.3
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 160.6
+        "areaHa": 523.2
       },
       {
         "provinceId": "jeju",
-        "areaHa": 140.8
+        "areaHa": 184.7
       },
       {
-        "provinceId": "incheon",
-        "areaHa": 121.9
+        "provinceId": "gwangju",
+        "areaHa": 129.5
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 100.5
+        "areaHa": 113
       },
       {
-        "provinceId": "busan",
-        "areaHa": 63
+        "provinceId": "incheon",
+        "areaHa": 95.4
       },
       {
         "provinceId": "sejong",
-        "areaHa": 47.7
+        "areaHa": 67.1
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 57.1
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 42.2
+        "areaHa": 36.9
       },
       {
         "provinceId": "seoul",
-        "areaHa": 9.6
+        "areaHa": 8.2
       }
     ]
   },
   "spinach": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0028",
     "tableName": "채소생산량(엽채류)",
     "itemName": "시금치:면적",
-    "totalHa": 4421.3,
+    "totalHa": 4852.6,
     "provinces": [
       {
         "provinceId": "gyeongnam",
-        "areaHa": 1625.4
+        "areaHa": 1862.6
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 1458.5
+        "areaHa": 1324.5
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 464
+        "areaHa": 646.8
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 292.1
+        "areaHa": 357.2
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 225.6
+        "areaHa": 251.7
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 110.1
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 61.4
+        "areaHa": 125.5
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 46.5
+        "areaHa": 91.9
       },
       {
-        "provinceId": "jeju",
-        "areaHa": 43.1
+        "provinceId": "incheon",
+        "areaHa": 37.5
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 21.7
+        "areaHa": 35.7
       },
       {
         "provinceId": "daegu",
-        "areaHa": 20.4
+        "areaHa": 33.7
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 27.8
       },
       {
         "provinceId": "busan",
-        "areaHa": 17.1
+        "areaHa": 24.9
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 13.7
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 10.8
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 6.4
+        "areaHa": 12.9
       },
       {
         "provinceId": "seoul",
-        "areaHa": 2.7
+        "areaHa": 7.3
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 6.2
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 3.1
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 1.8
+        "areaHa": 3.1
       }
     ]
   },
   "lettuce": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0028",
     "tableName": "채소생산량(엽채류)",
     "itemName": "상추:면적",
-    "totalHa": 4458.1,
+    "totalHa": 4164.7,
     "provinces": [
       {
         "provinceId": "jeonbuk",
-        "areaHa": 1471.7
+        "areaHa": 1158.9
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 1039.2
+        "areaHa": 1016.8
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 750.2
+        "areaHa": 767.5
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 245.2
+        "areaHa": 291
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 213.5
-      },
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 187
+        "areaHa": 237.7
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 172.9
+        "areaHa": 213.3
+      },
+      {
+        "provinceId": "jeonnam",
+        "areaHa": 139.8
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 129.5
+        "areaHa": 97
       },
       {
         "provinceId": "busan",
-        "areaHa": 109.7
+        "areaHa": 75.9
       },
       {
         "provinceId": "incheon",
-        "areaHa": 37.3
+        "areaHa": 51
       },
       {
         "provinceId": "daegu",
-        "areaHa": 31.8
+        "areaHa": 29.2
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 27.8
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 12.4
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 9.6
-      },
-      {
-        "provinceId": "seoul",
-        "areaHa": 8
+        "areaHa": 28.3
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 8
+        "areaHa": 20.7
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 19.1
+      },
+      {
+        "provinceId": "seoul",
+        "areaHa": 11.5
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 3.7
       },
       {
         "provinceId": "sejong",
-        "areaHa": 4.2
+        "areaHa": 3.1
       }
     ]
   },
   "radish": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0029",
     "tableName": "채소생산량(근채류)",
     "itemName": "무:면적",
-    "totalHa": 18497.3,
+    "totalHa": 20189,
     "provinces": [
       {
         "provinceId": "jeju",
-        "areaHa": 5475.8
+        "areaHa": 6315.9
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 3048.3
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 2231.7
+        "areaHa": 3377.8
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 1791.6
+        "areaHa": 2312.2
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 1606.6
+        "areaHa": 1842.5
       },
       {
-        "provinceId": "chungnam",
-        "areaHa": 1420.3
+        "provinceId": "gyeonggi",
+        "areaHa": 1741
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 1223.2
+        "areaHa": 1393.4
+      },
+      {
+        "provinceId": "chungnam",
+        "areaHa": 1379.9
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 619.9
+        "areaHa": 864
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 560.2
-      },
-      {
-        "provinceId": "daegu",
-        "areaHa": 159.5
+        "areaHa": 444.6
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 130.6
+        "areaHa": 165.4
+      },
+      {
+        "provinceId": "daegu",
+        "areaHa": 117.1
       },
       {
         "provinceId": "incheon",
-        "areaHa": 79.4
-      },
-      {
-        "provinceId": "ulsan",
-        "areaHa": 46.5
+        "areaHa": 60.3
       },
       {
         "provinceId": "busan",
-        "areaHa": 35.2
+        "areaHa": 48
       },
       {
-        "provinceId": "sejong",
-        "areaHa": 32.1
+        "provinceId": "ulsan",
+        "areaHa": 44.8
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 28.7
+        "areaHa": 40.3
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 37.3
       },
       {
         "provinceId": "seoul",
-        "areaHa": 7.5
+        "areaHa": 4.4
       }
     ]
   },
   "carrot": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0029",
     "tableName": "채소생산량(근채류)",
     "itemName": "당근:면적",
-    "totalHa": 3054.1,
+    "totalHa": 3903.8,
     "provinces": [
       {
         "provinceId": "jeju",
-        "areaHa": 1284.7
+        "areaHa": 2053.6
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 787.1
+        "areaHa": 889.4
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 467.3
+        "areaHa": 318.7
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 190.6
-      },
-      {
-        "provinceId": "chungbuk",
-        "areaHa": 74.6
-      },
-      {
-        "provinceId": "busan",
-        "areaHa": 73.4
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 55.8
-      },
-      {
-        "provinceId": "chungnam",
-        "areaHa": 43.3
+        "areaHa": 263.9
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 41.7
+        "areaHa": 86.5
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 86.3
+      },
+      {
+        "provinceId": "chungbuk",
+        "areaHa": 79.7
+      },
+      {
+        "provinceId": "gyeonggi",
+        "areaHa": 56.5
+      },
+      {
+        "provinceId": "chungnam",
+        "areaHa": 33.1
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 20.1
+        "areaHa": 25.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 7.3
+        "areaHa": 4.5
       },
       {
         "provinceId": "incheon",
-        "areaHa": 3.3
+        "areaHa": 1.9
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 2.2
+        "areaHa": 1.8
       },
       {
         "provinceId": "daegu",
@@ -1395,7 +1395,7 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "sejong",
-        "areaHa": 0.9
+        "areaHa": 0.7
       },
       {
         "provinceId": "seoul",
@@ -1403,76 +1403,76 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 0.1
+        "areaHa": 0.2
       }
     ]
   },
   "watermelon": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0027",
     "tableName": "채소생산량(과채류)",
     "itemName": "수박:면적",
-    "totalHa": 10673.5,
+    "totalHa": 10506.7,
     "provinces": [
       {
-        "provinceId": "chungnam",
-        "areaHa": 2277.3
+        "provinceId": "jeonbuk",
+        "areaHa": 2193.3
       },
       {
-        "provinceId": "jeonbuk",
-        "areaHa": 2165.4
+        "provinceId": "chungnam",
+        "areaHa": 2134.8
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 1892.6
+        "areaHa": 1938.7
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 1412.5
+        "areaHa": 1297.8
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 1143.3
+        "areaHa": 1288.5
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 481.8
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 330.5
+        "areaHa": 435.7
       },
       {
         "provinceId": "daegu",
-        "areaHa": 324.8
+        "areaHa": 322.1
+      },
+      {
+        "provinceId": "gyeonggi",
+        "areaHa": 297.8
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 311
+        "areaHa": 271.7
       },
       {
         "provinceId": "jeju",
-        "areaHa": 193.3
+        "areaHa": 198.9
       },
       {
         "provinceId": "sejong",
-        "areaHa": 65.5
+        "areaHa": 51.9
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 37.4
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 19.5
+        "areaHa": 40.2
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 10.5
+        "areaHa": 16
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 10.2
       },
       {
         "provinceId": "busan",
-        "areaHa": 5.1
+        "areaHa": 6.5
       },
       {
         "provinceId": "daejeon",
@@ -1480,32 +1480,32 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "seoul",
-        "areaHa": 0.5
+        "areaHa": 0.2
       }
     ]
   },
   "melon": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0027",
     "tableName": "채소생산량(과채류)",
     "itemName": "참외:면적",
-    "totalHa": 4503.7,
+    "totalHa": 4664.1,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 4118.3
+        "areaHa": 4293.8
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 141.1
+        "areaHa": 122.1
       },
       {
         "provinceId": "daegu",
-        "areaHa": 62.2
+        "areaHa": 67
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 46.2
+        "areaHa": 37.7
       },
       {
         "provinceId": "jeonbuk",
@@ -1513,47 +1513,47 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 25.2
+        "areaHa": 26.5
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 24.6
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 18.3
+        "areaHa": 25.1
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 16.5
+        "areaHa": 24
       },
       {
-        "provinceId": "chungbuk",
-        "areaHa": 8.1
+        "provinceId": "incheon",
+        "areaHa": 13.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 4.1
+        "areaHa": 7.8
+      },
+      {
+        "provinceId": "chungbuk",
+        "areaHa": 6
       },
       {
         "provinceId": "jeju",
-        "areaHa": 3.2
+        "areaHa": 3.9
       },
       {
         "provinceId": "busan",
-        "areaHa": 3.1
+        "areaHa": 3.2
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 1.9
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 1.1
+        "areaHa": 2.1
       },
       {
         "provinceId": "sejong",
-        "areaHa": 0.9
+        "areaHa": 1.5
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 0.7
       },
       {
         "provinceId": "seoul",
@@ -1562,67 +1562,67 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "strawberry": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0027",
     "tableName": "채소생산량(과채류)",
     "itemName": "딸기:면적",
-    "totalHa": 5612.1,
+    "totalHa": 5518.5,
     "provinces": [
       {
         "provinceId": "gyeongnam",
-        "areaHa": 2506.3
+        "areaHa": 2604.3
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 1019.7
+        "areaHa": 957.2
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 584.9
+        "areaHa": 539.4
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 504.1
+        "areaHa": 488.4
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 465
+        "areaHa": 454.2
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 189.6
+        "areaHa": 173.3
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 158.5
+        "areaHa": 123
       },
       {
         "provinceId": "jeju",
-        "areaHa": 49.3
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 40.2
+        "areaHa": 38.9
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 35.6
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 25.2
+        "areaHa": 38.1
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 14.1
+        "areaHa": 29.3
       },
       {
-        "provinceId": "ulsan",
-        "areaHa": 8.7
+        "provinceId": "sejong",
+        "areaHa": 24.1
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 21.4
       },
       {
         "provinceId": "daegu",
-        "areaHa": 5.6
+        "areaHa": 13.9
+      },
+      {
+        "provinceId": "ulsan",
+        "areaHa": 8.3
       },
       {
         "provinceId": "incheon",
@@ -1630,222 +1630,222 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "busan",
-        "areaHa": 0.8
+        "areaHa": 0.5
       },
       {
         "provinceId": "seoul",
-        "areaHa": 0.2
+        "areaHa": 0
       }
     ]
   },
   "cucumber": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0027",
     "tableName": "채소생산량(과채류)",
     "itemName": "오이:면적",
-    "totalHa": 4154.4,
+    "totalHa": 4648.4,
     "provinces": [
-      {
-        "provinceId": "gangwon",
-        "areaHa": 915.7
-      },
       {
         "provinceId": "chungnam",
-        "areaHa": 817.1
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 486.9
-      },
-      {
-        "provinceId": "gyeongbuk",
-        "areaHa": 474.4
-      },
-      {
-        "provinceId": "chungbuk",
-        "areaHa": 397.8
-      },
-      {
-        "provinceId": "jeonbuk",
-        "areaHa": 358.7
-      },
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 244.5
-      },
-      {
-        "provinceId": "gyeongnam",
-        "areaHa": 154.1
-      },
-      {
-        "provinceId": "daegu",
-        "areaHa": 73.6
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 60.9
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 54.1
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 36.6
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 36.1
-      },
-      {
-        "provinceId": "ulsan",
-        "areaHa": 14.8
-      },
-      {
-        "provinceId": "busan",
-        "areaHa": 12
-      },
-      {
-        "provinceId": "seoul",
-        "areaHa": 8.9
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 8.3
-      }
-    ]
-  },
-  "zucchini": {
-    "year": 2024,
-    "tblId": "DT_1ET0027",
-    "tableName": "채소생산량(과채류)",
-    "itemName": "호박:면적",
-    "totalHa": 10359.9,
-    "provinces": [
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 1817
-      },
-      {
-        "provinceId": "gyeongbuk",
-        "areaHa": 1328.8
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 1304.5
+        "areaHa": 1084.4
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 1234.4
+        "areaHa": 837.1
       },
       {
-        "provinceId": "gyeongnam",
-        "areaHa": 1179.2
-      },
-      {
-        "provinceId": "gyeonggi",
-        "areaHa": 1143.6
+        "provinceId": "gyeongbuk",
+        "areaHa": 594
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 769.1
+        "areaHa": 555.4
       },
       {
-        "provinceId": "chungnam",
-        "areaHa": 691
+        "provinceId": "gyeonggi",
+        "areaHa": 529.9
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 451.6
+        "areaHa": 303.6
+      },
+      {
+        "provinceId": "gyeongnam",
+        "areaHa": 230.7
+      },
+      {
+        "provinceId": "jeonnam",
+        "areaHa": 179.1
       },
       {
         "provinceId": "daegu",
-        "areaHa": 99.4
-      },
-      {
-        "provinceId": "ulsan",
-        "areaHa": 77.9
-      },
-      {
-        "provinceId": "gwangju",
-        "areaHa": 70.6
+        "areaHa": 107.1
       },
       {
         "provinceId": "sejong",
         "areaHa": 69
       },
       {
-        "provinceId": "incheon",
-        "areaHa": 43
-      },
-      {
-        "provinceId": "busan",
-        "areaHa": 42.6
+        "provinceId": "jeju",
+        "areaHa": 55.5
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 33.6
+        "areaHa": 33.9
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 27
+      },
+      {
+        "provinceId": "ulsan",
+        "areaHa": 15
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 11.2
       },
       {
         "provinceId": "seoul",
-        "areaHa": 4.7
+        "areaHa": 8.4
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 7.3
+      }
+    ]
+  },
+  "zucchini": {
+    "year": 2025,
+    "tblId": "DT_1ET0027",
+    "tableName": "채소생산량(과채류)",
+    "itemName": "호박:면적",
+    "totalHa": 10560.1,
+    "provinces": [
+      {
+        "provinceId": "jeonnam",
+        "areaHa": 1682.5
+      },
+      {
+        "provinceId": "jeju",
+        "areaHa": 1577.7
+      },
+      {
+        "provinceId": "gyeongbuk",
+        "areaHa": 1438.1
+      },
+      {
+        "provinceId": "gangwon",
+        "areaHa": 1327.2
+      },
+      {
+        "provinceId": "gyeonggi",
+        "areaHa": 1225.2
+      },
+      {
+        "provinceId": "gyeongnam",
+        "areaHa": 1215
+      },
+      {
+        "provinceId": "chungbuk",
+        "areaHa": 839.8
+      },
+      {
+        "provinceId": "chungnam",
+        "areaHa": 609.2
+      },
+      {
+        "provinceId": "jeonbuk",
+        "areaHa": 350.1
+      },
+      {
+        "provinceId": "ulsan",
+        "areaHa": 92.2
+      },
+      {
+        "provinceId": "daegu",
+        "areaHa": 51.8
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 31.3
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 31.1
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 30.3
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 29.3
+      },
+      {
+        "provinceId": "gwangju",
+        "areaHa": 24.8
+      },
+      {
+        "provinceId": "seoul",
+        "areaHa": 4.4
       }
     ]
   },
   "tomato": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0027",
     "tableName": "채소생산량(과채류)",
     "itemName": "토마토:면적",
-    "totalHa": 6085.9,
+    "totalHa": 6193.1,
     "provinces": [
       {
         "provinceId": "gangwon",
-        "areaHa": 1017.2
-      },
-      {
-        "provinceId": "chungnam",
-        "areaHa": 907.3
+        "areaHa": 1187.8
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 852.5
+        "areaHa": 921.4
       },
       {
-        "provinceId": "gyeongnam",
-        "areaHa": 596.1
-      },
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 537.3
+        "provinceId": "chungnam",
+        "areaHa": 855.8
       },
       {
         "provinceId": "busan",
-        "areaHa": 526
+        "areaHa": 612.4
       },
       {
-        "provinceId": "chungbuk",
-        "areaHa": 525
+        "provinceId": "jeonnam",
+        "areaHa": 559.9
+      },
+      {
+        "provinceId": "gyeongnam",
+        "areaHa": 481.5
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 446.2
+        "areaHa": 451.7
+      },
+      {
+        "provinceId": "chungbuk",
+        "areaHa": 400.3
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 356.6
+        "areaHa": 343
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 79.2
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 67.6
+        "areaHa": 131.8
       },
       {
         "provinceId": "daegu",
-        "areaHa": 64.9
+        "areaHa": 75.1
+      },
+      {
+        "provinceId": "incheon",
+        "areaHa": 72.6
       },
       {
         "provinceId": "sejong",
@@ -1853,19 +1853,19 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "jeju",
-        "areaHa": 31.9
+        "areaHa": 24
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 23.3
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 11.6
+        "areaHa": 23.1
       },
       {
         "provinceId": "seoul",
-        "areaHa": 10.8
+        "areaHa": 11.9
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 8.3
       }
     ]
   },
@@ -2024,152 +2024,152 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "peach": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "복숭아:면적",
-    "totalHa": 20294.1,
+    "totalHa": 20437.4,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 10251.8
+        "areaHa": 10204.6
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 4516.5
+        "areaHa": 4510.8
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 1136.9
-      },
-      {
-        "provinceId": "jeonnam",
-        "areaHa": 922.9
+        "areaHa": 1210.1
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 885.5
+        "areaHa": 976.7
+      },
+      {
+        "provinceId": "jeonnam",
+        "areaHa": 959.5
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 751.4
+        "areaHa": 776.5
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 566.5
+        "areaHa": 552.1
       },
       {
         "provinceId": "daegu",
-        "areaHa": 452.5
+        "areaHa": 438.8
       },
       {
         "provinceId": "sejong",
-        "areaHa": 446.7
+        "areaHa": 399.5
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 242.4
+        "areaHa": 263.6
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 46.9
+        "areaHa": 50.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 39.6
+        "areaHa": 42.3
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 17.7
+        "areaHa": 32.1
       },
       {
         "provinceId": "busan",
-        "areaHa": 11.8
+        "areaHa": 13.2
       },
       {
         "provinceId": "incheon",
-        "areaHa": 4.1
+        "areaHa": 5.2
       },
       {
         "provinceId": "jeju",
-        "areaHa": 0.7
+        "areaHa": 1.4
       },
       {
         "provinceId": "seoul",
-        "areaHa": 0.1
+        "areaHa": 0.5
       }
     ]
   },
   "grape": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "포도:면적",
-    "totalHa": 14648.7,
+    "totalHa": 14170.9,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 8206.4
+        "areaHa": 8110.2
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 1856.1
+        "areaHa": 1822
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 1406.8
+        "areaHa": 1319.8
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 950.4
+        "areaHa": 826
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 832.1
+        "areaHa": 776.9
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 418.1
+        "areaHa": 403.1
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 304.2
+        "areaHa": 256.9
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 226.8
+        "areaHa": 233.4
       },
       {
         "provinceId": "daegu",
-        "areaHa": 134.7
+        "areaHa": 128.1
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 97.7
+        "areaHa": 108.7
       },
       {
         "provinceId": "incheon",
-        "areaHa": 79.5
-      },
-      {
-        "provinceId": "jeju",
-        "areaHa": 58.7
+        "areaHa": 80.1
       },
       {
         "provinceId": "sejong",
-        "areaHa": 47
+        "areaHa": 42.8
       },
       {
-        "provinceId": "busan",
-        "areaHa": 16.4
+        "provinceId": "jeju",
+        "areaHa": 41
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 8.4
+        "areaHa": 10.5
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 5.4
+        "areaHa": 7.5
+      },
+      {
+        "provinceId": "busan",
+        "areaHa": 3.9
       },
       {
         "provinceId": "seoul",
@@ -2178,35 +2178,39 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "citrus": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "감귤:면적",
-    "totalHa": 21950.9,
+    "totalHa": 22009.5,
     "provinces": [
       {
         "provinceId": "jeju",
-        "areaHa": 21775.7
+        "areaHa": 21793.4
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 120.1
+        "areaHa": 157.7
       },
       {
         "provinceId": "jeonbuk",
         "areaHa": 17.3
       },
       {
+        "provinceId": "gyeongnam",
+        "areaHa": 14.4
+      },
+      {
         "provinceId": "gyeongbuk",
-        "areaHa": 13.9
+        "areaHa": 13.8
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 12.4
+        "areaHa": 12.2
       },
       {
-        "provinceId": "gyeongnam",
-        "areaHa": 11.5
+        "provinceId": "daegu",
+        "areaHa": 0.7
       },
       {
         "provinceId": "seoul",
@@ -2242,10 +2246,6 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
       },
       {
         "provinceId": "busan",
-        "areaHa": 0
-      },
-      {
-        "provinceId": "daegu",
         "areaHa": 0
       },
       {
@@ -2255,152 +2255,152 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "persimmon": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "감:면적",
-    "totalHa": 21961.8,
+    "totalHa": 21805.3,
     "provinces": [
       {
         "provinceId": "gyeongnam",
-        "areaHa": 8682.3
+        "areaHa": 8504.2
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 5159
+        "areaHa": 5168.7
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 4989.3
+        "areaHa": 4992
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 1040.4
+        "areaHa": 969.9
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 521.3
+        "areaHa": 522.3
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 411.5
+        "areaHa": 421
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 296.7
+        "areaHa": 339.6
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 270.8
+        "areaHa": 264.4
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 211
+        "areaHa": 220.7
       },
       {
         "provinceId": "daegu",
-        "areaHa": 177.5
+        "areaHa": 190.4
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 57.5
+        "areaHa": 62.1
       },
       {
         "provinceId": "daejeon",
-        "areaHa": 42.9
+        "areaHa": 38.3
       },
       {
         "provinceId": "busan",
-        "areaHa": 35.9
+        "areaHa": 37.5
       },
       {
         "provinceId": "incheon",
-        "areaHa": 26.4
+        "areaHa": 32.7
       },
       {
         "provinceId": "jeju",
-        "areaHa": 24.5
+        "areaHa": 23.5
       },
       {
         "provinceId": "sejong",
-        "areaHa": 12.7
+        "areaHa": 15.6
       },
       {
         "provinceId": "seoul",
-        "areaHa": 2
+        "areaHa": 2.5
       }
     ]
   },
   "plum": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "자두:면적",
-    "totalHa": 6220.5,
+    "totalHa": 6183.5,
     "provinces": [
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 4362.5
+        "areaHa": 4331.3
       },
       {
         "provinceId": "daegu",
-        "areaHa": 555.6
+        "areaHa": 568.9
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 461
+        "areaHa": 457.1
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 368.9
+        "areaHa": 359.9
       },
       {
         "provinceId": "gangwon",
-        "areaHa": 109.8
+        "areaHa": 106.2
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 89
+        "areaHa": 91.1
       },
       {
         "provinceId": "jeonnam",
-        "areaHa": 85.4
+        "areaHa": 77.5
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 75.4
+        "areaHa": 57.6
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 46.1
-      },
-      {
-        "provinceId": "sejong",
-        "areaHa": 25.4
+        "areaHa": 48.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 16.5
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 13.4
+        "areaHa": 29.2
       },
       {
         "provinceId": "busan",
-        "areaHa": 9.3
+        "areaHa": 24
+      },
+      {
+        "provinceId": "sejong",
+        "areaHa": 17.8
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 11.8
       },
       {
         "provinceId": "gwangju",
+        "areaHa": 0.9
+      },
+      {
+        "provinceId": "incheon",
         "areaHa": 0.8
       },
       {
         "provinceId": "jeju",
         "areaHa": 0.8
-      },
-      {
-        "provinceId": "incheon",
-        "areaHa": 0.6
       },
       {
         "provinceId": "seoul",
@@ -2409,79 +2409,79 @@ export const CROP_AREAS: Record<string, CropAreaStat> = {
     ]
   },
   "maesil": {
-    "year": 2024,
+    "year": 2025,
     "tblId": "DT_1ET0292",
     "tableName": "과실생산량(성과수+미과수)",
     "itemName": "매실:면적",
-    "totalHa": 5566.4,
+    "totalHa": 5231.5,
     "provinces": [
       {
         "provinceId": "jeonnam",
-        "areaHa": 2416.3
+        "areaHa": 2298.9
       },
       {
         "provinceId": "gyeongnam",
-        "areaHa": 1096.7
+        "areaHa": 1056
       },
       {
         "provinceId": "gyeonggi",
-        "areaHa": 409.2
+        "areaHa": 400.5
       },
       {
         "provinceId": "gyeongbuk",
-        "areaHa": 292
+        "areaHa": 257.4
       },
       {
         "provinceId": "jeonbuk",
-        "areaHa": 248.4
+        "areaHa": 236
       },
       {
         "provinceId": "chungnam",
-        "areaHa": 245.4
+        "areaHa": 228.7
       },
       {
         "provinceId": "chungbuk",
-        "areaHa": 163.8
-      },
-      {
-        "provinceId": "gangwon",
-        "areaHa": 115.5
+        "areaHa": 141.6
       },
       {
         "provinceId": "ulsan",
-        "areaHa": 113.1
+        "areaHa": 105.2
+      },
+      {
+        "provinceId": "gangwon",
+        "areaHa": 97.7
       },
       {
         "provinceId": "incheon",
-        "areaHa": 96.2
+        "areaHa": 85.3
       },
       {
         "provinceId": "gwangju",
-        "areaHa": 95.4
+        "areaHa": 82.3
       },
       {
         "provinceId": "busan",
-        "areaHa": 68.9
-      },
-      {
-        "provinceId": "daegu",
-        "areaHa": 68.4
-      },
-      {
-        "provinceId": "daejeon",
-        "areaHa": 62.1
+        "areaHa": 71.9
       },
       {
         "provinceId": "jeju",
-        "areaHa": 55.2
+        "areaHa": 57
+      },
+      {
+        "provinceId": "daegu",
+        "areaHa": 49.3
+      },
+      {
+        "provinceId": "daejeon",
+        "areaHa": 46.4
       },
       {
         "provinceId": "sejong",
-        "areaHa": 14.3
+        "areaHa": 13.2
       },
       {
         "provinceId": "seoul",
-        "areaHa": 5.5
+        "areaHa": 4.2
       }
     ]
   }

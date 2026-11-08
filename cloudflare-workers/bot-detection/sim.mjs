@@ -34,7 +34,8 @@ for (const c of cases) {
   const got = __test.decide(c.r);
   const ok = got === c.expect;
   console.log(`${ok ? "PASS" : "FAIL"} ${c.name} -> ${got} (expect ${c.expect})`);
-  ok ? pass++ : fail++;
+  if (ok) pass++;
+  else fail++;
 }
 console.log(`\n${pass}/${pass + fail} PASS`);
 process.exit(fail === 0 ? 0 : 1);

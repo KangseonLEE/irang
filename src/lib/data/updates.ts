@@ -53,6 +53,11 @@ export interface ReleaseNote {
 }
 
 export const RELEASES: Record<string, ReleaseNote> = {
+  "2026-11-08": {
+    tagline: "작물 재배면적, 2025년 통계로 바꿨어요 📊",
+    intro:
+      "작물을 고를 때 어디서 많이 짓는지가 궁금하죠. 새로 공표된 2025년 농작물생산조사로 25종의 재배면적과 주산지를 바꿨어요.",
+  },
   "2026-10-02": {
     tagline: "검색도, 내 길 고르기도 첫 화면에서 🔎",
     intro:
@@ -92,6 +97,23 @@ export const RELEASES: Record<string, ReleaseNote> = {
 export const RELEASE_SIGNOFF = "이랑 팀 드림";
 
 export const UPDATES: UpdateItem[] = [
+  {
+    id: "20261108-crop-area-2025",
+    date: "2026-11-08",
+    title: "작물 재배면적이 2025년 통계로 바뀌었고, 무엇이 달라졌는지 바로 보여요",
+    short: "작물 재배면적 2025년 통계",
+    summary:
+      "작물 25종의 시·도 재배면적을 국가데이터처 농작물생산조사 2025년 값으로 바꿨어요. 수박은 1위가 충남에서 전북으로, 오이는 강원에서 충남으로 바뀌었고, 주산지 순서가 달라진 작물은 11종이에요. 작물 상세의 '인기 재배지역'에서 무엇이 달라졌는지 한 줄로 보여 드리고, 작물 목록에서는 주산지가 바뀐 작물에 일주일 동안 표시가 붙어요.",
+    href: "/crops/watermelon",
+    tag: "데이터",
+    media: {
+      before: "/updates/crop-area-2025-before.webp",
+      after: "/updates/crop-area-2025-after.webp",
+      frame: "mobile",
+      caption:
+        "이전엔 2024년 재배면적만 보였어요. 지금은 '인기 재배지역' 맨 위에 수박 재배면적 1위가 전북으로 바뀌었다는 안내와 2024년 값이 함께 보여요",
+    },
+  },
   {
     id: "20261002-hero-search-types",
     date: "2026-10-02",

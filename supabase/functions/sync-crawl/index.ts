@@ -41,6 +41,16 @@ import { normalizeRegion, regionLabel } from "../_shared/region.ts";
 import {
   fetchGreendaeroEducation,
   fetchGreendaeroLive,
+  fetchGreendaeroSourceState,
+  planGreendaeroReconcile,
+  fetchGreendaeroLiveState,
+  planGreendaeroLiveReconcile,
+  reconcileCap,
+  RECONCILE_LOOKBACK_DAYS,
+  type GdDbRow,
+  type GdReconcileChange,
+  type GdLiveDbRow,
+  type GdLiveSourceRow,
 } from "../_shared/greendaero.ts";
 
 /** 타겟당 적재 상한 (Edge Function wall-clock 보호) */
@@ -77,8 +87,14 @@ interface CrawlResult {
   skipped: number;
   /** 항목 단위 분류로 실제 적재된 테이블별 건수 */
   byTable: Record<string, number>;
+  /** 이미 적재한 행을 원천 상태에 맞춰 고친 내역 (그린대로 교육 10/30 · 살아보기 10/31) */
+  reconciled?: GdReconcileChange[];
+  /** 원천 대조 요약 — 교육·살아보기 각각 '대상 N행 · 고침 M건'. Actions 로그에 Response 만 찍히므로 실행 여부를 여기서 본다(C5) */
+  reconcileLog?: string[];
   errors: string[];
 }
+
+// 원천 대조 한도는 greendaero.ts `reconcileCap` (10/27~30 실측: 접수 중 103행 중 하루 1~5행이 어긋났다)
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") {
@@ -184,6 +200,7 @@ Deno.serve(async (req: Request) => {
         new: r.newItems,
         skipped: r.skipped,
         byTable: r.byTable,
+        ...(r.reconciled ? { reconciled: r.reconciled } : {}),
       })),
       timestamp: new Date().toISOString(),
     },
@@ -241,6 +258,8 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
   let newItems = 0;
   let skipped = 0;
   let items: CrawledItem[] = [];
+  let reconciled: GdReconcileChange[] | undefined;
+  let reconcileLog: string[] | undefined;
 
   const deadline = Date.now() + CRAWL_DEADLINE_MS;
 
@@ -483,6 +502,14 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     console.log(
       `[sync-crawl] ${target.name} 완료: ${newItems}건 적재(${JSON.stringify(byTable)}), ${skipped}건 스킵, URL 체크 ${checks}회`
     );
+
+    // ── 5. 원천 상태 대조 (그린대로 교육 + 살아보기) ──
+    // 검증된 행은 위 upsert 에서 빠지므로, 원천이 마감일을 바꾸거나 일찍 닫은 것은 여기서만 따라간다.
+    // 살아보기도 같은 호출에서 본다 — greendaero-reconcile 워크플로가 이 타깃 하나만 부른다(10/31 #193).
+    if (target.id === "greendaero-education") {
+      reconcileLog = [];
+      reconciled = await reconcileGreendaero(supabase, today, errors, reconcileLog);
+    }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`${target.name}: ${msg}`);
@@ -496,6 +523,124 @@ async function crawlTarget(supabase: any, target: CrawlTarget, refresh = false):
     newItems,
     skipped,
     byTable,
+    ...(reconciled ? { reconciled } : {}),
+    ...(reconcileLog ? { reconcileLog } : {}),
     errors,
   };
+}
+
+/**
+ * 그린대로 수집 행을 원천 접수 상태에 맞춘다 — 교육(교육·행사 두 테이블)과 살아보기(행사)를 따로 읽고 따로 한도를 건다.
+ * 한쪽 원천을 못 읽어도 다른 쪽은 진행한다. 원천을 덜 읽었거나 고칠 행이 비정상으로 많으면 그쪽은 아무것도 쓰지 않고 오류로 남긴다(T17).
+ */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaero(supabase: any, today: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
+  // 대상 = 접수 중 행 + 최근 60일 안에 마감된 행(+ 교육은 broken 행) — 뒤 둘은 원천이 다시 열면 되돌린다(R1)
+  const since = kstToday(Date.now() - RECONCILE_LOOKBACK_DAYS * 86_400_000);
+  const yesterday = kstToday(Date.now() - 86_400_000);
+  const applied = await reconcileGreendaeroEducation(supabase, today, yesterday, since, errors, log);
+  applied.push(...(await reconcileGreendaeroLive(supabase, today, yesterday, since, errors, log)));
+  return applied;
+}
+
+/** 살아보기(farm_events `crawl-greendaero-live-*`) — 원천 목록 하나(state 포함)와 대조. 10/31 #193 내포긴들마을 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaeroLive(supabase: any, today: string, yesterday: string, since: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
+  const state = await fetchGreendaeroLiveState();
+  if (state.errors.length > 0) {
+    errors.push(...state.errors.map((m) => `살아보기 대조 건너뜀: ${m}`));
+    return [];
+  }
+  const res = await supabase
+    .from("farm_events")
+    .select("slug, application_start, application_end")
+    .like("slug", "crawl-greendaero-live-%")
+    .gte("application_end", since)
+    .limit(2000);
+  if (res.error) {
+    errors.push(`살아보기 대조 건너뜀: farm_events 조회 실패 — ${res.error.message}`);
+    return [];
+  }
+  const rows: GdLiveDbRow[] = res.data ?? [];
+  // 수집 때 slug = crawlSlug(타깃 id, 운영번호) — 같은 함수로 키를 맞춘다
+  const bySlug = new Map<string, GdLiveSourceRow>();
+  for (const [no, src] of state.byOperNo) bySlug.set(crawlSlug("greendaero-live", no), src);
+
+  const changes = planGreendaeroLiveReconcile(rows, bySlug, today, yesterday);
+  const cap = reconcileCap(rows.length);
+  if (changes.length > cap) {
+    errors.push(`살아보기 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
+    return [];
+  }
+  const applied = await applyReconcileChanges(supabase, changes, "살아보기 대조", errors);
+  const line = `살아보기 대조: 원천 ${state.byOperNo.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`;
+  console.log(`[sync-crawl] ${line}`);
+  log.push(line);
+  return applied;
+}
+
+/** 교육 과정 — 원천 두 탭(접수중 전부 + 마감 1쪽)과 대조 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function reconcileGreendaeroEducation(supabase: any, today: string, yesterday: string, since: string, errors: string[], log: string[]): Promise<GdReconcileChange[]> {
+  const state = await fetchGreendaeroSourceState();
+  if (state.errors.length > 0) {
+    errors.push(...state.errors.map((m) => `원천 대조 건너뜀: ${m}`));
+    return [];
+  }
+
+  const rows: GdDbRow[] = [];
+  const edu = await supabase
+    .from("education_courses")
+    .select("slug, url, application_start, application_end, link_status")
+    .like("slug", "crawl-greendaero-education-%")
+    .or(`application_end.gte.${since},link_status.eq.broken`)
+    .limit(2000);
+  const evt = await supabase
+    .from("farm_events")
+    .select("slug, url, application_start, application_end")
+    .like("slug", "crawl-greendaero-education-%")
+    .gte("application_end", since)
+    .limit(2000);
+  for (const [table, res] of [["education_courses", edu], ["farm_events", evt]] as const) {
+    if (res.error) {
+      errors.push(`원천 대조 건너뜀: ${table} 조회 실패 — ${res.error.message}`);
+      return [];
+    }
+    for (const r of res.data ?? []) rows.push({ table, ...r });
+  }
+
+  const changes = planGreendaeroReconcile(rows, state, today, yesterday);
+  const cap = reconcileCap(rows.length);
+  if (changes.length > cap) {
+    errors.push(`원천 대조 건너뜀: 고칠 행 ${changes.length}건 > 한도 ${cap}건(대상 ${rows.length}행) — 원천 이상 의심`);
+    return [];
+  }
+  const applied = await applyReconcileChanges(supabase, changes, "원천 대조", errors);
+  const line = `교육 대조: 접수중 ${state.open.size}·마감 ${state.closed.size}건 · 대상 ${rows.length}행 · 고침 ${applied.length}건`;
+  console.log(`[sync-crawl] ${line}`);
+  log.push(line);
+  return applied;
+}
+
+/** 대조 결과를 한 행씩 쓴다 — 한 행이 실패해도 나머지는 쓰고, 실패는 오류로 남긴다 */
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function applyReconcileChanges(supabase: any, changes: GdReconcileChange[], label: string, errors: string[]): Promise<GdReconcileChange[]> {
+  const applied: GdReconcileChange[] = [];
+  for (const c of changes) {
+    const { error } = await supabase
+      .from(c.table)
+      .update({ ...c.patch, updated_at: new Date().toISOString() })
+      .eq("slug", c.slug);
+    if (error) {
+      errors.push(`${label} ${c.table}:${c.slug} 쓰기 실패 — ${error.message}`);
+      continue;
+    }
+    applied.push(c);
+    console.log(`[sync-crawl] ${label} ${c.reason}: ${c.table}:${c.slug} ${c.from} → ${c.to}`);
+  }
+  return applied;
 }

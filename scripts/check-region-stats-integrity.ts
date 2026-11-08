@@ -389,7 +389,9 @@ async function buildExpected() {
       const parts = await Promise.all(codes.map((c) => hira(toHiraSidoCd(p.hiraSidoCd), c)));
       Object.assign(sigungu[`${p.id}/${sg.id}`], {
         medical: parts.reduce((a, b) => a + (Number.isFinite(b.total) ? b.total : 0), 0),
-        hiraNames: parts.map((x) => x.name),
+        // 구가 생긴 시의 시 단위 코드(화성 312500)는 기관이 구 코드로 다 옮겨 가면 0건이 되는 게 정상 종착(T18, 11/2 #197
+        // '화성시 → 결과 없음') — 코드가 여럿일 때 0건 코드엔 이름을 묻지 않는다. 전부 0건이면 medical 0 이 화면 대조에서 걸린다
+        hiraNames: parts.filter((x) => codes.length === 1 || x.total !== 0).map((x) => x.name),
       });
     },
   );
@@ -522,7 +524,9 @@ function readCards(html: string) {
   const s = html.replace(/<!-- -->/g, "");
   const out: Record<string, { value: string; sub: string }> = {};
   const re =
-    /__statLabel[^"]*">([^<]+)<\/span><span class="[^"]*__statValue[^"]*">([^<]*)<\/span><span class="[^"]*__statSub[^"]*">([\s\S]*?)<\/span>/g;
+    // CSS Modules 클래스 이름은 Next 버전에 따라 `모듈__statLabel___해시`(≤16.3) 또는 `해시_statLabel`(16.4+, 11/2 #197 286쪽 전부 '카드 없음')
+    // 이라 `_statLabel` 로만 잡는다. 형식이 또 바뀌면 사전 검사(통계 카드 N개)가 0 으로 떨어져 바로 보인다.
+    /_statLabel[^"]*">([^<]+)<\/span><span class="[^"]*_statValue[^"]*">([^<]*)<\/span><span class="[^"]*_statSub[^"]*">([\s\S]*?)<\/span>/g;
   for (const m of s.matchAll(re)) out[m[1].trim()] = { value: m[2].trim(), sub: m[3].replace(/<[^>]+>/g, "").trim() };
   return out;
 }
@@ -796,7 +800,10 @@ async function preflight() {
       async () => {
         const html = await fetchPage(p.id);
         if (!html) throw new Error(pageFailures.get(p.id) ?? "응답 없음");
-        return `/regions/${p.id} 통계 카드 ${Object.keys(readCards(html)).length}개`;
+        const n = Object.keys(readCards(html)).length;
+        // 0개 = 페이지가 아니라 검사기가 깨진 것(클래스 형식 변경 등) — 여기서 끊어야 286쪽 '카드 없음' 오경보가 안 난다 (11/2 #197)
+        if (n === 0) throw new Error(`/regions/${p.id} 통계 카드 0개 — 화면 형식이 바뀌었나 (readCards 정규식 확인)`);
+        return `/regions/${p.id} 통계 카드 ${n}개`;
       },
     ],
   };

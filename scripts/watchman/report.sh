@@ -74,7 +74,9 @@ fi
 ISSUE_ROWS=""
 while IFS='|' read -r g item reason; do
   [ -z "${item:-}" ] && continue
-  ISSUE_ROWS="${ISSUE_ROWS}| ${g} | ${item} | ${reason} |\n"
+  # 실제 줄바꿈으로 잇는다 — 예전 '\n' + echo -e 는 근거 안의 백슬래시(C:\new 등)를 이스케이프로 해석했다(10/30 2차 QA Y2)
+  reason="${reason//|/\\|}" # 근거 안의 '|' 가 표 칸을 가르지 않게
+  ISSUE_ROWS="${ISSUE_ROWS}| ${g} | ${item} | ${reason} |"$'\n'
 done < "$FINDINGS_FILE"
 
 if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
@@ -85,6 +87,29 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
   if [ "$OPEN_COUNT" != "0" ]; then
     echo "ℹ️  열린 watchman 이슈가 이미 ${OPEN_COUNT}건 있어요. 새 이슈를 만들지 않아요."
     echo "    (미해결 항목 정리 후 이슈를 닫으면 다음 실행에서 새로 보고해요)"
+    # 🔴 는 열린 이슈에 댓글로 알린다 — 10/29 §20 🔴(원천 마감인데 화면은 접수 중)가 10/28 🟡 이슈에 막혀
+    # 로그에만 남았다. 🟡·⚪ 는 이슈를 닫은 뒤 새 이슈로 충분하지만 🔴 는 하루도 묵히면 안 된다.
+    if [ "$CRIT" -gt 0 ]; then
+      OPEN_NUM=$(gh issue list --label "watchman" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+      COMMENT_FILE=$(mktemp)
+      {
+        echo "## 🔴 새 즉시 액션 — $(date -u '+%Y-%m-%d %H:%M UTC')"
+        echo ""
+        echo "이 이슈가 열려 있어 새 이슈 대신 댓글로 알려요."
+        echo ""
+        echo "| 등급 | 항목 | 근거 |"
+        echo "|------|------|------|"
+        # 근거($3 이후)에 '|' 가 더 있어도 잘리지 않게 3번째 칸부터 다시 잇는다. awk 가 바로 쓰므로
+        # 근거 안의 백슬래시가 이스케이프로 해석되지 않는다(예전 printf '%b' 는 \c 에서 출력이 끊겼다, Y2)
+        grep '^🔴' "$FINDINGS_FILE" | awk -F'|' '{ r=$3; for (i=4; i<=NF; i++) r=r "|" $i; gsub(/\|/, "\\|", r); printf "| 🔴 | %s | %s |\n", $2, r }'
+      } > "$COMMENT_FILE"
+      if [ -n "${OPEN_NUM:-}" ] && ERR=$(gh issue comment "$OPEN_NUM" --body-file "$COMMENT_FILE" 2>&1); then
+        echo "✅ 열린 이슈 #${OPEN_NUM} 에 🔴 ${CRIT}건을 댓글로 남겼어요."
+      else
+        echo "⚠️  🔴 댓글 실패: ${ERR:-열린 이슈 번호를 못 찾음} — 워크플로 실패 상태가 대체 알림이에요."
+      fi
+      rm -f "$COMMENT_FILE"
+    fi
   else
     TITLE_PREFIX="🛡️ watchman 감시 이상"
     [ "$CRIT" -gt 0 ] && TITLE_PREFIX="🛡️ watchman 감시 이상 🔴"
@@ -95,7 +120,7 @@ if [ "$CI_MODE" = true ] && command -v gh &> /dev/null; then
 
 | 등급 | 항목 | 근거 |
 |------|------|------|
-$(echo -e "$ISSUE_ROWS")
+$(printf '%s' "$ISSUE_ROWS")
 
 ### 이 이슈는 왜 자동으로 생겼나
 
