@@ -8,7 +8,7 @@
  * 배포일이 바뀌면 이 값을 그날로 고친다. 기간이 끝난 뒤 지워도 화면은 그대로다(지울 때 호출처도 함께).
  */
 export const CROP_AREA_UPDATE = {
-  releasedAt: "2026-11-18",
+  releasedAt: "2026-11-08",
   badgeDays: 7,
   noticeDays: 30,
 } as const;

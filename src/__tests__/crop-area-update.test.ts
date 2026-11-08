@@ -77,16 +77,16 @@ describe("재배면적 안내 문구", () => {
 });
 
 describe("표시 기간은 배포일부터", () => {
-  it("배포일이 설정값 그대로", () => expect(CROP_AREA_UPDATE.releasedAt).toBe("2026-11-18"));
+  it("배포일이 설정값 그대로", () => expect(CROP_AREA_UPDATE.releasedAt).toBe("2026-11-08"));
   it("안내 30일 — 전날 꺼짐, 첫날·29일째 켜짐, 30일째 꺼짐", () => {
-    expect(isCropUpdateNoticeOn("2026-11-17")).toBe(false);
-    expect(isCropUpdateNoticeOn("2026-11-18")).toBe(true);
-    expect(isCropUpdateNoticeOn("2026-12-17")).toBe(true);
-    expect(isCropUpdateNoticeOn("2026-12-18")).toBe(false);
+    expect(isCropUpdateNoticeOn("2026-11-07")).toBe(false);
+    expect(isCropUpdateNoticeOn("2026-11-08")).toBe(true);
+    expect(isCropUpdateNoticeOn("2026-12-07")).toBe(true);
+    expect(isCropUpdateNoticeOn("2026-12-08")).toBe(false);
   });
   it("배지 7일", () => {
-    expect(isCropUpdateBadgeOn("2026-11-17")).toBe(false);
-    expect(isCropUpdateBadgeOn("2026-11-24")).toBe(true);
-    expect(isCropUpdateBadgeOn("2026-11-25")).toBe(false);
+    expect(isCropUpdateBadgeOn("2026-11-07")).toBe(false);
+    expect(isCropUpdateBadgeOn("2026-11-14")).toBe(true);
+    expect(isCropUpdateBadgeOn("2026-11-15")).toBe(false);
   });
 });
