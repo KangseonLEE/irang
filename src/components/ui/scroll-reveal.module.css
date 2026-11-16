@@ -160,3 +160,16 @@
     transition: none;
   }
 }
+
+/* JS 가 꺼진 환경 — IntersectionObserver 가 돌지 않아 .visible 이 안 붙는다. 최종 상태로 둔다
+   (11/16 /about QA 2차: JS 끔에서 35개 블록이 투명으로 남음. 홈도 같은 구조라 함께 해소) */
+@media (scripting: none) {
+  .reveal,
+  .stagger [data-reveal-item],
+  .stagger [data-reveal-part],
+  .reveal [data-reveal-x] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

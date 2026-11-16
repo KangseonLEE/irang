@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { preload } from "react-dom";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
@@ -114,6 +115,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 로고 서체(IrangLogo) 미리 받기 — 아래 <style> @font-face 와 같은 경로
+  preload("/fonts/irang-logo-800.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     /* suppressHydrationWarning — iOS Chrome 이 <html> 에 `__gcrremoteframetoken` 을 주입해 하이드레이션 경고(dev "1 Issue")가 났다
        (10/2 회장 캡처). 이 요소 한 단계의 속성 불일치만 무시한다 — 자식 트리는 그대로 검사된다 */
@@ -161,31 +164,24 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
-        {/* 나눔명조 ExtraBold — 로고 워드마크 전용 (이랑 2글자만 서브셋, 2KB).
-            Google Fonts 의 같은 서브셋 파일(text=이랑)을 그대로 public/fonts 에 두고 직접 선언한다(2026-10-16).
-            fonts.googleapis.com 스타일시트는 렌더 차단이라, 모바일 Lighthouse 실측에서 첫 화면이 2.3초까지
-            그려지지 않았다(그 주소만 막으면 0.16초). 글꼴 파일이 같아 모양은 바뀌지 않는다. OFL 라이선스. */}
-        <link
-          rel="preload"
-          href="/fonts/nanum-myeongjo-800-irang.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        {/* 로고 워드마크 전용 서체 IrangLogo — 원본은 나눔명조 ExtraBold 의 "이랑" 서브셋(2KB, Google Fonts text=이랑).
+            fonts.googleapis.com 스타일시트는 렌더 차단이라 public/fonts 에 두고 직접 선언한다(2026-10-16, 모바일 첫 화면 2.3초 → 0.16초).
+            OFL 수정본이라 예약 이름(NanumMyeongjo)을 쓰지 않고 IrangLogo 로 개명(11/16, 글리프·cmap 그대로) — public/fonts/OFL-NOTICE.txt.
+            미리 받기는 RootLayout 첫 줄의 react-dom preload() 하나 — JSX <link rel="preload"> 는 React 가 head 에 한 번 더 올려 2개가 됐다(11/16). */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
               @font-face {
-                font-family: "Nanum Myeongjo";
+                font-family: "Irang Logo";
                 font-style: normal;
                 font-weight: 800;
                 font-display: swap;
-                src: url(/fonts/nanum-myeongjo-800-irang.woff2) format("woff2");
+                src: url(/fonts/irang-logo-800.woff2) format("woff2");
                 unicode-range: U+1105, U+110b, U+1161, U+1175, U+11bc, U+b77c, U+b791, U+b9ac, U+b9c1, U+c544, U+c559, U+c774, U+c789;
               }
               :root {
                 --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-                --font-logo: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif;
+                --font-logo: "Irang Logo", "Noto Serif KR", Georgia, serif;
               }
             `,
           }}

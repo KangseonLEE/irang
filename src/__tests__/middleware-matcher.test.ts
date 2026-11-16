@@ -59,7 +59,7 @@ describe("middleware matcher", () => {
       "/promo/a.webp",
       "/updates/a.webp",
       "/file.svg",
-      "/fonts/nanum-myeongjo-800-irang.woff2",
+      "/fonts/irang-logo-800.woff2",
     ]) {
       expect(runs(url), url).toBe(false);
     }
