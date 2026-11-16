@@ -6,24 +6,32 @@ import { ArrowRight, ArrowUpRight, Mail, FileText, UserSquare2 } from "lucide-re
 import { Icon as IconWrap } from "@/components/ui/icon";
 import { AutoGlossary } from "@/components/ui/auto-glossary";
 import { CountUp } from "@/components/ui/count-up";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { CROPS } from "@/lib/data/crops";
 import { interviews } from "@/lib/data/landing";
 import { PROVINCES } from "@/lib/data/regions";
 import { PROGRAMS } from "@/lib/data/programs";
 import { START_LANES } from "@/lib/data/journey-lanes";
+import { QUESTIONS } from "@/lib/data/match-questions";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { Organization } from "schema-dts";
-import { WordStage } from "./word-stage";
+import { preload } from "react-dom";
+import {
+  ABOUT_CTA_TITLE,
+  ABOUT_JOURNEY_TITLE,
+  ABOUT_QUOTE_LINES,
+} from "@/lib/data/about-display-copy";
 import s from "./page.module.css";
 
 /*
- * /about — 서비스 소개 (2026-10-01 회장 결재: efusioni maintenance 문법으로 재구성).
+ * /about — 서비스 소개 (2026-10-01 efusioni 문법 → 2026-11-16 회장 결재 B안 "홈 문법으로 맞추기").
  *
- * 흐름: ① 회색 띠에 걸친 큰 세리프 "이랑" → ② 인용 2줄 + 본문 → ③ 가는 세로선 →
- *       ④ 겹친 타원 3개(원칙) → ⑤ 풀폭 이미지·숫자 타일 → ⑥ 고정 문장 + 지나가는 일러스트 →
- *       ⑦ 이런 분께 · 핵심 영역 · 이용 흐름 · 이야기 · 데이터 출처 · 진단 · 운영 정보.
- * 스크롤 연출은 네이티브 스크롤 위의 sticky + IntersectionObserver 뿐(휠 가로채기 없음).
+ * 흐름: ① 수채화 띠(타이틀 "이랑" + 인용 2줄 + 본문 + 버튼) → ② 원칙 3(연초록 띠, 목록/카드) →
+ *       ③ 숫자 카드 → ④ 여정 카드 5(정적 사진 카드 → /start/<유형>, <768 가로 스냅 캐러셀) →
+ *       ⑤ 이런 분께 · 핵심 영역 · 데이터 출처 · 진단 · 운영 정보 (홈과 같은 칩 + 왼쪽 제목 머리).
+ * 등장 연출은 홈과 같은 ScrollReveal(fade + stagger). 첫 화면 띠(LCP)에는 걸지 않는다.
+ * 인용 제목·여정 제목·진단 제목만 IrangAboutDisplay(원본 마루부리 Bold, /about 전용 서브셋) — 문구는 lib/data/about-display-copy.
  */
 
 /**
@@ -140,7 +148,7 @@ const FEATURES = [
   },
 ];
 
-/** ④ 겹친 타원 — 실제로 지키고 있는 원칙만 (출처 표기 · 같은 기준 비교 · 정정 이력 공개) */
+/** ② 원칙 — 실제로 지키고 있는 원칙만 (출처 표기 · 같은 기준 비교 · 정정 이력 공개). 줄은 화면에서 공백으로 잇는다 */
 const PRINCIPLES = [
   {
     title: "공공기관 자료로",
@@ -156,57 +164,37 @@ const PRINCIPLES = [
   },
 ];
 
-/** ⑤ 타일 — 일러스트 7 + 숫자 5 (옛 CountersSection 수치를 그대로 흡수). 6열 × 2행 순서 */
-type Tile =
-  | { kind: "image"; src: string; alt: string; contain?: boolean }
-  | { kind: "number"; value: string; label: string; caption: string; tone: "green" | "deep" };
-
-const TILES: Tile[] = [
-  { kind: "image", src: "/landing/hero/hero-1.webp", alt: "새벽 안개가 깔린 계단식 논" },
-  {
-    kind: "number",
-    value: String(PROVINCES.length),
-    label: "개 시·도",
-    caption: "전국 광역시·도",
-    tone: "green",
-  },
-  {
-    kind: "number",
-    value: String(CROPS.length),
-    label: "종 작물",
-    caption: "재배·소득 정보",
-    tone: "deep",
-  },
-  {
-    kind: "number",
-    value: `${PROGRAMS_FLOOR}+`,
-    label: "건 지원사업",
-    caption: "마감된 공고 포함 정리",
-    tone: "green",
-  },
-  {
-    kind: "number",
-    value: String(interviews.length),
-    label: "명 이야기",
-    caption: "언론에 소개된 정착인",
-    tone: "deep",
-  },
-  {
-    kind: "number",
-    value: String(DATA_SOURCES.length),
-    label: "개 기관",
-    caption: "연동하는 공공기관",
-    tone: "green",
-  },
+/**
+ * ③ 숫자 카드 — 홈 히어로 '지금 열려 있어요' 숫자 칸 문법(라벨 위 → 큰 숫자 + 작은 단위)을 흰 바탕으로 옮긴 것 (11/16 회장).
+ * 옛 CountersSection 수치를 그대로 흡수. 숫자는 전부 데이터에서 센다.
+ */
+const STATS: { id: string; label: string; value: string; unit: string; caption: string }[] = [
+  { id: "provinces", label: "시·도", value: String(PROVINCES.length), unit: "개", caption: "전국 광역시·도" },
+  { id: "crops", label: "작물", value: String(CROPS.length), unit: "종", caption: "재배·소득 정보" },
+  { id: "programs", label: "지원사업", value: `${PROGRAMS_FLOOR}+`, unit: "건", caption: "마감된 공고 포함 정리" },
+  { id: "interviews", label: "이야기", value: String(interviews.length), unit: "명", caption: "언론에 소개된 정착인" },
+  { id: "sources", label: "공공기관", value: String(SOURCE_COUNT), unit: "곳", caption: "연동하는 공공기관" },
 ];
 
+/** 섹션 머리 칩 — 홈 문법(초록 칩 + 왼쪽 제목). 개수는 배열에서 센다 */
+const CHIPS = {
+  gallery: "숫자로 보기",
+  journey: `${START_LANES.length}가지 시작`,
+  personas: "유형별 시작",
+  features: `${FEATURES.length}가지 정보`,
+  sources: `공공기관 ${SOURCE_COUNT}곳`,
+  operator: "연락·정정",
+};
+
+/** 띠 배경 — 첫 화면 LCP 후보 */
+const BAND_IMAGE = "/landing/hero/hero-1.webp";
+
+/** 제목 서체 서브셋 — /about 에서만 미리 받는다(루트 레이아웃 아님). @font-face 는 page.module.css */
+const DISPLAY_FONT = "/fonts/irang-about-display-700.woff2";
+
 export default function AboutPage() {
-  const stageItems = START_LANES.map(({ id, label, image, alt }) => ({
-    id,
-    label,
-    image,
-    alt,
-  }));
+  preload(DISPLAY_FONT, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+
 
   return (
     <div className={s.page}>
@@ -244,24 +232,26 @@ export default function AboutPage() {
         }}
       />
 
-      {/* ═══ ① 타이틀 띠 — 회색 띠 하단 경계에 걸친 큰 세리프 ═══ */}
+      {/* ═══ ① 수채화 띠 — 타이틀 + 인용 + 본문 + 버튼 (11/16 B안: 홈 히어로 문법) ═══ */}
       <header className={s.titleBand}>
-        <h1 className={s.title}>
-          <span className={s.titleOverline}>서비스 소개</span>{" "}
-          <span className={s.titleWord}>이랑</span>
-        </h1>
-      </header>
-
-      {/* ═══ ② 인용 + 본문 → ③ 세로선 → ④ 겹친 타원 ═══ */}
-      <section className={s.intro} aria-labelledby="about-intro-title">
-        <div className={s.narrow}>
-          <span className={s.quoteMark} aria-hidden="true">
-            &ldquo;
-          </span>
+        <Image
+          src={BAND_IMAGE}
+          alt=""
+          fill
+          loading="eager"
+          fetchPriority="high"
+          sizes="100vw"
+          className={s.titleBg}
+        />
+        <div className={`${s.wrap} ${s.titleInner}`}>
+          <h1 className={s.title}>
+            <span className={s.titleOverline}>서비스 소개</span>{" "}
+            <span className={s.titleWord}>이랑</span>
+          </h1>
           <h2 id="about-intro-title" className={s.introTitle}>
-            출처가 분명한 숫자로
+            {ABOUT_QUOTE_LINES[0]}
             <br />
-            정착할 곳을 비교해요
+            {ABOUT_QUOTE_LINES[1]}
           </h2>
           <p className={s.introBody}>
             <AutoGlossary text={`지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 ${SOURCE_COUNT}곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요.`} />
@@ -277,230 +267,288 @@ export default function AboutPage() {
             </Link>
           </div>
         </div>
+      </header>
 
-        <span className={s.vline} aria-hidden="true" />
-
-        <ul className={s.ovals} aria-label="지키는 원칙">
-          {PRINCIPLES.map((p) => (
-            <li key={p.title} className={s.oval}>
-              <strong className={s.ovalTitle}>{p.title}</strong>
-              <span className={s.ovalDesc}>
-                {p.lines[0]}
-                <br />
-                {p.lines[1]}
+      {/* ═══ ② 원칙 — 연초록 띠. 모바일 목록, 768↑ 카드 3열 ═══ */}
+      <section className={s.principles} aria-labelledby="about-principles-title">
+        <h2 id="about-principles-title" className={s.srOnly}>
+          지키는 원칙
+        </h2>
+        <ol className={`${s.wrap} ${s.principleList}`}>
+          {PRINCIPLES.map((p, i) => (
+            <li key={p.title} className={s.principle}>
+              <span className={s.principleIndex} aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
               </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ═══ ⑤ 풀폭 타일 — 일러스트 + 숫자 ═══ */}
-      <section className={s.gallery} aria-labelledby="about-gallery-title">
-        <div className={s.sectionHead}>
-          <h2 id="about-gallery-title" className={s.sectionTitle}>
-            지금 둘러볼 정보
-          </h2>
-          <p className={s.sectionDesc}>
-            지역·작물·지원사업·사람 이야기를 한곳에 모았어요.
-          </p>
-        </div>
-        <ul className={s.tiles}>
-          {TILES.map((t, i) =>
-            t.kind === "image" ? (
-              <li
-                key={t.src}
-                className={`${s.tile} ${t.contain ? s.tileCrop : ""}`}
-              >
-                <Image
-                  src={t.src}
-                  alt={t.alt}
-                  fill
-                  sizes="(min-width: 1024px) 17vw, (min-width: 768px) 34vw, 50vw"
-                  className={t.contain ? s.tileImgContain : s.tileImg}
-                />
-              </li>
-            ) : (
-              <li
-                key={`n-${i}`}
-                className={`${s.tile} ${s.tileNumber} ${t.tone === "deep" ? s.tileDeep : s.tileGreen}`}
-              >
-                <CountUp value={t.value} className={s.tileValue} />
-                <span className={s.tileLabel}>{t.label}</span>
-                <span className={s.tileCaption}>{t.caption}</span>
-              </li>
-            ),
-          )}
-        </ul>
-        <p className={s.tilesNote}>
-          숫자는 {SOURCE_NAMES} 자료 기준이에요. 지원사업은 지금 신청할 수 없는 마감 공고까지 센 숫자예요.
-        </p>
-      </section>
-
-      {/* ═══ ⑥ 고정 문장 + 지나가는 일러스트 ═══ */}
-      <WordStage items={stageItems} />
-
-      {/* ═══ ⑦-1 이런 분께 ═══ */}
-      <section className={s.block} aria-labelledby="about-personas-title">
-        <div className={s.sectionHead}>
-          <h2 id="about-personas-title" className={s.sectionTitle}>
-            이런 분께
-          </h2>
-          <p className={s.sectionDesc}>
-            {PERSONA_CARDS.length}가지 유형 중 가까운 곳에서 시작해 보세요.
-          </p>
-        </div>
-        <ul className={s.personas}>
-          {PERSONA_CARDS.map((p) => (
-            <li key={p.id}>
-              <Link href={p.href} className={s.persona}>
-                <span className={s.personaArt}>
-                  <Image
-                    src={p.image}
-                    alt={p.alt}
-                    fill
-                    sizes="(min-width: 1024px) 200px, 96px"
-                    className={
-                      "contain" in p ? s.personaImgContain : s.personaImg
-                    }
-                  />
-                </span>
-                <span className={s.personaText}>
-                  <span className={s.personaLabel}>{p.label}</span>
-                  <span className={s.personaTagline}>{p.tagline}</span>
-                  <span className={s.personaCta}>
-                    {p.cta}
-                    <IconWrap icon={ArrowRight} size="sm" />
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ═══ ⑦-2 핵심 영역 ═══ */}
-      <section
-        className={`${s.block} ${s.blockGray}`}
-        aria-labelledby="about-features-title"
-      >
-        <div className={s.sectionHead}>
-          <h2 id="about-features-title" className={s.sectionTitle}>
-            핵심 영역
-          </h2>
-          <p className={s.sectionDesc}>
-            정착 결정에 필요한 {FEATURES.length}가지 정보를 한곳에서 비교하세요.
-          </p>
-        </div>
-        <ol className={s.features}>
-          {FEATURES.map((f, i) => (
-            <li key={f.title}>
-              <Link href={f.href} className={s.feature}>
-                <span className={s.featureIndex} aria-hidden="true">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className={s.featureTitle}>{f.title}</span>
-                <span className={s.featureDesc}>
-                  <AutoGlossary text={f.description} />
-                </span>
-                <span className={s.featureArrow} aria-hidden="true">
-                  <ArrowUpRight size={20} strokeWidth={1.5} />
-                </span>
-              </Link>
+              <strong className={s.principleTitle}>{p.title}</strong>
+              <span className={s.principleDesc}>{p.lines.join(" ")}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      {/* ═══ ⑦-5 데이터 출처 ═══ */}
-      <section className={s.block} aria-labelledby="about-data-title">
-        <div className={s.sectionHead}>
-          <h2 id="about-data-title" className={s.sectionTitle}>
-            출처가 분명한 데이터
-          </h2>
-          <p className={s.sectionDesc}>
-            지역·작물 숫자는 아래 {SOURCE_COUNT}개 공공기관 자료를 연동해요. 지원사업·교육·행사는 정부·지자체 원문 공고를 확인해 정리해요.
-          </p>
-        </div>
-        <ul className={s.sources}>
-          {DATA_SOURCES.map((src) => (
-            <li key={src.code} className={s.source}>
-              <span className={s.sourceCode}>{src.code}</span>
-              <span className={s.sourceName}>{src.name}</span>
-              <span className={s.sourceDesc}>
-                <AutoGlossary text={src.description} />
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/* ═══ ③ 숫자 카드 (흰 바탕 — 앞뒤 연초록 띠와 교차) ═══ */}
+      <ScrollReveal variant="fade" stagger>
+        <section className={s.gallery} aria-labelledby="about-gallery-title">
+          <SectionHead
+            id="about-gallery-title"
+            chip={CHIPS.gallery}
+            title="지금 둘러볼 정보"
+            desc="지역·작물·지원사업·사람 이야기를 한곳에 모았어요."
+          />
+          <div className={s.wrap}>
+            <ul className={s.stats}>
+              {STATS.map((st) => (
+                <li key={st.id} className={s.stat} data-reveal-item>
+                  <span className={s.statLabel}>{st.label}</span>
+                  <span className={s.statValue}>
+                    <CountUp value={st.value} className={s.statNumber} />
+                    <span className={s.statUnit}>{st.unit}</span>
+                  </span>
+                  <span className={s.statCaption}>{st.caption}</span>
+                </li>
+              ))}
+            </ul>
+            <p className={s.tilesNote}>
+              숫자는 {SOURCE_NAMES} 자료 기준이에요. 지원사업은 지금 신청할 수 없는 마감 공고까지 센 숫자예요.
+            </p>
+          </div>
+        </section>
+      </ScrollReveal>
 
-      {/* ═══ ⑦-6 진단 CTA ═══ */}
-      <section className={s.cta} aria-labelledby="about-cta-title">
-        <div className={s.narrow}>
-          <h2 id="about-cta-title" className={s.ctaTitle}>
-            어디서 시작할지 모르겠다면
-          </h2>
-          <p className={s.ctaDesc}>
-            <AutoGlossary text="간단한 질문 5개에 답하면, 내 상황과 선호에 맞는 농촌 정착 지역과 작물을 추천해 드려요." />
-          </p>
-          <Link href="/match" className={s.ctaButton}>
-            농촌 정착 유형 진단 시작하기
-            <IconWrap icon={ArrowRight} size="sm" />
-          </Link>
-        </div>
-      </section>
+      {/* ═══ ④ 여정 카드 — 사진 + 단어, 카드 전체가 그 유형 허브(/start/<id>)로 ═══ */}
+      <div className={s.bandGreen}>
+        <ScrollReveal variant="fade" stagger>
+          <section className={s.block} aria-labelledby="about-journey-title">
+            <SectionHead
+              id="about-journey-title"
+              chip={CHIPS.journey}
+              title={ABOUT_JOURNEY_TITLE}
+              titleClassName={s.journeyTitle}
+              desc={`${START_LANES.map((l) => l.label).join("·")}, 어떤 시작이든 같은 숫자로 비교해 보세요.`}
+              onGreen
+            />
+            <ul className={`${s.wrap} ${s.journeys}`} aria-label="정착 유형">
+              {START_LANES.map((lane, i) => (
+                <li key={lane.id} className={s.journeyItem} data-reveal-item>
+                  <Link href={lane.href} className={s.journey}>
+                    <span className={s.journeyArt}>
+                      <Image
+                        src={lane.image}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1280px) 220px, (min-width: 1024px) 18vw, (min-width: 768px) 31vw, 72vw"
+                        className={s.journeyImg}
+                      />
+                    </span>
+                    {/* B안(11/16): 사진 위 하단 스크림 + 번호 → 이름(제목 서체) → 한 줄 설명(journey-lanes desc 그대로) */}
+                    <span className={s.journeyBody}>
+                      <span className={s.journeyNum} aria-hidden="true">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className={s.journeyLabel}>{lane.label}</span>
+                      <span className={s.journeyDesc}>{lane.desc}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </ScrollReveal>
+      </div>
 
-      {/* ═══ ⑦-7 운영 정보 + 고지 ═══ */}
+      {/* ═══ ⑤-1 이런 분께 ═══ */}
+      <ScrollReveal variant="fade" stagger>
+        <section className={s.block} aria-labelledby="about-personas-title">
+          <SectionHead
+            id="about-personas-title"
+            chip={CHIPS.personas}
+            title="이런 분께"
+            desc={`${PERSONA_CARDS.length}가지 유형 중 가까운 곳에서 시작해 보세요.`}
+          />
+          <ul className={`${s.wrap} ${s.personas}`}>
+            {PERSONA_CARDS.map((p) => (
+              <li key={p.id} data-reveal-item>
+                <Link href={p.href} className={s.persona}>
+                  <span className={s.personaArt}>
+                    <Image
+                      src={p.image}
+                      alt={p.alt}
+                      fill
+                      sizes="(min-width: 1024px) 200px, 96px"
+                      className={
+                        "contain" in p ? s.personaImgContain : s.personaImg
+                      }
+                    />
+                  </span>
+                  <span className={s.personaText}>
+                    <span className={s.personaLabel}>{p.label}</span>
+                    <span className={s.personaTagline}>{p.tagline}</span>
+                    <span className={s.personaCta}>
+                      {p.cta}
+                      <IconWrap icon={ArrowRight} size="sm" />
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </ScrollReveal>
+
+      {/* ═══ ⑤-2 핵심 영역 ═══ */}
+      <div className={s.bandGreen}>
+        <ScrollReveal variant="fade" stagger>
+          <section className={s.block} aria-labelledby="about-features-title">
+            <SectionHead
+              id="about-features-title"
+              chip={CHIPS.features}
+              title="핵심 영역"
+              desc={`정착 결정에 필요한 ${FEATURES.length}가지 정보를 한곳에서 비교하세요.`}
+              onGreen
+            />
+            <ol className={`${s.wrap} ${s.features}`}>
+              {FEATURES.map((f, i) => (
+                <li key={f.title} className={s.featureItem} data-reveal-item>
+                  <Link href={f.href} className={s.feature}>
+                    <span className={s.featureIndex} aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className={s.featureTitle}>{f.title}</span>
+                    <span className={s.featureDesc}>
+                      <AutoGlossary text={f.description} />
+                    </span>
+                    <span className={s.featureArrow} aria-hidden="true">
+                      <ArrowUpRight size={20} strokeWidth={1.5} />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </ScrollReveal>
+      </div>
+
+      {/* ═══ ⑤-3 데이터 출처 ═══ */}
+      <ScrollReveal variant="fade" stagger>
+        <section className={s.block} aria-labelledby="about-data-title">
+          <SectionHead
+            id="about-data-title"
+            chip={CHIPS.sources}
+            title="출처가 분명한 데이터"
+            desc={`지역·작물 숫자는 아래 ${SOURCE_COUNT}개 공공기관 자료를 연동해요. 지원사업·교육·행사는 정부·지자체 원문 공고를 확인해 정리해요.`}
+          />
+          <ul className={`${s.wrap} ${s.sources}`}>
+            {DATA_SOURCES.map((src) => (
+              <li key={src.code} className={s.source} data-reveal-item>
+                <span className={s.sourceCode}>{src.code}</span>
+                <span className={s.sourceName}>{src.name}</span>
+                <span className={s.sourceDesc}>
+                  <AutoGlossary text={src.description} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </ScrollReveal>
+
+      {/* ═══ ⑤-4 진단 CTA ═══ */}
+      <ScrollReveal variant="fade" stagger>
+        <section className={s.cta} aria-labelledby="about-cta-title">
+          <div className={`${s.wrap} ${s.ctaInner}`}>
+            <h2 id="about-cta-title" className={s.ctaTitle} data-reveal-item>
+              {ABOUT_CTA_TITLE}
+            </h2>
+            <p className={s.ctaDesc} data-reveal-item>
+              {/* 버튼이 여는 '정착 유형 진단'(match-wizard)의 문항 수 — 예전 "5개" 하드코딩은 실제 10문항과 달랐다(11/16 QA) */}
+              <AutoGlossary text={`간단한 질문 ${QUESTIONS.length}개에 답하면, 내 상황과 선호에 맞는 농촌 정착 지역과 작물을 추천해 드려요.`} />
+            </p>
+            <Link href="/match?mode=match" className={s.ctaButton} data-reveal-item>
+              농촌 정착 유형 진단 시작하기
+              <IconWrap icon={ArrowRight} size="sm" />
+            </Link>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* ═══ ⑤-5 운영 정보 + 고지 ═══ */}
       <section className={s.block} aria-labelledby="about-operator-title">
-        <div className={s.sectionHead}>
-          <h2 id="about-operator-title" className={s.sectionTitle}>
-            운영 정보
-          </h2>
-          <p className={s.sectionDesc}>
-            이랑은 개인이 운영하는 비영리 농촌 정착 정보 큐레이션 서비스예요.
-            데이터 정정·삭제 요청, 출처 검증 결과는 모두 공개로 관리해요.
-          </p>
-        </div>
-        <ul className={s.operator}>
-          <li>
-            <a href="mailto:loyal3270@gmail.com" className={s.operatorItem}>
-              <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
-              <span className={s.operatorLabel}>이메일</span>
-              <span className={s.operatorValue}>loyal3270@gmail.com</span>
-            </a>
-          </li>
-          <li>
-            <Link href="/about/corrections" className={s.operatorItem}>
-              <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
-              <span className={s.operatorLabel}>정정 이력</span>
-              <span className={s.operatorValue}>최근 데이터 수정 내역 공개</span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/about/disclaimer" className={s.operatorItem}>
-              <UserSquare2 size={18} strokeWidth={1.75} aria-hidden="true" />
-              <span className={s.operatorLabel}>면책 고지·데이터 출처</span>
-              <span className={s.operatorValue}>데이터 출처 목록</span>
-            </Link>
-          </li>
-        </ul>
+        <SectionHead
+          id="about-operator-title"
+          chip={CHIPS.operator}
+          title="운영 정보"
+          desc="이랑은 개인이 운영하는 비영리 농촌 정착 정보 큐레이션 서비스예요. 데이터 정정·삭제 요청, 출처 검증 결과는 모두 공개로 관리해요."
+        />
+        <div className={s.wrap}>
+          <ul className={s.operator}>
+            <li className={s.operatorCell}>
+              <a href="mailto:loyal3270@gmail.com" className={s.operatorItem}>
+                <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
+                <span className={s.operatorLabel}>이메일</span>
+                <span className={s.operatorValue}>loyal3270@gmail.com</span>
+              </a>
+            </li>
+            <li className={s.operatorCell}>
+              <Link href="/about/corrections" className={s.operatorItem}>
+                <FileText size={18} strokeWidth={1.75} aria-hidden="true" />
+                <span className={s.operatorLabel}>정정 이력</span>
+                <span className={s.operatorValue}>최근 데이터 수정 내역 공개</span>
+              </Link>
+            </li>
+            <li className={s.operatorCell}>
+              <Link href="/about/disclaimer" className={s.operatorItem}>
+                <UserSquare2 size={18} strokeWidth={1.75} aria-hidden="true" />
+                <span className={s.operatorLabel}>면책 고지·데이터 출처</span>
+                <span className={s.operatorValue}>데이터 출처 목록</span>
+              </Link>
+            </li>
+          </ul>
 
-        <p className={s.disclaimer}>
-          본 서비스의 정보는 참고용이에요. 실제 지원사업 신청 시 해당 기관의
-          원문을 반드시 확인하세요.
-        </p>
-        <nav className={s.legalNav} aria-label="법적 고지">
-          <Link href="/about/disclaimer" className={s.legalNavLink}>
-            면책고지
-          </Link>
-          <Link href="/about/corrections" className={s.legalNavLink}>
-            정정 이력
-          </Link>
-          <Link href="/terms" className={s.legalNavLink}>
-            이용약관
-          </Link>
-        </nav>
+          <p className={s.disclaimer}>
+            본 서비스의 정보는 참고용이에요. 실제 지원사업 신청 시 해당 기관의
+            원문을 반드시 확인하세요.
+          </p>
+          <nav className={s.legalNav} aria-label="법적 고지">
+            <Link href="/about/disclaimer" className={s.legalNavLink}>
+              면책고지
+            </Link>
+            <Link href="/about/corrections" className={s.legalNavLink}>
+              정정 이력
+            </Link>
+            <Link href="/terms" className={s.legalNavLink}>
+              이용약관
+            </Link>
+          </nav>
+        </div>
       </section>
+    </div>
+  );
+}
+
+/** 섹션 머리 — 홈 문법: 초록 칩 → 왼쪽 제목 → 설명. onGreen 이면 연초록 띠 위 설명색(대비 4.5↑) */
+function SectionHead({
+  id,
+  chip,
+  title,
+  desc,
+  titleClassName = "",
+  onGreen = false,
+}: {
+  id: string;
+  chip: string;
+  title: string;
+  desc: string;
+  /** 제목만 다른 서체(--font-about-display)로 그릴 때 */
+  titleClassName?: string;
+  onGreen?: boolean;
+}) {
+  return (
+    <div className={`${s.wrap} ${s.sectionHead}`}>
+      <span className={s.chip}>{chip}</span>
+      <h2 id={id} className={`${s.sectionTitle} ${titleClassName}`}>
+        {title}
+      </h2>
+      <p className={`${s.sectionDesc} ${onGreen ? s.sectionDescOnGreen : ""}`}>{desc}</p>
     </div>
   );
 }
