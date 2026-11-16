@@ -107,6 +107,21 @@
   color: #fff;
 }
 
+.titleTagline {
+  margin: 16px 0 0;
+  max-width: 22em;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (min-width: 1024px) {
+  .titleTagline {
+    font-size: 20px;
+  }
+}
+
 .introTitle {
   margin: 28px 0 0;
   font-family: var(--font-about-display);

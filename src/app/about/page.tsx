@@ -248,6 +248,12 @@ export default function AboutPage() {
             <span className={s.titleOverline}>서비스 소개</span>{" "}
             <span className={s.titleWord}>이랑</span>
           </h1>
+          {/* 처음 온 사람이 '무슨 서비스인지' 를 제목보다 먼저 읽게 (11/16 회장) */}
+          <p className={s.titleTagline}>
+            귀농·귀촌을 준비하는 사람을 위한
+            <br />
+            농촌 정착 정보 서비스예요
+          </p>
           <h2 id="about-intro-title" className={s.introTitle}>
             {ABOUT_QUOTE_LINES[0]}
             <br />
