@@ -107,6 +107,33 @@
   color: #fff;
 }
 
+.titleTagline {
+  margin: 16px 0 0;
+  max-width: 22em;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (min-width: 1024px) {
+  .titleTagline {
+    max-width: none;
+    font-size: 20px;
+  }
+}
+
+/* 띠 안 두 줄 문구 — 모바일은 의미 단위로 두 줄, 1024↑ 는 넓은 폭을 써서 한 줄 (11/16 회장) */
+.bandLine {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .bandLine {
+    display: inline;
+  }
+}
+
 .introTitle {
   margin: 28px 0 0;
   font-family: var(--font-about-display);
@@ -115,19 +142,6 @@
   line-height: 1.35;
   letter-spacing: -0.02em;
   color: #fff;
-}
-
-.introBody {
-  margin: 16px 0 0;
-  max-width: 36em;
-  font-size: 16px;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-/* 용어 툴팁 밑줄(회색 점선)을 어두운 띠 위에서 보이게 */
-.introBody * {
-  border-bottom-color: rgba(255, 255, 255, 0.6);
 }
 
 .introCtas {
@@ -923,9 +937,8 @@
   outline-offset: 2px;
 }
 
-/* 띠·CTA 본문 안 용어 툴팁(.term) 등 — 기본 링(브랜드 그린)은 어두운 띠 위 1.5:1 이라 흰 링으로.
-   TermTooltip 의 .term:focus-visible(0,2,0) 과 청크 순서 승부를 피하려고 (0,3,0) 으로 (11/16 QA) */
-.titleBand .introBody :focus-visible,
+/* CTA 본문 안 용어 툴팁(.term) 등 — 기본 링(브랜드 그린)은 어두운 띠 위 1.5:1 이라 흰 링으로.
+   TermTooltip 의 .term:focus-visible(0,2,0) 과 청크 순서 승부를 피하려고 (0,2,0)+ 로 (11/16 QA) */
 .cta .ctaDesc :focus-visible {
   outline-color: #fff;
 }
