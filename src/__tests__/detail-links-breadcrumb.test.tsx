@@ -100,6 +100,5 @@ describe("/about — h1·기관 수", () => {
     expect(n).toBeGreaterThan(0);
     const text = doc.body.textContent ?? "";
     expect(text).toContain(`아래 ${n}개 공공기관 자료를 연동해요`);
-    expect(text).toContain(`공공기관 ${n}곳의 자료를`);
   });
 });

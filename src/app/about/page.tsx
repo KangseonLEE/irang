@@ -250,18 +250,13 @@ export default function AboutPage() {
           </h1>
           {/* 처음 온 사람이 '무슨 서비스인지' 를 제목보다 먼저 읽게 (11/16 회장) */}
           <p className={s.titleTagline}>
-            귀농·귀촌을 준비하는 사람을 위한
-            <br />
-            농촌 정착 정보 서비스예요
+            <span className={s.bandLine}>귀농·귀촌을 준비하는 사람을 위한</span>{" "}
+            <span className={s.bandLine}>농촌 정착 정보 서비스예요</span>
           </p>
           <h2 id="about-intro-title" className={s.introTitle}>
-            {ABOUT_QUOTE_LINES[0]}
-            <br />
-            {ABOUT_QUOTE_LINES[1]}
+            <span className={s.bandLine}>{ABOUT_QUOTE_LINES[0]}</span>{" "}
+            <span className={s.bandLine}>{ABOUT_QUOTE_LINES[1]}</span>
           </h2>
-          <p className={s.introBody}>
-            <AutoGlossary text={`지역·작물·지원사업·인터뷰·치유까지, 농촌 정착에 필요한 정보를 한곳에 모았어요. 기후·인구·의료·학교·소득처럼 흩어진 숫자는 공공기관 ${SOURCE_COUNT}곳의 자료를 같은 기준으로 맞춰, 후보지와 작물을 나란히 놓고 고를 수 있어요.`} />
-          </p>
           <div className={s.introCtas}>
             {/* /assess 는 이리로 넘기기만 하는 페이지 — 한 홉 줄인다 (10/6 QA Q2-X5) */}
             <Link href="/match?mode=assess" className={s.btnPrimary}>
