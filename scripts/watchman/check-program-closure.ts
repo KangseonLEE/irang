@@ -39,6 +39,7 @@ import { kstToday } from "../../src/lib/program-status";
 import { findClosureMarker, htmlToText } from "../../src/lib/programs/closure-markers";
 import { crawlSlug } from "../../supabase/functions/_shared/crawl-utils";
 import { toIsoDate } from "../../supabase/functions/_shared/greendaero";
+import { classifyReopen, isOpen, realEnd } from "./program-closure-rules";
 
 const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
@@ -65,6 +66,8 @@ interface Target {
   /** 우리 화면의 접수 마감일 (없으면 null = 마감일 없음) */
   end: string | null;
   origin: "DB" | "정적";
+  /** 원문 깨짐으로 화면에서 숨긴 행 (DB link_status) */
+  broken?: boolean;
 }
 
 interface Finding {
@@ -73,15 +76,6 @@ interface Finding {
   detail: string;
 }
 
-/** 화면에서 접수 중인가 — deriveStatus 와 같은 규칙(시작일 없음 + 마감일 있음 = 마감일까지 접수 중, 9999 페어 = 공고 전) */
-function isOpen(start: string | null | undefined, end: string | null | undefined, today: string): boolean {
-  const s = start && start !== "9999-12-31" ? start : null;
-  const e = end && end !== "9999-12-31" ? end : null;
-  if (!s) return e !== null && e >= today;
-  return s <= today && (e === null || e >= today);
-}
-
-const realEnd = (end: string | null | undefined) => (!end || end === "9999-12-31" ? null : end);
 
 /* ── 대상 모으기 ── */
 
@@ -117,7 +111,7 @@ async function loadDbTargets(
       const broken = !!s.linkCol && r[s.linkCol] === "broken";
       const open = isOpen(r.application_start, end, today);
       if (r.slug?.startsWith("crawl-greendaero-education-") && (broken || (!open && (r.application_end ?? "") >= since))) {
-        closedGd.push({ id: r.slug, title: r.title ?? "", kind: s.kind, url: r[s.urlCol] ?? "", start: realEnd(r.application_start), end: realEnd(end), origin: "DB" });
+        closedGd.push({ id: r.slug, title: r.title ?? "", kind: s.kind, url: r[s.urlCol] ?? "", start: realEnd(r.application_start), end: realEnd(end), origin: "DB", broken });
       }
       if (!open) continue;
       // 목록·상세가 숨기는 행(원문 깨짐)은 화면에 접수 중으로 안 보인다 — 화면과 같게 뺀다 (10/28)
@@ -287,8 +281,10 @@ async function main() {
       // 반대 방향: 우리는 마감·숨김인데 원천 접수중 탭에 있다 — 되돌림이 안 됐다
       for (const t of db.closedGd) {
         const src = found.get(t.id);
-        if (src?.open) {
-          findings.push({ grade: "🟡", item: "원천은 접수 중인데 화면은 마감·숨김", detail: `${t.id} ${src.name} — 우리 ${t.end ?? "숨김"} · 그린대로 ${src.start ?? "?"}~${src.end ?? "?"}` });
+        if (!src?.open) continue;
+        const item = classifyReopen({ start: t.start, end: t.end, broken: !!t.broken }, src, today);
+        if (item) {
+          findings.push({ grade: "🟡", item, detail: `${t.id} ${src.name} — 우리 ${t.broken ? "숨김" : `${t.start ?? "?"}~${t.end ?? "?"}`} · 그린대로 ${src.start ?? "?"}~${src.end ?? "?"}` });
         }
       }
       for (const t of gdEdu) {
