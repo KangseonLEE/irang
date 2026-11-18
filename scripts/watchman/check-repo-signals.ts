@@ -27,6 +27,7 @@
 
 import { execFileSync } from "node:child_process";
 import { changedLinesFromDiff, isOrthographyOnlyChange } from "./correction-diff";
+import { AUDIT_ACKS, ackedPackages, type AuditVuln } from "./audit-ack";
 import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -432,11 +433,13 @@ interface AuditSummary {
   critical: number;
   high: number;
   topPackages: string[];
+  /** 회장 보류(audit-ack.ts)로 세지 않은 high·critical 패키지 */
+  acked: string[];
 }
 
 interface AuditJson {
   metadata?: { vulnerabilities?: Record<string, number> };
-  vulnerabilities?: Record<string, { severity?: string; name?: string }>;
+  vulnerabilities?: Record<string, AuditVuln & { name?: string }>;
 }
 
 function runAudit(omitDev = false): AuditSummary {
@@ -455,7 +458,7 @@ function runAudit(omitDev = false): AuditSummary {
     raw = typeof e.stdout === "string" ? e.stdout : e.stdout?.toString("utf8") ?? "";
     if (!raw.trim()) {
       const message = err instanceof Error ? err.message : String(err);
-      return { ok: false, reason: `npm audit 실행 실패 (${message.split("\n")[0]})`, critical: 0, high: 0, topPackages: [] };
+      return { ok: false, reason: `npm audit 실행 실패 (${message.split("\n")[0]})`, critical: 0, high: 0, topPackages: [], acked: [] };
     }
   }
 
@@ -463,26 +466,34 @@ function runAudit(omitDev = false): AuditSummary {
   try {
     parsed = JSON.parse(raw) as AuditJson;
   } catch {
-    return { ok: false, reason: "npm audit JSON 파싱 실패 (네트워크·레지스트리 오류 의심)", critical: 0, high: 0, topPackages: [] };
+    return { ok: false, reason: "npm audit JSON 파싱 실패 (네트워크·레지스트리 오류 의심)", critical: 0, high: 0, topPackages: [], acked: [] };
   }
 
   const counts = parsed.metadata?.vulnerabilities;
   if (!counts) {
-    return { ok: false, reason: "npm audit 응답에 metadata.vulnerabilities 없음", critical: 0, high: 0, topPackages: [] };
+    return { ok: false, reason: "npm audit 응답에 metadata.vulnerabilities 없음", critical: 0, high: 0, topPackages: [], acked: [] };
   }
 
+  // 회장이 기한을 정해 보류한 공지만으로 걸린 패키지는 세지 않는다(audit-ack.ts, 기한 지나면 다시 센다)
+  const vulns = parsed.vulnerabilities ?? {};
+  const ackSet = ackedPackages(vulns, AUDIT_ACKS, kstToday());
+  const serious = Object.entries(vulns).filter(([, v]) => v.severity === "critical" || v.severity === "high");
+  const acked = serious.filter(([n]) => ackSet.has(n)).map(([n]) => n);
+  const ackedOf = (sev: string) => serious.filter(([n, v]) => ackSet.has(n) && v.severity === sev).length;
+
   // 과잉 구현 금지 — 카운트 + 상위 3개 패키지명까지만
-  const topPackages = Object.values(parsed.vulnerabilities ?? {})
-    .filter((v) => v.severity === "critical" || v.severity === "high")
-    .map((v) => v.name)
+  const topPackages = serious
+    .filter(([n]) => !ackSet.has(n))
+    .map(([, v]) => v.name)
     .filter((n): n is string => Boolean(n))
     .slice(0, 3);
 
   return {
     ok: true,
-    critical: counts.critical ?? 0,
-    high: counts.high ?? 0,
+    critical: Math.max(0, (counts.critical ?? 0) - ackedOf("critical")),
+    high: Math.max(0, (counts.high ?? 0) - ackedOf("high")),
     topPackages,
+    acked,
   };
 }
 
@@ -505,6 +516,11 @@ function checkDependencyAudit(): void {
 
   const pkgSuffix = audit.topPackages.length > 0 ? ` (상위: ${audit.topPackages.join("·")})` : "";
   console.log(`  운영 의존성 critical ${audit.critical}건 · high ${audit.high}건${pkgSuffix}`);
+  if (audit.acked.length > 0) {
+    const ack = AUDIT_ACKS.filter((a) => a.until >= kstToday()).map((a) => `${a.reason} (~${a.until})`).join(" / ");
+    console.log(`  회장 보류 ${audit.acked.length}건 제외: ${audit.acked.join("·")}`);
+    addFinding("⚪", "§6 의존성 보안(보류 중)", `high·critical ${audit.acked.length}건 제외 — ${ack}`);
+  }
   if (all.ok) {
     const devCritical = Math.max(0, all.critical - audit.critical);
     const devHigh = Math.max(0, all.high - audit.high);
